@@ -98,12 +98,16 @@ int main(int argc,char** argv)
 #ifdef G4UI_USE
     G4UIExecutive* ui = new G4UIExecutive(argc, argv, session);
 #ifdef G4VIS_USE
+    UImanager->ApplyCommand("/control/macroPath macros"); 
     UImanager->ApplyCommand("/control/execute init_vis.mac"); 
 #else
+    UImanager->ApplyCommand("/control/macroPath macros"); 
     UImanager->ApplyCommand("/control/execute init.mac"); 
 #endif
-    if (ui->IsGUI())
+    if (ui->IsGUI()){
+      UImanager->ApplyCommand("/control/macroPath macros"); 
       UImanager->ApplyCommand("/control/execute gui.mac");
+    }
     ui->SessionStart();
     delete ui;
 #endif
