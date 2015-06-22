@@ -134,7 +134,7 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   G4Material* scintillator = G4Material::GetMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
  
   
-  if ( ! defaultMaterial || ! absorberMaterial || ! gapMaterial || ! wallMaterial || !scintillator ) {
+  if ( ! defaultMaterial || ! absorberMaterial || ! gapMaterial || ! wallMaterial || ! scintillator ) {
     G4cerr << "Cannot retrieve materials already defined. " << G4endl;
     G4cerr << "Exiting application " << G4endl;
     exit(1);
@@ -167,7 +167,7 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   //                               
   // Calorimeter
   //  
-
+  
   /*G4VSolid* calorimeterS
     = new G4Box("Calorimeter",     // its name
                  calorSizeXY/2, calorSizeXY/2, calorThickness/2); // its size (calorSizeXY/2, calorSizeXY/2, calorThickness/2)
