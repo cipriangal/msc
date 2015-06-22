@@ -2,6 +2,7 @@
 
 #include "G4Material.hh"
 #include "G4NistManager.hh"
+#include "G4MaterialTable.hh"
 
 #include "G4Box.hh"
 #include "G4LogicalVolume.hh"
@@ -102,6 +103,9 @@ void mscDetectorConstruction::DefineMaterials()
   // Vacuum
   new G4Material("Galactic", z=1., a=1.01*g/mole,density= universe_mean_density,
                   kStateGas, 2.73*kelvin, 3.e-18*pascal);
+ 
+  //Scintillator Material
+  nistManager->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
 
   // Print materials
   G4cout << *(G4Material::GetMaterialTable()) << G4endl;
@@ -130,7 +134,7 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   G4Material* scintillator = G4Material::GetMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
  
   
-  if ( ! defaultMaterial || ! absorberMaterial || ! gapMaterial || ! wallMaterial ) {
+  if ( ! defaultMaterial || ! absorberMaterial || ! gapMaterial || ! wallMaterial || !scintillator ) {
     G4cerr << "Cannot retrieve materials already defined. " << G4endl;
     G4cerr << "Exiting application " << G4endl;
     exit(1);
@@ -255,7 +259,7 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   //
   //New Wall
   //
-  G4VSolid *WallS
+  G4VSolid* WallS
     = new G4Box("Wall",		   // its name
 		 calorSizeXY/2, calorSizeXY/2, 1*cm); // its size
 
@@ -279,20 +283,20 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   //Detectors
   //
  
-  G4VSolid* Detector1 
+  G4VSolid* Detector1Solid 
     = new G4Box("Detector1",  // its name
 	         calorSizeXY/2, calorSizeXY/2, 1*cm); // its size
 
-  G4LogicalVolume* detector1LV
+  G4LogicalVolume* detector1Logical
     = new G4LogicalVolume(
-                 Detector1,    // its solid
+                 Detector1Solid,    // its solid
                  scintillator, // its material
                  "Detector1");  // its name
 
   new G4PVPlacement(
                  0,                // no rotation
                  G4ThreeVector(0., 0., -10.*cm), // at (0,0,0)
-                 detector1LV,          // its logical volume                         
+                 detector1Logical,          // its logical volume                    
                  "Detector1",    // its name
                  worldLV,          // its mother  volume
                  false,            // no boolean operation
@@ -300,7 +304,7 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
                  fCheckOverlaps);  // checking overlaps 
 	 
  
-
+  /*
   G4VSolid* Detector2 
     = new G4Box("Detector2",  // its name
 	         calorSizeXY/2, calorSizeXY/2, 1*cm); // its size
@@ -321,7 +325,7 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
                  0,                // copy number
                  fCheckOverlaps);  // checking overlaps 
 	 
- 
+  */
 
   
   //
