@@ -2,6 +2,7 @@
 
 #include "G4Material.hh"
 #include "G4NistManager.hh"
+#include "G4MaterialTable.hh"
 
 #include "G4Box.hh"
 #include "G4LogicalVolume.hh"
@@ -72,6 +73,21 @@ G4VPhysicalVolume* mscDetectorConstruction::Construct()
 
 void mscDetectorConstruction::DefineMaterials()
 { 
+
+  // Lead material defined using specific parameters
+
+  G4Material* matPb = new G4Material("Lead", 82, 207.19*g/mole, 11.35*g/cm3);
+
+  // Antimony material defined using specific parameters
+
+  G4Material* matSb = new G4Material("Antimony", 51, 121.76*g/mole, 6.68*g/cm3);
+
+  // Wall Material
+  
+  G4Material* matCollimator = new G4Material("PBA", 11.005*g/cm3, 2);
+  matCollimator-> AddMaterial(matPb, 0.955);
+  matCollimator-> AddMaterial(matSb, 0.045);
+
   // Lead material defined using NIST Manager
   G4NistManager* nistManager = G4NistManager::Instance();
   G4bool fromIsotopes = false;
@@ -87,6 +103,9 @@ void mscDetectorConstruction::DefineMaterials()
   // Vacuum
   new G4Material("Galactic", z=1., a=1.01*g/mole,density= universe_mean_density,
                   kStateGas, 2.73*kelvin, 3.e-18*pascal);
+ 
+  //Scintillator Material
+  nistManager->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
 
   // Print materials
   G4cout << *(G4Material::GetMaterialTable()) << G4endl;
@@ -111,8 +130,11 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   G4Material* defaultMaterial = G4Material::GetMaterial("Galactic");
   G4Material* absorberMaterial = G4Material::GetMaterial("G4_Pb");
   G4Material* gapMaterial = G4Material::GetMaterial("liquidArgon");
+  G4Material* wallMaterial = G4Material::GetMaterial("PBA");
+  G4Material* scintillator = G4Material::GetMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
+ 
   
-  if ( ! defaultMaterial || ! absorberMaterial || ! gapMaterial ) {
+  if ( ! defaultMaterial || ! absorberMaterial || ! gapMaterial || ! wallMaterial || ! scintillator ) {
     G4cerr << "Cannot retrieve materials already defined. " << G4endl;
     G4cerr << "Exiting application " << G4endl;
     exit(1);
@@ -123,7 +145,7 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   //
   G4VSolid* worldS 
     = new G4Box("World",           // its name
-                 worldSizeXY/2, worldSizeXY/2, worldSizeZ/2); // its size
+                 worldSizeXY, worldSizeXY, worldSizeZ); // its size
                          
   G4LogicalVolume* worldLV
     = new G4LogicalVolume(
@@ -145,9 +167,10 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   //                               
   // Calorimeter
   //  
-  G4VSolid* calorimeterS
+  
+  /*G4VSolid* calorimeterS
     = new G4Box("Calorimeter",     // its name
-                 calorSizeXY/2, calorSizeXY/2, calorThickness/2); // its size
+                 calorSizeXY/2, calorSizeXY/2, calorThickness/2); // its size (calorSizeXY/2, calorSizeXY/2, calorThickness/2)
                          
   G4LogicalVolume* calorLV
     = new G4LogicalVolume(
@@ -164,6 +187,7 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
                  false,            // no boolean operation
                  0,                // copy number
                  fCheckOverlaps);  // checking overlaps 
+  
   
   //                                 
   // Layer
@@ -185,7 +209,7 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
                  kZAxis,           // axis of replication
                  nofLayers,        // number of replica
                  layerThickness);  // witdth of replica
-  
+
   //                               
   // Absorber
   //
@@ -230,7 +254,79 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
                  layerLV,          // its mother  volume
                  false,            // no boolean operation
                  0,                // copy number
+                 fCheckOverlaps);  // checking overlaps */
+
+  //
+  //New Wall
+  //
+  G4VSolid* WallS
+    = new G4Box("Wall",		   // its name
+		 calorSizeXY/2, calorSizeXY/2, 1*cm); // its size
+
+  G4LogicalVolume* wallLV
+    = new G4LogicalVolume(
+                 WallS,    // its solid
+                 wallMaterial, // its material
+                 "Wall");  // its name
+                                   
+  new G4PVPlacement(
+                 0,                // no rotation
+                 G4ThreeVector(0., 0., -12.*cm), // at (0,0,0)
+                 wallLV,          // its logical volume                         
+                 "Wall",    // its name
+                 worldLV,          // its mother  volume
+                 false,            // no boolean operation
+                 0,                // copy number
                  fCheckOverlaps);  // checking overlaps 
+
+  //
+  //Detectors
+  //
+ 
+  G4VSolid* Detector1Solid 
+    = new G4Box("Detector1",  // its name
+	         calorSizeXY/2, calorSizeXY/2, 1*cm); // its size
+
+  G4LogicalVolume* detector1Logical
+    = new G4LogicalVolume(
+                 Detector1Solid,    // its solid
+                 scintillator, // its material
+                 "Detector1");  // its name
+
+  new G4PVPlacement(
+                 0,                // no rotation
+                 G4ThreeVector(0., 0., -10.*cm), // at (0,0,0)
+                 detector1Logical,          // its logical volume                    
+                 "Detector1",    // its name
+                 worldLV,          // its mother  volume
+                 false,            // no boolean operation
+                 0,                // copy number
+                 fCheckOverlaps);  // checking overlaps 
+	 
+ 
+  /*
+  G4VSolid* Detector2 
+    = new G4Box("Detector2",  // its name
+	         calorSizeXY/2, calorSizeXY/2, 1*cm); // its size
+
+  G4LogicalVolume* detector2LV
+    = new G4LogicalVolume(
+                 Detector2,    // its solid
+                 scintillator, // its material
+                 "Detector2");  // its name
+
+  new G4PVPlacement(
+                 0,                // no rotation
+                 G4ThreeVector(0., 0., -7.*cm), // at (0,0,0)
+                 detector2LV,          // its logical volume                         
+                 "Detector2",    // its name
+                 worldLV,          // its mother  volume
+                 false,            // no boolean operation
+                 0,                // copy number
+                 fCheckOverlaps);  // checking overlaps 
+	 
+  */
+
   
   //
   // print parameters
@@ -261,8 +357,8 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   primitive ->SetFilter(charged);
   absDetector->RegisterPrimitive(primitive);  
 
-  G4SDManager::GetSDMpointer()->AddNewDetector(absDetector);
-  absorberLV->SetSensitiveDetector(absDetector);
+  //G4SDManager::GetSDMpointer()->AddNewDetector(absDetector);
+  //absorberLV->SetSensitiveDetector(absDetector);
   
   // declare Gap as a MultiFunctionalDetector scorer
   //  
@@ -276,23 +372,23 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   primitive ->SetFilter(charged);
   gapDetector->RegisterPrimitive(primitive);  
   
-  G4SDManager::GetSDMpointer()->AddNewDetector(gapDetector);
-  gapLV->SetSensitiveDetector(gapDetector);  
+  //G4SDManager::GetSDMpointer()->AddNewDetector(gapDetector);
+  //gapLV->SetSensitiveDetector(gapDetector);  
 
   //                                        
   // Visualization attributes
   //
   worldLV->SetVisAttributes (G4VisAttributes::Invisible);
 
-  G4VisAttributes* simpleBoxVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0));
-  simpleBoxVisAtt->SetVisibility(true);
-  calorLV->SetVisAttributes(simpleBoxVisAtt);
+  //G4VisAttributes* simpleBoxVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0));
+  //simpleBoxVisAtt->SetVisibility(true);
+  //calorLV->SetVisAttributes(simpleBoxVisAtt);
 
   //
   // Always return the physical World
   //
   return worldPV;
-}
+  } 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -317,4 +413,9 @@ void mscDetectorConstruction::SetMagField(G4double fieldValue)
     fMagField = 0;
     fieldManager->SetDetectorField(fMagField);
   }
+
+ 
+
 }
+
+
