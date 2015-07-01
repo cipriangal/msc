@@ -68,6 +68,7 @@ G4double mscEventAction::GetSum(G4THitsMap<G4double>* hitsMap) const
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+/*
 void mscEventAction::PrintEventStatistics(
                             G4double absoEdep, G4double absoTrackLength,
                             G4double gapEdep, G4double gapTrackLength) const
@@ -86,7 +87,7 @@ void mscEventAction::PrintEventStatistics(
      << std::setw(7) << G4BestUnit(gapTrackLength, "Length")
      << G4endl;
 }
-
+*/
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void mscEventAction::BeginOfEventAction(const G4Event* event)
@@ -101,11 +102,24 @@ void mscEventAction::BeginOfEventAction(const G4Event* event)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+
 void mscEventAction::EndOfEventAction(const G4Event* event)
 {  
+
+  G4double position
+    = GetSum(GetHitsCollection("Position", event));
+ 
+  analysisManager->FillH2(XYPosition, localPos.x(), localPos.y());
+ 
+  G4double momentum
+    = GetSum(GetHitsCollection("Momentum", event));  
+
+  analysisManager->FillH1(Momentum, Detector1);
+
+
   // Get sum value from hits collections
   //
-  G4double absoEdep 
+/*G4double absoEdep 
     = GetSum(GetHitsCollection("Absorber/Edep", event));
 
   G4double gapEdep 
@@ -123,9 +137,6 @@ void mscEventAction::EndOfEventAction(const G4Event* event)
   // fill histograms
   //  
   analysisManager->FillH1(1, absoEdep);
-  analysisManager->FillH1(2, gapEdep);
-  analysisManager->FillH1(3, absoTrackLength);
-  analysisManager->FillH1(4, gapTrackLength);
   
   // fill ntuple
   //
@@ -142,7 +153,7 @@ void mscEventAction::EndOfEventAction(const G4Event* event)
     G4cout << "---> End of event: " << eventID << G4endl;     
 
     PrintEventStatistics(absoEdep, absoTrackLength, gapEdep, gapTrackLength);
-  }
+    }*/ 
 }  
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
