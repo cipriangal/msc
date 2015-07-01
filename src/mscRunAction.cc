@@ -39,30 +39,41 @@ void mscRunAction::BeginOfRunAction(const G4Run* run)
          << " analysis manager" << G4endl;
 
   // Create directories 
-  //analysisManager->SetHistoDirectoryName("histograms");
-  //analysisManager->SetNtupleDirectoryName("ntuple");
+  analysisManager->SetHistoDirectoryName("histograms");
+  analysisManager->SetNtupleDirectoryName("ntuple");
   
   // Open an output file
   //
-  G4String fileName = "msc";
+  G4String fileName = "MSC_Output1";
   analysisManager->OpenFile(fileName);
   analysisManager->SetFirstHistoId(1);
 
+  //analysisManager->SetVerboseLevel(1);
+  //analysisManager->SetFileName("MSC_Output");
+
   // Creating histograms
   //
-  analysisManager->CreateH1("1","Edep in absorber", 100, 0., 800*MeV);
-  analysisManager->CreateH1("2","Edep in gap", 100, 0., 100*MeV);
-  analysisManager->CreateH1("3","trackL in absorber", 100, 0., 1*m);
-  analysisManager->CreateH1("4","trackL in gap", 100, 0., 50*cm);
- 
+  //analysisManager->CreateH1("1","Edep in absorber", 100, 0., 800*MeV);
+  //analysisManager->CreateH1("2","Edep in gap", 100, 0., 100*MeV);
+  //analysisManager->CreateH1("3","trackL in absorber", 100, 0., 1*m);
+  //analysisManager->CreateH1("4","trackL in gap", 100, 0., 50*cm);
+  //analysisManager->CreateH1("5","Energy", 100, 0., 500*MeV);
+
+  analysisManager->CreateH1("Momentum", "Particle Momentum", 50, -100, 100);
+  analysisManager->CreateH2("XYPosition","Particle Position",50, -1000., 1000, 50, -300., 300)
+
   // Creating ntuple
   //
-  analysisManager->CreateNtuple("msc", "Edep and TrackL");
-  analysisManager->CreateNtupleDColumn("Eabs");
-  analysisManager->CreateNtupleDColumn("Egap");
-  analysisManager->CreateNtupleDColumn("Labs");
-  analysisManager->CreateNtupleDColumn("Lgap");
-  analysisManager->FinishNtuple();
+  //analysisManager->CreateNtuple("MSC_Output", "Edep and TrackL");
+  //analysisManager->CreateNtupleDColumn("Eabs");
+  //analysisManager->CreateNtupleDColumn("Egap");
+  //analysisManager->CreateNtupleDColumn("Labs");
+  //analysisManager->CreateNtupleDColumn("Lgap");
+  //analysisManager->FinishNtuple();
+
+
+delete G4AnalysisManager::Instance();
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -74,7 +85,7 @@ void mscRunAction::EndOfRunAction(const G4Run* aRun)
   
   // print histogram statistics
   //
-  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+  /*  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
   if ( analysisManager->GetH1(1) ) {
     G4cout << "\n ----> print histograms statistic \n" << G4endl;
     
@@ -94,16 +105,16 @@ void mscRunAction::EndOfRunAction(const G4Run* aRun)
        << " LGap : mean = " << G4BestUnit(analysisManager->GetH1(4)->mean(), "Length") 
                << " rms = " << G4BestUnit(analysisManager->GetH1(4)->rms(),  "Length") 
                << G4endl;
-  }
+     } */
   
   // save histograms 
   //
-  analysisManager->Write();
-  analysisManager->CloseFile();
+  //analysisManager->Write();
+  //analysisManager->CloseFile();
   
   // complete cleanup
   //
-  delete G4AnalysisManager::Instance();  
+  //delete G4AnalysisManager::Instance();  
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
