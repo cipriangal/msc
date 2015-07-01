@@ -4,6 +4,7 @@
 #include "mscEventAction.hh"
 
 #include "G4RunManager.hh"
+#include "G4ScoringManager.hh"
 #include "G4UImanager.hh"
 #include "FTFP_BERT.hh"
 
@@ -55,6 +56,10 @@ int main(int argc,char** argv)
   // Construct the default run manager
   //
   G4RunManager * runManager = new G4RunManager;
+
+  // Activate command-based scorer
+  G4ScoringManager* scoringManager = G4ScoringManager::GetScoringManager(); 
+  scoringManager->SetVerboseLevel(1);
 
   // Set mandatory initialization classes
   //
