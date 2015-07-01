@@ -1,9 +1,6 @@
 #include "mscEventAction.hh"
-#include "mscAnalysis.hh"
 
-#include "G4RunManager.hh"
 #include "G4Event.hh"
-#include "G4SDManager.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4GenericMessenger.hh"
 #include "G4UnitsTable.hh"
@@ -13,11 +10,12 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-mscEventAction::mscEventAction()
+mscEventAction::mscEventAction(G4int *evN)
  : G4UserEventAction(),
    fMessenger(0),
    fPrintModulo(1)
 {
+  evNr=evN;
   // Define /msc/event commands using generic messenger class
   fMessenger = new G4GenericMessenger(this, "/msc/event/", "Event control");
 
@@ -38,6 +36,7 @@ mscEventAction::~mscEventAction()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+<<<<<<< HEAD
 G4THitsMap<G4double>* 
 mscEventAction::GetHitsCollection(const G4String& hcName,
                                   const G4Event* event) const
@@ -90,13 +89,15 @@ void mscEventAction::PrintEventStatistics(
 */
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+=======
+>>>>>>> 55555208103a7c2588f7c01ac5fb724336932c56
 void mscEventAction::BeginOfEventAction(const G4Event* event)
 {  
-
   G4int eventID = event->GetEventID();
+  *evNr = eventID;
+  
   if ( eventID % fPrintModulo == 0 )  { 
     G4cout << "\n---> Begin of event: " << eventID << G4endl;
-    //CLHEP::HepRandom::showEngineStatus();
   }
 }
 
@@ -105,6 +106,7 @@ void mscEventAction::BeginOfEventAction(const G4Event* event)
 
 void mscEventAction::EndOfEventAction(const G4Event* event)
 {  
+<<<<<<< HEAD
 
   G4double position
     = GetSum(GetHitsCollection("Position", event));
@@ -154,6 +156,13 @@ void mscEventAction::EndOfEventAction(const G4Event* event)
 
     PrintEventStatistics(absoEdep, absoTrackLength, gapEdep, gapTrackLength);
     }*/ 
+=======
+
+  G4int eventID = event->GetEventID();
+  if ( eventID % fPrintModulo == 0) {
+    G4cout << "---> End of event: " << eventID << G4endl;     
+  }
+>>>>>>> 55555208103a7c2588f7c01ac5fb724336932c56
 }  
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -30,6 +30,9 @@
 ## Output
 *.root
 output
+*~
+*.rndm
+*.macro
 
 ## Build
 *build*

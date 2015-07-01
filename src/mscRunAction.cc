@@ -1,5 +1,4 @@
 #include "mscRunAction.hh"
-#include "mscAnalysis.hh"
 
 #include "G4Run.hh"
 #include "G4RunManager.hh"
@@ -26,8 +25,9 @@ void mscRunAction::BeginOfRunAction(const G4Run* run)
   G4cout << "### Run " << run->GetRunID() << " start." << G4endl;
 
   //inform the runManager to save random number seed
-  //G4RunManager::GetRunManager()->SetRandomNumberStore(true);
+  G4RunManager::GetRunManager()->SetRandomNumberStore(true);
   
+<<<<<<< HEAD
   // Book histograms, ntuple
   //
   
@@ -74,12 +74,15 @@ void mscRunAction::BeginOfRunAction(const G4Run* run)
 
 delete G4AnalysisManager::Instance();
 
+=======
+>>>>>>> 55555208103a7c2588f7c01ac5fb724336932c56
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void mscRunAction::EndOfRunAction(const G4Run* aRun)
+void mscRunAction::EndOfRunAction(const G4Run* run)
 {
+<<<<<<< HEAD
   G4int nofEvents = aRun->GetNumberOfEvent();
   if ( nofEvents == 0 ) return;
   
@@ -115,6 +118,9 @@ void mscRunAction::EndOfRunAction(const G4Run* aRun)
   // complete cleanup
   //
   //delete G4AnalysisManager::Instance();  
+=======
+  G4cout << "### Run " << run->GetRunID() << " stop." << G4endl;
+>>>>>>> 55555208103a7c2588f7c01ac5fb724336932c56
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
