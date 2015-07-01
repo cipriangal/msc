@@ -105,7 +105,10 @@ void mscDetectorConstruction::DefineMaterials()
                   kStateGas, 2.73*kelvin, 3.e-18*pascal);
  
   //Scintillator Material
-  nistManager->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
+  G4Material* Ar = nistManager->FindOrBuildMaterial("G4_Ar");
+  //Ar = matman->FindOrBuildMaterial("G4_Ar");
+  G4Material* matman = new G4Material("Kryptonite", 0.00000001*mg/cm3, 1);
+  matman->AddMaterial(Ar, 1);
 
   // Print materials
   G4cout << *(G4Material::GetMaterialTable()) << G4endl;
@@ -131,7 +134,7 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   G4Material* absorberMaterial = G4Material::GetMaterial("G4_Pb");
   G4Material* gapMaterial = G4Material::GetMaterial("liquidArgon");
   G4Material* wallMaterial = G4Material::GetMaterial("PBA");
-  G4Material* scintillator = G4Material::GetMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
+  G4Material* scintillator = G4Material::GetMaterial("Kryptonite");
  
   
   if ( ! defaultMaterial || ! absorberMaterial || ! gapMaterial || ! wallMaterial || ! scintillator ) {
@@ -338,39 +341,50 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
          << gapThickness/mm << "mm of " << gapMaterial->GetName() << " ] " 
          << "\n------------------------------------------------------------\n";
   
-  
+   
   // 
   // Scorers
   //
 
   // declare Absorber as a MultiFunctionalDetector scorer
   //  
-  G4MultiFunctionalDetector* absDetector 
-    = new G4MultiFunctionalDetector("Absorber");
+  //G4MultiFunctionalDetector* absDetector 
+  //  = new G4MultiFunctionalDetector("Absorber");
 
-  G4VPrimitiveScorer* primitive;
-  G4SDChargedFilter* charged = new G4SDChargedFilter("chargedFilter");
-  primitive = new G4PSEnergyDeposit("Edep");
-  absDetector->RegisterPrimitive(primitive);
+  //G4VPrimitiveScorer* primitive;
+  //G4SDChargedFilter* charged = new G4SDChargedFilter("chargedFilter");
+  //primitive = new G4PSEnergyDeposit("Edep");
+  //absDetector->RegisterPrimitive(primitive);
 
-  primitive = new G4PSTrackLength("TrackLength");
-  primitive ->SetFilter(charged);
-  absDetector->RegisterPrimitive(primitive);  
+  //primitive = new G4PSTrackLength("TrackLength");
+  //primitive ->SetFilter(charged);
+  //absDetector->RegisterPrimitive(primitive);  
 
   //G4SDManager::GetSDMpointer()->AddNewDetector(absDetector);
   //absorberLV->SetSensitiveDetector(absDetector);
+
+  // declare Detector1 as a MultiFunctionalDetector
+  //
+  
+  G4MultiFunctionalDetector* Particle_Det
+    = new G4MultiFunctionalDetector("Detector1");
+  
+  primitive = new 
+  Particle_Det->RegisterPrimitive(primitive);
+  
+
   
   // declare Gap as a MultiFunctionalDetector scorer
   //  
-  G4MultiFunctionalDetector* gapDetector 
-    = new G4MultiFunctionalDetector("Gap");
+  //G4MultiFunctionalDetector* gapDetector 
+  //  = new G4MultiFunctionalDetector("Gap");
 
-  primitive = new G4PSEnergyDeposit("Edep");
-  gapDetector->RegisterPrimitive(primitive);
+  //primitive = new G4PSEnergyDeposit("Edep");
+  //gapDetector->RegisterPrimitive(primitive);
   
-  primitive = new G4PSTrackLength("TrackLength");
-  primitive ->SetFilter(charged);
-  gapDetector->RegisterPrimitive(primitive);  
+  //primitive = new G4PSTrackLength("TrackLength");
+  //primitive ->SetFilter(charged);
+  //gapDetector->RegisterPrimitive(primitive);  
   
   //G4SDManager::GetSDMpointer()->AddNewDetector(gapDetector);
   //gapLV->SetSensitiveDetector(gapDetector);  
