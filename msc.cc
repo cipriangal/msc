@@ -2,6 +2,7 @@
 #include "mscPrimaryGeneratorAction.hh"
 #include "mscRunAction.hh"
 #include "mscEventAction.hh"
+#include "mscSteppingAction.hh"
 
 #include "G4RunManager.hh"
 #include "G4UImanager.hh"
@@ -63,16 +64,20 @@ int main(int argc,char** argv)
 
   G4VModularPhysicsList* physicsList = new FTFP_BERT;
   runManager->SetUserInitialization(physicsList);
-    
+
+  /* Event number */
+  G4int evNumber(0);
+
   // Set user action classes
   //
-  runManager
-    ->SetUserAction(new mscPrimaryGeneratorAction());
+  runManager->SetUserAction(new mscPrimaryGeneratorAction());
   //
   runManager->SetUserAction(new mscRunAction());
   //
-  runManager->SetUserAction(new mscEventAction());
-  
+  runManager->SetUserAction(new mscEventAction(&evNumber));
+  //
+  runManager->SetUserAction(new mscSteppingAction(&evNumber));
+
   // Initialize G4 kernel
   //
   runManager->Initialize();
