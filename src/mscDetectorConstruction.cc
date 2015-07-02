@@ -92,15 +92,6 @@ void mscDetectorConstruction::DefineMaterials()
   // Vacuum
   new G4Material("Galactic", 1., 1.01*g/mole, universe_mean_density,
                   kStateGas, 2.73*kelvin, 3.e-18*pascal);
-<<<<<<< HEAD
- 
-  //Scintillator Material
-  G4Material* Ar = nistManager->FindOrBuildMaterial("G4_Ar");
-  //Ar = matman->FindOrBuildMaterial("G4_Ar");
-  G4Material* matman = new G4Material("Kryptonite", 0.00000001*mg/cm3, 1);
-  matman->AddMaterial(Ar, 1);
-=======
->>>>>>> 55555208103a7c2588f7c01ac5fb724336932c56
 
   // Print materials
   G4cout << *(G4Material::GetMaterialTable()) << G4endl;
@@ -121,16 +112,8 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   
   // Get materials
   G4Material* defaultMaterial = G4Material::GetMaterial("Galactic");
-<<<<<<< HEAD
-  G4Material* absorberMaterial = G4Material::GetMaterial("G4_Pb");
-  G4Material* gapMaterial = G4Material::GetMaterial("liquidArgon");
-  G4Material* wallMaterial = G4Material::GetMaterial("PBA");
-  G4Material* scintillator = G4Material::GetMaterial("Kryptonite");
-=======
   G4Material* radiatorMaterial = G4Material::GetMaterial("PBA");
   G4Material* detectorMaterial = G4Material::GetMaterial("detectorMat");
->>>>>>> 55555208103a7c2588f7c01ac5fb724336932c56
- 
   
   if ( ! defaultMaterial || ! radiatorMaterial || ! detectorMaterial ) {
     G4cerr << "Cannot retrieve materials already defined. " << G4endl;
@@ -210,62 +193,29 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
 		    0,                // copy number
 		    fCheckOverlaps);  // checking overlaps 
 
-	 
-<<<<<<< HEAD
-  */
 
+
+  G4VSolid* Detector2Solid 
+    = new G4Box("Detector2",  // its name
+		SizeX/2, SizeY/2, detectorThickness); // its size
   
-  //
-  // print parameters
-  //
-  G4cout << "\n------------------------------------------------------------"
-         << "\n---> The calorimeter is " << nofLayers << " layers of: [ "
-         << absoThickness/mm << "mm of " << absorberMaterial->GetName() 
-         << " + "
-         << gapThickness/mm << "mm of " << gapMaterial->GetName() << " ] " 
-         << "\n------------------------------------------------------------\n";
+  G4LogicalVolume* detector2Logical
+    = new G4LogicalVolume(
+			  Detector2Solid,    // its solid
+			  detectorMaterial, // its material
+			  "Detector2");  // its name
   
-   
-  // 
-  // Scorers
-  //
-
-  // declare Absorber as a MultiFunctionalDetector scorer
-  //  
-  //G4MultiFunctionalDetector* absDetector 
-  //  = new G4MultiFunctionalDetector("Absorber");
-
-  //G4VPrimitiveScorer* primitive;
-  //G4SDChargedFilter* charged = new G4SDChargedFilter("chargedFilter");
-  //primitive = new G4PSEnergyDeposit("Edep");
-  //absDetector->RegisterPrimitive(primitive);
-
-  //primitive = new G4PSTrackLength("TrackLength");
-  //primitive ->SetFilter(charged);
-  //absDetector->RegisterPrimitive(primitive);  
-
-  //G4SDManager::GetSDMpointer()->AddNewDetector(absDetector);
-  //absorberLV->SetSensitiveDetector(absDetector);
-  
-  // declare Gap as a MultiFunctionalDetector scorer
-  //  
-  //G4MultiFunctionalDetector* gapDetector 
-  //  = new G4MultiFunctionalDetector("Gap");
-
-  //primitive = new G4PSEnergyDeposit("Edep");
-  //gapDetector->RegisterPrimitive(primitive);
-  
-  //primitive = new G4PSTrackLength("TrackLength");
-  //primitive ->SetFilter(charged);
-  //gapDetector->RegisterPrimitive(primitive);  
-  
-  //G4SDManager::GetSDMpointer()->AddNewDetector(gapDetector);
-  //gapLV->SetSensitiveDetector(gapDetector);  
-=======
+  new G4PVPlacement(
+		    0,                // no rotation
+		    G4ThreeVector(0., 0., (radiatorThickness) + 5), 
+		    detector2Logical,          // its logical volume                    
+		    "Detector2",    // its name
+		    worldLV,          // its mother  volume
+		    false,            // no boolean operation
+		    0,                // copy number
+		    fCheckOverlaps);  // checking overlaps 
+	
   /*add new detector 3 cm behind detector 1*/
-
-  
->>>>>>> 55555208103a7c2588f7c01ac5fb724336932c56
 
   //                                        
   // Visualization attributes

@@ -36,61 +36,6 @@ mscEventAction::~mscEventAction()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-<<<<<<< HEAD
-G4THitsMap<G4double>* 
-mscEventAction::GetHitsCollection(const G4String& hcName,
-                                  const G4Event* event) const
-{
-  G4int hcID 
-    = G4SDManager::GetSDMpointer()->GetCollectionID(hcName);
-  G4THitsMap<G4double>* hitsCollection 
-    = static_cast<G4THitsMap<G4double>*>(
-        event->GetHCofThisEvent()->GetHC(hcID));
-  
-  if ( ! hitsCollection ) {
-    G4cerr << "Cannot access hitsCollection " << hcName << G4endl;
-    exit(1);
-  }         
-
-  return hitsCollection;
-}    
-
-G4double mscEventAction::GetSum(G4THitsMap<G4double>* hitsMap) const
-{
-  G4double sumValue = 0;
-  std::map<G4int, G4double*>::iterator it;
-  for ( it = hitsMap->GetMap()->begin(); it != hitsMap->GetMap()->end(); it++) {
-    sumValue += *(it->second);
-  }
-  return sumValue;  
-}  
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-/*
-void mscEventAction::PrintEventStatistics(
-                            G4double absoEdep, G4double absoTrackLength,
-                            G4double gapEdep, G4double gapTrackLength) const
-{
-  // Print event statistics
-  //
-  G4cout
-     << "   Absorber: total energy: " 
-     << std::setw(7) << G4BestUnit(absoEdep, "Energy")
-     << "       total track length: " 
-     << std::setw(7) << G4BestUnit(absoTrackLength, "Length")
-     << G4endl
-     << "        Gap: total energy: " 
-     << std::setw(7) << G4BestUnit(gapEdep, "Energy")
-     << "       total track length: " 
-     << std::setw(7) << G4BestUnit(gapTrackLength, "Length")
-     << G4endl;
-}
-*/
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-=======
->>>>>>> 55555208103a7c2588f7c01ac5fb724336932c56
 void mscEventAction::BeginOfEventAction(const G4Event* event)
 {  
   G4int eventID = event->GetEventID();
@@ -105,64 +50,13 @@ void mscEventAction::BeginOfEventAction(const G4Event* event)
 
 
 void mscEventAction::EndOfEventAction(const G4Event* event)
-{  
-<<<<<<< HEAD
-
-  G4double position
-    = GetSum(GetHitsCollection("Position", event));
- 
-  analysisManager->FillH2(XYPosition, localPos.x(), localPos.y());
- 
-  G4double momentum
-    = GetSum(GetHitsCollection("Momentum", event));  
-
-  analysisManager->FillH1(Momentum, Detector1);
-
-
-  // Get sum value from hits collections
-  //
-/*G4double absoEdep 
-    = GetSum(GetHitsCollection("Absorber/Edep", event));
-
-  G4double gapEdep 
-    = GetSum(GetHitsCollection("Gap/Edep", event));
-
-  G4double absoTrackLength 
-    = GetSum(GetHitsCollection("Absorber/TrackLength", event));
-
-  G4double gapTrackLength 
-    = GetSum(GetHitsCollection("Gap/TrackLength", event));
-
-  // get analysis manager
-  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-
-  // fill histograms
-  //  
-  analysisManager->FillH1(1, absoEdep);
-  
-  // fill ntuple
-  //
-  analysisManager->FillNtupleDColumn(0, absoEdep);
-  analysisManager->FillNtupleDColumn(1, gapEdep);
-  analysisManager->FillNtupleDColumn(2, absoTrackLength);
-  analysisManager->FillNtupleDColumn(3, gapTrackLength);
-  analysisManager->AddNtupleRow();  
-  
-  //print per event (modulo n)
-  //
-  G4int eventID = event->GetEventID();
-  if ( eventID % fPrintModulo == 0) {
-    G4cout << "---> End of event: " << eventID << G4endl;     
-
-    PrintEventStatistics(absoEdep, absoTrackLength, gapEdep, gapTrackLength);
-    }*/ 
-=======
+{   
 
   G4int eventID = event->GetEventID();
   if ( eventID % fPrintModulo == 0) {
     G4cout << "---> End of event: " << eventID << G4endl;     
   }
->>>>>>> 55555208103a7c2588f7c01ac5fb724336932c56
+
 }  
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
