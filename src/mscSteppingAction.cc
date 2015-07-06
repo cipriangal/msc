@@ -15,12 +15,18 @@ mscSteppingAction::mscSteppingAction(G4int *evN)
   evNr=evN;
 
   /*Create root file and initialize what I want to put in it*/
+  fout=new TFile("o_mscSteppingAction.root","RECREATE");
+  htst=new TH1D("htst","Test histo",100,-10,10);
+  htst->FillRandom("gaus");
 }
 
 
 mscSteppingAction::~mscSteppingAction()
 {
   /*Write out root file*/
+  fout->cd();
+  htst->Write();
+  fout->Close();
 }
 
 
