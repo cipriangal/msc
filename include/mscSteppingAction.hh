@@ -4,6 +4,9 @@
 #include "G4UserSteppingAction.hh"
 #include "globals.hh"
 
+#include "TFile.h"
+#include "TH1D.h"
+
 class mscSteppingAction : public G4UserSteppingAction
 {
 public:
@@ -14,6 +17,8 @@ public:
   
 private:
   G4int *evNr;
+  TFile *fout;
+  TH1D *htst;
 };
 
 #endif
