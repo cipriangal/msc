@@ -207,7 +207,7 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   
   new G4PVPlacement(
 		    0,                // no rotation
-		    G4ThreeVector(0., 0., (radiatorThickness) + 5), 
+		    G4ThreeVector(0., 0., (radiatorThickness) + 3*cm), 
 		    detector2Logical,          // its logical volume                    
 		    "Detector2",    // its name
 		    worldLV,          // its mother  volume

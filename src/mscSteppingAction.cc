@@ -8,6 +8,8 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTypes.hh"
+#include "TFile.h"
+#include "TTree.h"
 
 
 mscSteppingAction::mscSteppingAction(G4int *evN)		
@@ -15,6 +17,11 @@ mscSteppingAction::mscSteppingAction(G4int *evN)
   evNr=evN;
 
   /*Create root file and initialize what I want to put in it*/
+   
+   TFile *msc = TFile::Open("Data.root");
+
+
+
 }
 
 
