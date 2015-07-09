@@ -48,13 +48,15 @@ void mscEventAction::BeginOfEventAction(const G4Event* event)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+
 void mscEventAction::EndOfEventAction(const G4Event* event)
-{  
+{   
 
   G4int eventID = event->GetEventID();
   if ( eventID % fPrintModulo == 0) {
     G4cout << "---> End of event: " << eventID << G4endl;     
   }
+
 }  
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

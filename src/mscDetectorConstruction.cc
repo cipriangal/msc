@@ -114,7 +114,6 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   G4Material* defaultMaterial = G4Material::GetMaterial("Galactic");
   G4Material* radiatorMaterial = G4Material::GetMaterial("PBA");
   G4Material* detectorMaterial = G4Material::GetMaterial("detectorMat");
- 
   
   if ( ! defaultMaterial || ! radiatorMaterial || ! detectorMaterial ) {
     G4cerr << "Cannot retrieve materials already defined. " << G4endl;
@@ -193,10 +192,30 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
 		    false,            // no boolean operation
 		    0,                // copy number
 		    fCheckOverlaps);  // checking overlaps 
-	 
-  /*add new detector 3 cm behind detector 1*/
 
+
+
+  G4VSolid* Detector2Solid 
+    = new G4Box("Detector2",  // its name
+		SizeX/2, SizeY/2, detectorThickness); // its size
   
+  G4LogicalVolume* detector2Logical
+    = new G4LogicalVolume(
+			  Detector2Solid,    // its solid
+			  detectorMaterial, // its material
+			  "Detector2");  // its name
+  
+  new G4PVPlacement(
+		    0,                // no rotation
+		    G4ThreeVector(0., 0., (radiatorThickness) + 3*cm), 
+		    detector2Logical,          // its logical volume                    
+		    "Detector2",    // its name
+		    worldLV,          // its mother  volume
+		    false,            // no boolean operation
+		    0,                // copy number
+		    fCheckOverlaps);  // checking overlaps 
+	
+  /*add new detector 3 cm behind detector 1*/
 
   //                                        
   // Visualization attributes
