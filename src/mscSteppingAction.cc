@@ -76,6 +76,7 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
     }
   }
 
+  
   /*fill tree*/ 
 
   TTree *data = new TTree("mscData", "DATA");
@@ -89,9 +90,12 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   data->SetBranchAddress("pre_pos_x", &pre_pos_x);
   data->SetBranchAddress("post_pos_x", &post_pos_x);
 
-
+  for (Int_t i = 0; i<; i++)
+  {
   data->Fill();
+  }
 
+  data->Write();
   fout->Close();
 
 }
