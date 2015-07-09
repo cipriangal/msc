@@ -26,14 +26,18 @@ void mscRunAction::BeginOfRunAction(const G4Run* run)
 
   //inform the runManager to save random number seed
   G4RunManager::GetRunManager()->SetRandomNumberStore(true);
-  
+
+
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void mscRunAction::EndOfRunAction(const G4Run* run)
 {
+
   G4cout << "### Run " << run->GetRunID() << " stop." << G4endl;
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
