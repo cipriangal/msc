@@ -90,6 +90,8 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   data->SetBranchAddress("pre_pos_x", &pre_pos_x);
   data->SetBranchAddress("post_pos_x", &post_pos_x);
 
+  GetEntry();
+
   for (Int_t i = 0; i<; i++)
   {
   data->Fill();
