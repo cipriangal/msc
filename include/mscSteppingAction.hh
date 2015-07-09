@@ -5,7 +5,7 @@
 #include "globals.hh"
 
 #include "TFile.h"
-#include "TH1D.h"
+#include "TTree.h"
 
 class mscSteppingAction : public G4UserSteppingAction
 {
@@ -18,7 +18,11 @@ public:
 private:
   G4int *evNr;
   TFile *fout;
-  TH1D *htst;
+  TTree *tout;
+
+  //tree variables
+  G4double pre_pos_x;
+  G4double post_pos_x;
 };
 
 #endif

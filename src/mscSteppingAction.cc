@@ -8,8 +8,6 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTypes.hh"
-#include "TFile.h"
-#include "TTree.h"
 
 
 
@@ -19,12 +17,12 @@ mscSteppingAction::mscSteppingAction(G4int *evN)
   evNr=evN;
 
   /*Create root file and initialize what I want to put in it*/
-
-
   fout=new TFile("o_mscSteppingAction.root","RECREATE");
-  htst=new TH1D("htst","Test histo",100,-10,10);
-  htst->FillRandom("gaus");
+  tout=new TTree("t","Stepping action event tree");
 
+  tout->Branch("prePosX",&pre_pos_x,"prePosX/D");
+  tout->Branch("postPosX",&post_pos_x,"postPosX/D");
+  
 }
 
 
@@ -32,7 +30,7 @@ mscSteppingAction::~mscSteppingAction()
 {
   /*Write out root file*/
   fout->cd();
-  htst->Write();
+  tout->Write();
   fout->Close();
 }
 
@@ -79,26 +77,10 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   
   /*fill tree*/ 
 
-  TTree *data = new TTree("mscData", "DATA");
+  pre_pos_x = thePrePoint->GetPosition().getX();
+  post_pos_x = thePostPoint->GetPosition().getX();
 
-  Int_t pre_pos_x = thePrePoint->GetPosition().getX();
-  Int_t post_pos_x = thePostPoint->GetPosition().getX();
-
-  data->Branch("pre_pos_x", &pre_pos_x, 64000);
-  data->Branch("post_pos_x", &post_pos_x, 64000);
-
-  data->SetBranchAddress("pre_pos_x", &pre_pos_x);
-  data->SetBranchAddress("post_pos_x", &post_pos_x);
-
-  GetEntry();
-
-  for (Int_t i = 0; i<; i++)
-  {
-  data->Fill();
-  }
-
-  data->Write();
-  fout->Close();
+  tout->Fill();
 
 }
 
