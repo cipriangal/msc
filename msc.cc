@@ -19,6 +19,8 @@
 #include "G4UIExecutive.hh"
 #endif
 
+#include <time.h>
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 namespace {
@@ -32,6 +34,8 @@ namespace {
 
 int main(int argc,char** argv)
 {
+  clock_t tStart=clock();
+
   // Evaluate arguments
   //
   if ( argc > 5 ) {
@@ -133,6 +137,7 @@ int main(int argc,char** argv)
 #endif
   delete runManager;
 
+  G4cout<<" Running time[s]: "<< (double) ((clock() - tStart)/CLOCKS_PER_SEC)<<G4endl;
   return 0;
 }
 
