@@ -14,6 +14,7 @@ public:
   ~mscSteppingAction();
   
   void UserSteppingAction(const G4Step*);
+  void InitVar();
   
 private:
   G4int *evNr;
@@ -21,8 +22,30 @@ private:
   TTree *tout;
 
   //tree variables
-  G4double pre_pos_x;
-  G4double post_pos_x;
+  G4double  prePosX; //position
+  G4double  prePosY;
+  G4double  prePosZ;
+  G4double postPosX;
+  G4double postPosY;
+  G4double postPosZ;
+
+  G4double  preMomX; //momentum
+  G4double  preMomY;
+  G4double  preMomZ;
+  G4double postMomX;
+  G4double postMomY;
+  G4double postMomZ;
+
+  G4int eventNr;
+  G4int material; //PBA:0 ; Kriptonite:1
+  G4int volume;   //Radiator:0 ; Det1:1 ; Det2:2
+  G4int pType;    
+  G4int trackID;
+  G4int parentID;
+  G4int intNr;    
+
+  //number of interactions in 0:PBA | 1:det1 | 2:det2
+  std::vector<G4int> interactionNr; 
 };
 
 #endif
