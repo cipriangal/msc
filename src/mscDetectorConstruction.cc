@@ -39,12 +39,13 @@ mscDetectorConstruction::mscDetectorConstruction()
   fMessenger 
     = new G4GenericMessenger(this, "/msc/det/", "Detector construction control");
 
-  // // Define /msc/det/setMagField command
-  // G4GenericMessenger::Command& setMagFieldCmd
-  //   = fMessenger->DeclareMethod("setMagField", 
-  //                               &mscDetectorConstruction::SetMagField, 
-  //                               "Define magnetic field value (in X direction");
-  // setMagFieldCmd.SetUnitCategory("Magnetic flux density");                                
+  radiatorThickness = 2.*cm;  
+  // Define /msc/det/setRadiatorWidth command
+  G4GenericMessenger::Command& setRadiatorThicknessCmd
+    = fMessenger->DeclareMethod("setRadiatorThickness", 
+                                 &mscDetectorConstruction::SetRadiatorThickness, 
+                                 "set the thickness (z component) of the radiator (in cm)");
+  setRadiatorThicknessCmd.SetUnitCategory("Length");                                
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -102,7 +103,6 @@ void mscDetectorConstruction::DefineMaterials()
 G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
 {
   // Geometry parameters
-  G4double radiatorThickness = 2.*cm;
   G4double detectorThickness = 1.*cm;
   G4double SizeX  = 100.*cm;
   G4double SizeY  =  20.*cm;
@@ -163,7 +163,7 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
                  0,                // no rotation
                  G4ThreeVector(0., 0., 0.), 
                  radiatorLV,       // its logical volume                         
-                 "radiator",       // its name
+                 "Radiator",       // its name
                  worldLV,          // its mother  volume
                  false,            // no boolean operation
                  0,                // copy number
@@ -194,7 +194,7 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
 		    fCheckOverlaps);  // checking overlaps 
 
 
-
+  /*add new detector 3 cm behind detector 1*/
   G4VSolid* Detector2Solid 
     = new G4Box("Detector2",  // its name
 		SizeX/2, SizeY/2, detectorThickness); // its size
@@ -215,7 +215,6 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
 		    0,                // copy number
 		    fCheckOverlaps);  // checking overlaps 
 	
-  /*add new detector 3 cm behind detector 1*/
 
   //                                        
   // Visualization attributes

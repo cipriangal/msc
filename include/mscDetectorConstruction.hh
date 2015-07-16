@@ -11,24 +11,27 @@ class G4GenericMessenger;
 
 class mscDetectorConstruction : public G4VUserDetectorConstruction
 {
-  public:
-    mscDetectorConstruction();
-    virtual ~mscDetectorConstruction();
-
-  public:
-    virtual G4VPhysicalVolume* Construct();
-     
-  private:
-    // methods
-    //
-    void DefineMaterials();
-    G4VPhysicalVolume* DefineVolumes();
+public:
+  mscDetectorConstruction();
+  virtual ~mscDetectorConstruction();
   
-    // data members
-    //
-    G4GenericMessenger*  fMessenger; // messenger 
+  virtual G4VPhysicalVolume* Construct();
+  
+  void SetRadiatorThickness(G4double thicknessValue){radiatorThickness=thicknessValue;}
+  
+private:
+  // methods
+  //
+  void DefineMaterials();
+  G4VPhysicalVolume* DefineVolumes();
 
-    G4bool  fCheckOverlaps; // option to activate checking of volumes overlaps
+  // data members
+  //
+  G4double radiatorThickness;
+
+  G4GenericMessenger*  fMessenger; // messenger 
+  
+  G4bool  fCheckOverlaps; // option to activate checking of volumes overlaps
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
