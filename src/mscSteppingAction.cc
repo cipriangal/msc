@@ -43,7 +43,7 @@ mscSteppingAction::mscSteppingAction(G4int *evN)
   tout->Branch("trackID",&trackID,"trackID/I");
   tout->Branch("parentID",&parentID,"parentID/I");
   tout->Branch("intNr",&intNr,"intNr/I");
-
+  tout->Branch("process",&process,"process/I");
   
 }
 
@@ -73,44 +73,70 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
 
   InitVar();
 
+  eventNr=*evNr;
   if(currentEvent!=eventNr){ //new event
     interactionNr.clear();
+    currentEvent=eventNr;
   }
 
-  if(theMaterial){
-    
-    if(theMaterial->GetName().compare("detectorMat")==0){
-      
-      G4cout<<" In  detector " << *evNr<<" "
-	    <<theTrack->GetTrackID()<<" "<< theTrack->GetParentID()<< " "
-	    <<thePrePoint->GetPosition().getX()<<" "
-	    <<thePrePoint->GetMomentum().getX()<<" "
-	    <<thePostPoint->GetPosition().getY()<<" "
-	    <<thePostPoint->GetMomentum().getZ()<<" "
-	    <<thePrePoint->GetTotalEnergy()<<" "
-	    <<particleType->GetPDGEncoding()<<G4endl;    
-    }
-    else if(theMaterial->GetName().compare("PBA")==0){
-      G4cout<<" In  radiator " << *evNr<<" "
-	    <<theTrack->GetTrackID()<<" "<< theTrack->GetParentID()<< " "
-	    <<thePrePoint->GetPosition().getX()<<" "
-	    <<thePrePoint->GetMomentum().getX()<<" "
-	    <<thePostPoint->GetPosition().getY()<<" "
-	    <<thePostPoint->GetMomentum().getZ()<<" "
-	    <<thePrePoint->GetTotalEnergy()<<" "
-	    <<particleType->GetPDGEncoding()<<G4endl;   
-    }
-    
+  if(theMaterial){    
+    if(theMaterial->GetName().compare("detectorMat")==0)
+      material=1;
+    else if(theMaterial->GetName().compare("PBA")==0)
+      material=0;
   }
 
+  if(thePostPV){
+    if(thePostPV->GetName().compare("Radiator")==0){
+      volume=0;
+      interactionNr[0]++;
+      intNr=interactionNr[0];
+    }else if(thePostPV->GetName().compare("Detector1")==0){
+      volume=1;
+      interactionNr[1]++;           
+      intNr=interactionNr[1];
+    }else if(thePostPV->GetName().compare("Detector2")==0){
+      volume=2;
+      interactionNr[2]++;     
+      intNr=interactionNr[2];
+    }    
+  }
+
+  pType = particleType->GetPDGEncoding();
+  trackID = theStep->GetTrack()->GetTrackID();
+  parentID = theStep->GetTrack()->GetParentID();
+
+  G4String _pn=thePostPoint->GetProcessDefinedStep()->GetProcessName();
+  if(_pn.compare("msc")==0)
+    process = 1;
+  else if(_pn.compare("CoulombScat")==0)
+    process = 2;
+  else if(_pn.compare("eBrem")==0)
+    process = 3;
+  else if(_pn.compare("Transportation")==0)
+    process = 4;
+  else if(_pn.compare("eIoni")==0)
+    process = 5;
+  else
+    process = 0;
   
-  /*fill tree*/ 
 
-  prePosX = thePrePoint->GetPosition().getX();
+  prePosX  =  thePrePoint->GetPosition().getX();
+  prePosY  =  thePrePoint->GetPosition().getY();
+  prePosZ  =  thePrePoint->GetPosition().getZ();
   postPosX = thePostPoint->GetPosition().getX();
+  postPosY = thePostPoint->GetPosition().getY();
+  postPosZ = thePostPoint->GetPosition().getZ();
 
+  preMomX  =  thePrePoint->GetMomentum().getX();
+  preMomY  =  thePrePoint->GetMomentum().getY();
+  preMomZ  =  thePrePoint->GetMomentum().getZ();
+  postMomX = thePostPoint->GetMomentum().getX();
+  postMomY = thePostPoint->GetMomentum().getY();
+  postMomZ = thePostPoint->GetMomentum().getZ();
+
+  /*fill tree*/ 
   tout->Fill();
-
 }
 
 void mscSteppingAction::InitVar(){
@@ -135,6 +161,7 @@ void mscSteppingAction::InitVar(){
   trackID = -999;
   parentID = -999;
   intNr = -999;
+  process = -999;
 }
 
 

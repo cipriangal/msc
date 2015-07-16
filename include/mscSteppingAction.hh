@@ -37,12 +37,13 @@ private:
   G4double postMomZ;
 
   G4int eventNr;
-  G4int material; //PBA:0 ; Kriptonite:1
+  G4int material; //PBA:0 ; detectorMat:1
   G4int volume;   //Radiator:0 ; Det1:1 ; Det2:2
   G4int pType;    
   G4int trackID;
   G4int parentID;
-  G4int intNr;    
+  G4int intNr;
+  G4int process; //0:N/A 1:msc 2:CoulombScat 3:eBrem 4:Transportation 5:eIon
 
   //number of interactions in 0:PBA | 1:det1 | 2:det2
   std::vector<G4int> interactionNr; 
