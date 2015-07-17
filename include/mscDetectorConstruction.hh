@@ -17,7 +17,10 @@ public:
   
   virtual G4VPhysicalVolume* Construct();
   
-  void SetRadiatorThickness(G4double thicknessValue){radiatorThickness=thicknessValue;}
+  void SetRadiatorThickness(G4double thicknessValue){
+    radiatorThickness=thicknessValue;
+    G4cout<<G4endl<<G4endl<<" ~~~~ Setting radiator thickness to "<<thicknessValue<<G4endl<<G4endl;
+  }
   
 private:
   // methods
