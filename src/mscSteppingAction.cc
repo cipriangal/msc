@@ -35,6 +35,8 @@ mscSteppingAction::mscSteppingAction(G4int *evN)
   tout->Branch("postMomX",&postMomX,"postMomX/D");
   tout->Branch("postMomY",&postMomY,"postMomY/D");
   tout->Branch("postMomZ",&postMomZ,"postMomZ/D");
+  tout->Branch("postPhi"  ,&postPhi  ,"postPhi/D"  );
+  tout->Branch("postTheta",&postTheta,"postTheta/D");
 
   tout->Branch("evNr",&eventNr,"evNr/I");
   tout->Branch("material",&material,"material/I");
@@ -75,7 +77,7 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
 
   eventNr=*evNr;
   if(currentEvent!=eventNr){ //new event
-    interactionNr.clear();
+    for(int i=0;i<3;i++) interactionNr[i]=0;
     currentEvent=eventNr;
   }
 
@@ -135,8 +137,15 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   postMomY = thePostPoint->GetMomentum().getY();
   postMomZ = thePostPoint->GetMomentum().getZ();
 
+  if(thePostPoint->GetMomentum().getR()>0){
+    postPhi = thePostPoint->GetMomentum().getPhi();
+    postTheta = thePostPoint->GetMomentum().getTheta();
+  }
+
   /*fill tree*/ 
   tout->Fill();
+  if(material==1)
+    theTrack->SetTrackStatus(fStopAndKill);
 }
 
 void mscSteppingAction::InitVar(){
@@ -153,7 +162,9 @@ void mscSteppingAction::InitVar(){
   postMomX = -999;
   postMomY = -999;
   postMomZ = -999;
-
+  postPhi = -999;
+  postTheta = -999;
+  
   eventNr = -999;
   material = -999;
   volume = -999;

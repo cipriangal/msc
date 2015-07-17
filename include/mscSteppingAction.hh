@@ -28,13 +28,15 @@ private:
   G4double postPosX;
   G4double postPosY;
   G4double postPosZ;
-
+  
   G4double  preMomX; //momentum
   G4double  preMomY;
   G4double  preMomZ;
   G4double postMomX;
   G4double postMomY;
   G4double postMomZ;
+  G4double postPhi;
+  G4double postTheta;
 
   G4int eventNr;
   G4int material; //PBA:0 ; detectorMat:1
