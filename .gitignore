@@ -33,9 +33,11 @@ output
 *~
 *.rndm
 *.macro
+y_*
+*.pdf
 
 ## Build
 *build*
 
 ##Other
-.DS_Store #MAC indexing crap
+.DS_*
