@@ -119,8 +119,12 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
     process = 4;
   else if(_pn.compare("eIoni")==0)
     process = 5;
-  else
+  else if(_pn.compare("CoupledTransportation")==0){
+    process = 6;
+  }else{
+    //G4cout<<" ~~"<<_pn<<G4endl;
     process = 0;
+  }
   
 
   prePosX  =  thePrePoint->GetPosition().getX();
