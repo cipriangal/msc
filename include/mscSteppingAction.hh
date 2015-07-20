@@ -45,7 +45,7 @@ private:
   G4int trackID;
   G4int parentID;
   G4int intNr;
-  G4int process; //0:N/A 1:msc 2:CoulombScat 3:eBrem 4:Transportation 5:eIon
+  G4int process; //0:N/A 1:msc 2:CoulombScat 3:eBrem 4:Transportation 5:eIon 6:coupledTransportation
 
   //number of interactions in 0:PBA | 1:det1 | 2:det2
   std::vector<G4int> interactionNr; 
