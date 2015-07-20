@@ -1,2 +1,5 @@
-/run/beamOn 1
-/msc/event/setPrintModulo 1
+## does not work for now
+##/msc/det/setRadiatorThickness 4. cm
+/msc/event/setPrintModulo 10000
+
+/run/beamOn 10000
