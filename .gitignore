@@ -36,3 +36,6 @@ output
 
 ## Build
 *build*
+
+##Other
+.DS_Store #MAC indexing crap
