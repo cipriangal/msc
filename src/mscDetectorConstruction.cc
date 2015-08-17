@@ -39,8 +39,9 @@ mscDetectorConstruction::mscDetectorConstruction()
   fMessenger 
     = new G4GenericMessenger(this, "/msc/det/", "Detector construction control");
 
-  G4double PbRadiationLength = 0.5612 * cm;
-  radiatorThickness = 0.5 * PbRadiationLength;  
+  // G4double PbRadiationLength = 0.5612 * cm;
+  // radiatorThickness = 0.40 * PbRadiationLength;  
+  radiatorThickness = 2 * cm; //QweakSimG4 preradiator thickness
   // Define /msc/det/setRadiatorThickness command
   G4GenericMessenger::Command& setRadiatorThicknessCmd
     = fMessenger->DeclareMethod("setRadiatorThickness", 
@@ -177,26 +178,26 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
  
   G4VSolid* Detector1Solid 
     = new G4Box("Detector1",  // its name
-		SizeX/2, SizeY/2, detectorThickness/2); // its size
+  		SizeX/2, SizeY/2, detectorThickness/2); // its size
   
   G4LogicalVolume* detector1Logical
     = new G4LogicalVolume(
-			  Detector1Solid,    // its solid
-			  detectorMaterial, // its material
-			  "Detector1");  // its name
+  			  Detector1Solid,    // its solid
+  			  detectorMaterial, // its material
+  			  "Detector1");  // its name
   
   new G4PVPlacement(
-		    0,                // no rotation
-		    G4ThreeVector(0., 0., (radiatorThickness+detectorThickness)/2+1*mm), 
-		    detector1Logical,          // its logical volume                    
-		    "Detector1",    // its name
-		    worldLV,          // its mother  volume
-		    false,            // no boolean operation
-		    0,                // copy number
-		    fCheckOverlaps);  // checking overlaps 
+  		    0,                // no rotation
+  		    G4ThreeVector(0., 0., (radiatorThickness+detectorThickness)/2+1*mm), 
+  		    detector1Logical,          // its logical volume                    
+  		    "Detector1",    // its name
+  		    worldLV,          // its mother  volume
+  		    false,            // no boolean operation
+  		    0,                // copy number
+  		    fCheckOverlaps);  // checking overlaps 
 
 
-  /*add new detector 3 cm behind detector 1*/
+  /*add new detector 3 cm behind radiator*/
   G4VSolid* Detector2Solid 
     = new G4Box("Detector2",  // its name
 		SizeX/2, SizeY/2, detectorThickness/2); // its size
@@ -209,7 +210,7 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   
   new G4PVPlacement(
 		    0,                // no rotation
-		    G4ThreeVector(0., 0., (radiatorThickness+detectorThickness)/2 + 3.1*cm), 
+		    G4ThreeVector(0., 0., (radiatorThickness+detectorThickness)/2 + 3.*cm), 
 		    detector2Logical,          // its logical volume                    
 		    "Detector2",    // its name
 		    worldLV,          // its mother  volume
