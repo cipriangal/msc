@@ -175,8 +175,8 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   postE = thePostPoint->GetKineticEnergy();
   
   if(thePostPoint->GetMomentum().getR()>0){
-    postPhi = thePostPoint->GetMomentum().getPhi();
-    postTheta = thePostPoint->GetMomentum().getTheta();
+    postPhi = thePostPoint->GetMomentum().getPhi()               * 180. / CLHEP::pi;
+    postTheta = thePostPoint->GetMomentum().getTheta()           * 180. / CLHEP::pi;
     postAngX = atan2(sin(postTheta)*cos(postPhi),cos(postTheta)) * 180. / CLHEP::pi;
     postAngY = atan2(sin(postTheta)*sin(postPhi),cos(postTheta)) * 180. / CLHEP::pi;
   }
