@@ -4,6 +4,28 @@
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 project(msc)
 
+# Find Geant4
+if(NOT DEFINED Geant4_DIR)
+	set(Geant4_DIR $ENV{G4INSTALL}/build)
+endif(NOT DEFINED Geant4_DIR)
+find_package(Geant4 REQUIRED COMPONENTS gdml qt ui_all vis_all)
+execute_process(COMMAND geant4-config --version
+                OUTPUT_VARIABLE GEANT4_VERSION
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+message(STATUS "Found Geant4 ${GEANT4_VERSION}")
+
+# Add the project include directory and put all source files in sources
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+if(GEANT4_VERSION VERSION_LESS "10.0.0")
+       message(STATUS "Geant4 is < 10.0.0: skip building custom physics processes")
+       file(GLOB sources ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc)
+       file(GLOB headers ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hh)
+else(GEANT4_VERSION VERSION_LESS "10.0.0")
+       message(STATUS "Geant4 > 10.0.0: include building custom physics processes")
+       file(GLOB_RECURSE sources ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc)
+       file(GLOB_RECURSE headers ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hh)
+endif(GEANT4_VERSION VERSION_LESS "10.0.0")
+
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
 # You can set WITH_GEANT4_UIVIS to OFF via the command line or ccmake/cmake-gui
@@ -26,13 +48,6 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # Load ROOT and setup include directory
 find_package(ROOT REQUIRED)
 include_directories(${ROOT_INCLUDE_DIR})
-
-#----------------------------------------------------------------------------
-# Locate sources and headers for this project
-# NB: headers are included so they will show up in IDEs
-#
-file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
