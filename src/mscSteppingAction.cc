@@ -44,8 +44,15 @@ mscSteppingAction::mscSteppingAction(G4int *evN)
   tout->Branch("postMomX",&postMomX,"postMomX/D");
   tout->Branch("postMomY",&postMomY,"postMomY/D");
   tout->Branch("postMomZ",&postMomZ,"postMomZ/D");
+
   tout->Branch("postPhi"  ,&postPhi  ,"postPhi/D"  );
   tout->Branch("postTheta",&postTheta,"postTheta/D");
+  tout->Branch("postAngX",&postAngX,"postAngX/D");
+  tout->Branch("postAngY",&postAngY,"postAngY/D");
+
+  tout->Branch("preE",&preE,"preE/D");
+  tout->Branch("postE",&postE,"postE/D");
+
 
   tout->Branch("evNr",&eventNr,"evNr/I");
   tout->Branch("material",&material,"material/I");
