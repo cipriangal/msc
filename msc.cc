@@ -7,9 +7,15 @@
 #include "G4RunManager.hh"
 #include "G4ScoringManager.hh"
 #include "G4UImanager.hh"
-#include "FTFP_BERT.hh"
 
 #include "Randomize.hh"
+
+#include "G4Version.hh"
+#if G4VERSION_NUMBER < 1000
+#include "G4StepLimiterBuilder.hh"
+#else
+#include "G4StepLimiterPhysics.hh"
+#endif
 
 #ifdef G4VIS_USE
 #include "G4VisExecutive.hh"
@@ -17,6 +23,14 @@
 
 #ifdef G4UI_USE
 #include "G4UIExecutive.hh"
+#endif
+
+#include "G4PhysListFactory.hh"
+
+#define USE_CUSTOM_NUCLEAR_SCATTERING 1
+#if USE_CUSTOM_NUCLEAR_SCATTERING
+#include "physics_lists/constructors/electromagnetic/QweakSimEmStandardPhysics.hh"
+#include "physics_lists/constructors/electromagnetic/QweakSimEmLivermorePhysics.hh"
 #endif
 
 #include <time.h>
@@ -71,9 +85,23 @@ int main(int argc,char** argv)
   mscDetectorConstruction* detConstruction = new mscDetectorConstruction();
   runManager->SetUserInitialization(detConstruction);
 
-  G4VModularPhysicsList* physicsList = new FTFP_BERT;
-  runManager->SetUserInitialization(physicsList);
+  // Calls a reference physics list for the simulation
+  G4PhysListFactory factory;
+  G4VModularPhysicsList* physlist = factory.GetReferencePhysList("QGSP_BERT_LIV");
+#if G4VERSION_NUMBER < 1000
+  physlist->RegisterPhysics(new G4StepLimiterBuilder());
+#else
+  physlist->RegisterPhysics(new G4StepLimiterPhysics());
+#endif
 
+  // Replace the standard EM with the customized version to add Pb A_T
+#if USE_CUSTOM_NUCLEAR_SCATTERING
+  physlist->ReplacePhysics(new QweakSimEmLivermorePhysics());
+#endif
+
+  runManager->SetUserInitialization(physlist);
+
+  
   /* Event number */
   G4int evNumber(0);
 
