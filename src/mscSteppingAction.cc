@@ -141,33 +141,46 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   postMomY = thePostPoint->GetMomentum().getY();
   postMomZ = thePostPoint->GetMomentum().getZ();
 
+  preE  =  thePrePoint->GetKineticEnergy();
+  postE = thePostPoint->GetKineticEnergy();
+  
   if(thePostPoint->GetMomentum().getR()>0){
     postPhi = thePostPoint->GetMomentum().getPhi();
     postTheta = thePostPoint->GetMomentum().getTheta();
+    postAngX = atan2(sin(postTheta)*cos(postPhi),cos(postTheta)) * 180. / CLHEP::pi;
+    postAngY = atan2(sin(postTheta)*sin(postPhi),cos(postTheta)) * 180. / CLHEP::pi;
   }
 
   /*fill tree*/ 
-  tout->Fill();
-  if(material==1)
-    theTrack->SetTrackStatus(fStopAndKill);
+  if(material==1){
+    tout->Fill();
+    //theTrack->SetTrackStatus(fStopAndKill);
+  }
 }
 
 void mscSteppingAction::InitVar(){
-   prePosX = -999;
-   prePosY = -999;
-   prePosZ = -999;
+  prePosX  = -999;
+  prePosY  = -999;
+  prePosZ  = -999;
   postPosX = -999;
   postPosY = -999;
   postPosZ = -999;
 
-   preMomX = -999;
-   preMomY = -999;
-   preMomZ = -999;
+  preMomX  = -999;
+  preMomY  = -999;
+  preMomZ  = -999;
   postMomX = -999;
   postMomY = -999;
   postMomZ = -999;
-  postPhi = -999;
+
+  postPhi   = -999;
   postTheta = -999;
+
+  postAngX = -999;
+  postAngY = -999;
+
+  preE  = -999;
+  postE = -999;
   
   eventNr = -999;
   material = -999;

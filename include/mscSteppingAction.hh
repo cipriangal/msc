@@ -27,7 +27,7 @@ private:
   G4double  prePosZ;
   G4double postPosX;
   G4double postPosY;
-  G4double postPosZ;
+  G4double postPosZ;  
   
   G4double  preMomX; //momentum
   G4double  preMomY;
@@ -37,7 +37,13 @@ private:
   G4double postMomZ;
   G4double postPhi;
   G4double postTheta;
+  G4double postAngX; //angle along x (long section of the detector)
+  G4double postAngY; //angle along y (short section of the detector)
+  
+  G4double  preE;
+  G4double postE;
 
+  
   G4int eventNr;
   G4int material; //PBA:0 ; detectorMat:1
   G4int volume;   //Radiator:0 ; Det1:1 ; Det2:2
