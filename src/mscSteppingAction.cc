@@ -28,7 +28,7 @@ mscSteppingAction::mscSteppingAction(G4int *evN)
   for(int i=0;i<3;i++) interactionNr.push_back(0);
   
   /*Create root file and initialize what I want to put in it*/
-  fout=new TFile("o_mscSteppingAction.root","RECREATE");
+  fout=new TFile("o_msc.root","RECREATE");
   tout=new TTree("t","Stepping action event tree");
 
   tout->Branch( "prePosX", &prePosX, "prePosX/D");
