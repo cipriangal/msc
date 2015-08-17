@@ -6,6 +6,7 @@
 
 #include "TFile.h"
 #include "TTree.h"
+#include "TGraph.h"
 
 class mscSteppingAction : public G4UserSteppingAction
 {
@@ -52,6 +53,8 @@ private:
   G4int parentID;
   G4int intNr;
   G4int process; //0:N/A 1:msc 2:CoulombScat 3:eBrem 4:Transportation 5:eIon 6:coupledTransportation
+
+  TGraph perpDepol;
 
   //number of interactions in 0:PBA | 1:det1 | 2:det2
   std::vector<G4int> interactionNr; 
