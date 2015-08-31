@@ -42,6 +42,7 @@ mscDetectorConstruction::mscDetectorConstruction()
   // G4double PbRadiationLength = 0.5612 * cm;
   // radiatorThickness = 0.40 * PbRadiationLength;  
   radiatorThickness = 2. * cm; //QweakSimG4 preradiator thickness
+
   // Define /msc/det/setRadiatorThickness command
   G4GenericMessenger::Command& setRadiatorThicknessCmd
     = fMessenger->DeclareMethod("setRadiatorThickness", 
@@ -93,8 +94,8 @@ void mscDetectorConstruction::DefineMaterials()
   detectorMat->AddMaterial(Ar, 100.*perCent);
 
   // // Vacuum
-  // new G4Material("Galactic", 1., 1.01*g/mole, universe_mean_density,
-  //                 kStateGas, 2.73*kelvin, 3.e-18*pascal);
+  new G4Material("Galactic", 1., 1.01*g/mole, universe_mean_density,
+		 kStateGas, 2.73*kelvin, 3.e-18*pascal);
 
   // Air material: Air 18 degr.C and 58% humidity
   G4double fractionmass(0);
@@ -117,8 +118,12 @@ void mscDetectorConstruction::DefineMaterials()
 G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
 {
 
+  //Unit container parameters
+  G4int nrUnits = 11;
+  G4double unitRadThickness=2. * mm;
+  
   // Geometry parameters
-  G4double detectorThickness = 1.*mm;
+  G4double detectorThickness = 0.1*cm;
   G4double SizeX  = 200.*cm;
   G4double SizeY  =  20.*cm;
 
@@ -126,11 +131,13 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   G4double worldSizeZ  =  50 * cm; 
   
   // Get materials
+  G4Material* vacuumMaterial=G4Material::GetMaterial("Galactic");
   G4Material* defaultMaterial = G4Material::GetMaterial("Air");
   G4Material* radiatorMaterial = G4Material::GetMaterial("PBA");
   G4Material* detectorMaterial = G4Material::GetMaterial("detectorMat");
   
-  if ( ! defaultMaterial || ! radiatorMaterial || ! detectorMaterial ) {
+  if ( ! defaultMaterial || ! radiatorMaterial ||
+       ! detectorMaterial || ! vacuumMaterial) {
     G4cerr << "Cannot retrieve materials already defined. " << G4endl;
     G4cerr << "Exiting application " << G4endl;
     exit(1);
@@ -161,55 +168,83 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
                  fCheckOverlaps);  // checking overlaps 
   
 
+  G4VSolid *unitContainerSol =
+    new G4Box("unitSol",SizeX/2.,SizeY/2.,(unitRadThickness+detectorThickness)/2.);
+  G4LogicalVolume *unitContainerLogical =
+    new G4LogicalVolume(unitContainerSol,vacuumMaterial,"unitContainerLV");
+  unitContainerLogical->SetVisAttributes (G4VisAttributes::Invisible);
+  
   //
   //Radiator
   //
   G4VSolid* radiatorSol
     = new G4Box("radiator",		   // its name
-		 SizeX/2., SizeY/2., radiatorThickness/2.); // its size
-
-  G4LogicalVolume* radiatorLV
+		SizeX/2., SizeY/2., unitRadThickness/2.); // its size
+  
+  G4LogicalVolume* radiatorLogical
     = new G4LogicalVolume(
-                 radiatorSol,    // its solid
-                 radiatorMaterial, // its material
-                 "radiatorLV");  // its name
-                                   
+			  radiatorSol,    // its solid
+			  radiatorMaterial, // its material
+			  "radiatorLogical");  // its name
+  
   new G4PVPlacement(
-                 0,                // no rotation
-                 G4ThreeVector(0., 0., 0.), 
-                 radiatorLV,       // its logical volume                         
-                 "Radiator",       // its name
-                 worldLV,          // its mother  volume
-                 false,            // no boolean operation
-                 0,                // copy number
-                 fCheckOverlaps);  // checking overlaps 
+		    0,                   // no rotation
+		    G4ThreeVector(0., 0., (-detectorThickness)/2.), 
+		    radiatorLogical,     // its logical volume                         
+		    "Radiator",          // its name
+		    unitContainerLogical,// its mother  volume
+		    false,               // no boolean operation
+		    0,                   // copy number
+		    fCheckOverlaps);     // checking overlaps 
+
+  G4Colour  blue(0/255.,0/255.,255/255.);
+  G4VisAttributes* radiatorVisAtt = new G4VisAttributes(blue);
+  radiatorVisAtt->SetVisibility(true);
+  radiatorLogical->SetVisAttributes(radiatorVisAtt);
 
   //
-  //Detectors
+  //Detector
   //
-
-  /*add new detector 3 cm behind radiator*/
-  G4VSolid* Detector2Solid 
-    = new G4Box("Detector2",  // its name
+  G4VSolid* detectorSolid 
+    = new G4Box("detectorSol",  // its name
 		SizeX/2, SizeY/2, detectorThickness/2); // its size
   
-  G4LogicalVolume* detector2Logical
+  G4LogicalVolume* detectorLogical
     = new G4LogicalVolume(
-			  Detector2Solid,    // its solid
-			  detectorMaterial, // its material
-			  "Detector2");  // its name
+			  detectorSolid,     // its solid
+			  detectorMaterial,  // its material
+			  "detectorLogical");// its name
   
   new G4PVPlacement(
 		    0,                // no rotation
-		    G4ThreeVector(0., 0., (radiatorThickness+detectorThickness)/2 + 3.*cm), 
-		    detector2Logical,          // its logical volume                    
-		    "Detector2",    // its name
-		    worldLV,          // its mother  volume
+		    G4ThreeVector(0., 0., (unitRadThickness/2.)), 
+		    detectorLogical,  // its logical volume                    
+		    "detector",       // its name
+		    unitContainerLogical,// its mother  volume
 		    false,            // no boolean operation
 		    0,                // copy number
 		    fCheckOverlaps);  // checking overlaps 
-	
+  
+  G4Colour  red(255/255.,0/255.,0/255.);
+  G4VisAttributes* detectorVisAtt = new G4VisAttributes(red);
+  detectorVisAtt->SetVisibility(true);
+  detectorLogical->SetVisAttributes(detectorVisAtt);
 
+  for(G4int i=0;i<nrUnits;i++){
+    G4double zpos=(i+0.5)*(unitRadThickness+detectorThickness);
+    std::string cnm="cotainer"+std::to_string(i);
+    new G4PVPlacement(
+		      0,                // no rotation
+		      G4ThreeVector(0., 0., zpos), 
+		      unitContainerLogical,  // its logical volume                    
+		      cnm,  // its name
+		      worldLV,// its mother  volume
+		      false,            // no boolean operation
+		      i,                // copy number
+		      fCheckOverlaps);  // checking overlaps 
+    
+  }
+		    
   //                                        
   // Visualization attributes
   //
