@@ -41,7 +41,7 @@ mscDetectorConstruction::mscDetectorConstruction()
 
   // G4double PbRadiationLength = 0.5612 * cm;
   // radiatorThickness = 0.40 * PbRadiationLength;  
-  radiatorThickness = 2 * cm; //QweakSimG4 preradiator thickness
+  radiatorThickness = 2. * cm; //QweakSimG4 preradiator thickness
   // Define /msc/det/setRadiatorThickness command
   G4GenericMessenger::Command& setRadiatorThicknessCmd
     = fMessenger->DeclareMethod("setRadiatorThickness", 
@@ -92,10 +92,22 @@ void mscDetectorConstruction::DefineMaterials()
   G4Material *detectorMat = new G4Material("detectorMat", 0.00000001*mg/cm3, 1);
   detectorMat->AddMaterial(Ar, 100.*perCent);
 
-  // Vacuum
-  new G4Material("Galactic", 1., 1.01*g/mole, universe_mean_density,
-                  kStateGas, 2.73*kelvin, 3.e-18*pascal);
+  // // Vacuum
+  // new G4Material("Galactic", 1., 1.01*g/mole, universe_mean_density,
+  //                 kStateGas, 2.73*kelvin, 3.e-18*pascal);
 
+  // Air material: Air 18 degr.C and 58% humidity
+  G4double fractionmass(0);
+  G4Element* elH  = nistManager->FindOrBuildElement("H");
+  G4Element* elN  = nistManager->FindOrBuildElement("N");
+  G4Element* elO  = nistManager->FindOrBuildElement("O");
+  G4Element* elAr = nistManager->FindOrBuildElement("Ar");
+  G4Material  *matAir = new G4Material("Air",1.214*mg/cm3,4);
+  matAir -> AddElement(elN,  fractionmass=0.7494);
+  matAir -> AddElement(elO,  fractionmass=0.2369);
+  matAir -> AddElement(elAr, fractionmass=0.0129);
+  matAir -> AddElement(elH,  fractionmass=0.0008);
+  
   // Print materials
   G4cout << *(G4Material::GetMaterialTable()) << G4endl;
 }
@@ -107,14 +119,14 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
 
   // Geometry parameters
   G4double detectorThickness = 1.*mm;
-  G4double SizeX  = 100.*cm;
+  G4double SizeX  = 200.*cm;
   G4double SizeY  =  20.*cm;
 
-  G4double worldSizeXY = 200 * cm;
+  G4double worldSizeXY = 400 * cm;
   G4double worldSizeZ  =  50 * cm; 
   
   // Get materials
-  G4Material* defaultMaterial = G4Material::GetMaterial("Galactic");
+  G4Material* defaultMaterial = G4Material::GetMaterial("Air");
   G4Material* radiatorMaterial = G4Material::GetMaterial("PBA");
   G4Material* detectorMaterial = G4Material::GetMaterial("detectorMat");
   
@@ -154,7 +166,7 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   //
   G4VSolid* radiatorSol
     = new G4Box("radiator",		   // its name
-		 SizeX/2, SizeY/2, radiatorThickness/2); // its size
+		 SizeX/2., SizeY/2., radiatorThickness/2.); // its size
 
   G4LogicalVolume* radiatorLV
     = new G4LogicalVolume(
@@ -175,27 +187,6 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   //
   //Detectors
   //
- 
-  G4VSolid* Detector1Solid 
-    = new G4Box("Detector1",  // its name
-  		SizeX/2, SizeY/2, detectorThickness/2); // its size
-  
-  G4LogicalVolume* detector1Logical
-    = new G4LogicalVolume(
-  			  Detector1Solid,    // its solid
-  			  detectorMaterial, // its material
-  			  "Detector1");  // its name
-  
-  new G4PVPlacement(
-  		    0,                // no rotation
-  		    G4ThreeVector(0., 0., (radiatorThickness+detectorThickness)/2+1*mm), 
-  		    detector1Logical,          // its logical volume                    
-  		    "Detector1",    // its name
-  		    worldLV,          // its mother  volume
-  		    false,            // no boolean operation
-  		    0,                // copy number
-  		    fCheckOverlaps);  // checking overlaps 
-
 
   /*add new detector 3 cm behind radiator*/
   G4VSolid* Detector2Solid 
