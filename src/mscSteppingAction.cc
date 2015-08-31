@@ -82,7 +82,6 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   G4ParticleDefinition* particleType = theTrack->GetDefinition();
   G4StepPoint*          thePrePoint  = theStep->GetPreStepPoint();
   G4StepPoint*          thePostPoint = theStep->GetPostStepPoint();
-  G4VPhysicalVolume*    thePostPV    = thePostPoint->GetPhysicalVolume();
   G4String              particleName = theTrack->GetDefinition()->GetParticleName();
 
   //get material
@@ -120,21 +119,11 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
     }
   }
 
-  if(thePostPV){
-    if(thePostPV->GetName().compare("Radiator")==0){
-      volume=0;
-      interactionNr[0]++;
-      intNr=interactionNr[0];
-    }else if(thePostPV->GetName().compare("Detector1")==0){
-      volume=1;
-      interactionNr[1]++;           
-      intNr=interactionNr[1];
-    }else if(thePostPV->GetName().compare("Detector2")==0){
-      volume=2;
-      interactionNr[2]++;     
-      intNr=interactionNr[2];
-    }    
-  }
+  G4TouchableHandle theTouchable = thePrePoint->GetTouchableHandle();
+  if(theTouchable->GetVolume(0)->GetName().compare("detector")==0)
+    volume = theTouchable->GetCopyNumber(1);
+  else
+    volume=-999;
 
   pType = particleType->GetPDGEncoding();
   trackID = theStep->GetTrack()->GetTrackID();
@@ -193,7 +182,6 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   /*fill tree*/ 
   if(material==1){
     tout->Fill();
-    //theTrack->SetTrackStatus(fStopAndKill);
   }
 }
 
