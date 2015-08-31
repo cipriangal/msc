@@ -36,10 +36,11 @@ private:
   G4double postMomX;
   G4double postMomY;
   G4double postMomZ;
-  G4double postPhi;
-  G4double postTheta;
-  G4double postAngX; //angle along x (long section of the detector)
-  G4double postAngY; //angle along y (short section of the detector)
+
+  G4double prePhi;
+  G4double preTheta;
+  G4double preAngX; //angle along x (long section of the detector)
+  G4double preAngY; //angle along y (short section of the detector)
   
   G4double  preE;
   G4double postE;
