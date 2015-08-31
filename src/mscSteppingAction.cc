@@ -31,28 +31,27 @@ mscSteppingAction::mscSteppingAction(G4int *evN)
   fout=new TFile("o_msc.root","RECREATE");
   tout=new TTree("t","Stepping action event tree");
 
-  tout->Branch( "prePosX", &prePosX, "prePosX/D");
-  tout->Branch( "prePosY", &prePosY, "prePosY/D");
-  tout->Branch( "prePosZ", &prePosZ, "prePosZ/D");
+  tout->Branch("postE",&postE,"postE/D");
   tout->Branch("postPosX",&postPosX,"postPosX/D");
   tout->Branch("postPosY",&postPosY,"postPosY/D");
   tout->Branch("postPosZ",&postPosZ,"postPosZ/D");
-
-  tout->Branch( "preMomX", &preMomX, "preMomX/D");
-  tout->Branch( "preMomY", &preMomY, "preMomY/D");
-  tout->Branch( "preMomZ", &preMomZ, "preMomZ/D");
   tout->Branch("postMomX",&postMomX,"postMomX/D");
   tout->Branch("postMomY",&postMomY,"postMomY/D");
   tout->Branch("postMomZ",&postMomZ,"postMomZ/D");
 
-  tout->Branch("postPhi"  ,&postPhi  ,"postPhi/D"  );
-  tout->Branch("postTheta",&postTheta,"postTheta/D");
-  tout->Branch("postAngX",&postAngX,"postAngX/D");
-  tout->Branch("postAngY",&postAngY,"postAngY/D");
+  tout->Branch( "prePosX", &prePosX, "prePosX/D");
+  tout->Branch( "prePosY", &prePosY, "prePosY/D");
+  tout->Branch( "prePosZ", &prePosZ, "prePosZ/D");
+  tout->Branch( "preMomX", &preMomX, "preMomX/D");
+  tout->Branch( "preMomY", &preMomY, "preMomY/D");
+  tout->Branch( "preMomZ", &preMomZ, "preMomZ/D");
+
+  tout->Branch("prePhi"  ,&prePhi  ,"prePhi/D"  );
+  tout->Branch("preTheta",&preTheta,"preTheta/D");
+  tout->Branch("preAngX",&preAngX,"preAngX/D");
+  tout->Branch("preAngY",&preAngY,"preAngY/D");
 
   tout->Branch("preE",&preE,"preE/D");
-  tout->Branch("postE",&postE,"postE/D");
-
 
   tout->Branch("evNr",&eventNr,"evNr/I");
   tout->Branch("material",&material,"material/I");
@@ -171,15 +170,25 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   postMomY = thePostPoint->GetMomentum().getY();
   postMomZ = thePostPoint->GetMomentum().getZ();
 
-  preE  =  thePrePoint->GetKineticEnergy();
-  postE = thePostPoint->GetKineticEnergy();
+  // preE  =  thePrePoint->GetKineticEnergy();
+  // postE = thePostPoint->GetKineticEnergy();
+  preE  =  thePrePoint->GetTotalEnergy();
+  postE = thePostPoint->GetTotalEnergy();
   
-  if(thePostPoint->GetMomentum().getR()>0){
-    postPhi = thePostPoint->GetMomentum().getPhi()               * 180. / CLHEP::pi;
-    postTheta = thePostPoint->GetMomentum().getTheta()           * 180. / CLHEP::pi;
-    postAngX = atan2(sin(postTheta)*cos(postPhi),cos(postTheta)) * 180. / CLHEP::pi;
-    postAngY = atan2(sin(postTheta)*sin(postPhi),cos(postTheta)) * 180. / CLHEP::pi;
+  if(thePrePoint->GetMomentum().getR()>0){
+    prePhi = thePrePoint->GetMomentum().getPhi();
+    preTheta = thePrePoint->GetMomentum().getTheta();
+    preAngX = atan2(sin(preTheta)*cos(prePhi),cos(preTheta)) * 180. / CLHEP::pi;
+    preAngY = atan2(sin(preTheta)*sin(prePhi),cos(preTheta)) * 180. / CLHEP::pi;
+    prePhi   *= 180. / CLHEP::pi;
+    preTheta *= 180. / CLHEP::pi;
   }
+
+  // if(fabs(preAngX)<200 && trackID==1 && parentID==0 && prePosZ<40.5 && prePosZ>30){    
+  //   G4cout<<G4endl<<preAngX<<G4endl<<" Pos: "<<prePosX<<" "<<prePosY<<" "<<prePosZ<<" "<<G4endl;
+  //   G4cout<<" Mom: "<<preMomX<<" "<<preMomY<<" "<<preMomZ<<" "<<G4endl;
+  //   G4cout<<" Ang: "<<prePhi<<" "<<preTheta<<G4endl;
+  // }
 
   /*fill tree*/ 
   if(material==1){
@@ -203,11 +212,10 @@ void mscSteppingAction::InitVar(){
   postMomY = -999;
   postMomZ = -999;
 
-  postPhi   = -999;
-  postTheta = -999;
-
-  postAngX = -999;
-  postAngY = -999;
+  prePhi   = -999;
+  preTheta = -999;
+  preAngX  = -999;
+  preAngY  = -999;
 
   preE  = -999;
   postE = -999;
