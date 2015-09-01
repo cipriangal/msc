@@ -123,7 +123,7 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   G4double unitRadThickness=2. * mm;
   
   // Geometry parameters
-  G4double detectorThickness = 0.1*cm;
+  G4double detectorThickness = 0.1 * mm;
   G4double SizeX  = 200.*cm;
   G4double SizeY  =  20.*cm;
 
@@ -232,7 +232,7 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
 
   for(G4int i=0;i<nrUnits;i++){
     G4double zpos=(i+0.5)*(unitRadThickness+detectorThickness);
-    std::string cnm="cotainer"+std::to_string(i);
+    std::string cnm="container"+std::to_string(i);
     new G4PVPlacement(
 		      0,                // no rotation
 		      G4ThreeVector(0., 0., zpos), 
