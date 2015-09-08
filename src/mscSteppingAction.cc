@@ -22,7 +22,7 @@ mscSteppingAction::mscSteppingAction(G4int *evN)
 {
   //eventID pointer from the mscEventAction.cc file
   evNr=evN;
-
+  
   for(int i=0;i<perpNval;i++) perpDepol.SetPoint(i,perpXDepol[i],perpYDepol[i]);   
   
   for(int i=0;i<3;i++) interactionNr.push_back(0);
@@ -52,6 +52,10 @@ mscSteppingAction::mscSteppingAction(G4int *evN)
   tout->Branch("preAngY",&preAngY,"preAngY/D");
 
   tout->Branch("preE",&preE,"preE/D");
+ 
+  tout->Branch("powE",  &powE,"powE/D");
+  tout->Branch("powTh", &powTh,"powTh/D");
+  tout->Branch("powPow",&powPow,"powPow/D");
 
   tout->Branch("evNr",&eventNr,"evNr/I");
   tout->Branch("material",&material,"material/I");
@@ -90,7 +94,8 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   G4ThreeVector _polarization=theTrack->GetPolarization();
   G4String _pn=thePostPoint->GetProcessDefinedStep()->GetProcessName();
   G4double depol(0),eLossPercent(0);
-  
+
+  info.Init();
   InitVar();
 
   eventNr=*evNr;
@@ -190,6 +195,12 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   //   G4cout<<" Ang: "<<prePhi<<" "<<preTheta<<G4endl;
   // }
 
+  if(info.updated){
+    powE=info.energy;
+    powTh=info.theta;
+    powPow=info.power;
+  }
+  
   /*fill tree*/ 
   if(material==1){
     tout->Fill();
@@ -228,6 +239,10 @@ void mscSteppingAction::InitVar(){
   parentID = -999;
   intNr = -999;
   process = -999;
+
+  powE = -999;
+  powTh= -999;
+  powPow=-999;
 }
 
 
