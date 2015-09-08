@@ -119,8 +119,8 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
 {
 
   //Unit container parameters
-  G4int nrUnits = 11;
-  G4double unitRadThickness=2. * mm;
+  G4int nrUnits = 15;
+  G4double unitRadThickness = 2. * mm;
   
   // Geometry parameters
   G4double detectorThickness = 0.1 * mm;
