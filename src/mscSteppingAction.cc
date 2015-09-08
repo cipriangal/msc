@@ -25,42 +25,33 @@ mscSteppingAction::mscSteppingAction(G4int *evN)
 
   for(int i=0;i<perpNval;i++) perpDepol.SetPoint(i,perpXDepol[i],perpYDepol[i]);   
   
-  for(int i=0;i<3;i++) interactionNr.push_back(0);
-  
   /*Create root file and initialize what I want to put in it*/
   fout=new TFile("o_msc.root","RECREATE");
   tout=new TTree("t","Stepping action event tree");
 
-  tout->Branch("postE",&postE,"postE/D");
-  tout->Branch("postPosX",&postPosX,"postPosX/D");
-  tout->Branch("postPosY",&postPosY,"postPosY/D");
-  tout->Branch("postPosZ",&postPosZ,"postPosZ/D");
-  tout->Branch("postMomX",&postMomX,"postMomX/D");
-  tout->Branch("postMomY",&postMomY,"postMomY/D");
-  tout->Branch("postMomZ",&postMomZ,"postMomZ/D");
-
-  tout->Branch( "prePosX", &prePosX, "prePosX/D");
-  tout->Branch( "prePosY", &prePosY, "prePosY/D");
-  tout->Branch( "prePosZ", &prePosZ, "prePosZ/D");
-  tout->Branch( "preMomX", &preMomX, "preMomX/D");
-  tout->Branch( "preMomY", &preMomY, "preMomY/D");
-  tout->Branch( "preMomZ", &preMomZ, "preMomZ/D");
-
-  tout->Branch("prePhi"  ,&prePhi  ,"prePhi/D"  );
-  tout->Branch("preTheta",&preTheta,"preTheta/D");
-  tout->Branch("preAngX",&preAngX,"preAngX/D");
-  tout->Branch("preAngY",&preAngY,"preAngY/D");
-
-  tout->Branch("preE",&preE,"preE/D");
-
   tout->Branch("evNr",&eventNr,"evNr/I");
   tout->Branch("material",&material,"material/I");
-  tout->Branch("volume",&volume,"volume/I");
+  tout->Branch("unitNo",&unitNo,"unitNo/I");
+
   tout->Branch("pType",&pType,"pType/I");
   tout->Branch("trackID",&trackID,"trackID/I");
   tout->Branch("parentID",&parentID,"parentID/I");
-  tout->Branch("intNr",&intNr,"intNr/I");
-  tout->Branch("process",&process,"process/I");
+
+  tout->Branch("preE",&preE,"preE/D");
+  tout->Branch("preKE",&preKE,"preKE/D");
+
+  tout->Branch("prePosX", &prePosX, "prePosX/D");
+  tout->Branch("prePosY", &prePosY, "prePosY/D");
+  tout->Branch("prePosZ", &prePosZ, "prePosZ/D");
+  tout->Branch("preMomX", &preMomX, "preMomX/D");
+  tout->Branch("preMomY", &preMomY, "preMomY/D");
+  tout->Branch("preMomZ", &preMomZ, "preMomZ/D");
+
+  tout->Branch("preAngX",&preAngX,"preAngX/D");
+  tout->Branch("preAngY",&preAngY,"preAngY/D");
+
+  tout->Branch("projPosX",&projPosX,"projPosX/D");
+  tout->Branch("projPosY",&projPosY,"projPosY/D");
   
 }
 
@@ -76,8 +67,6 @@ mscSteppingAction::~mscSteppingAction()
 
 void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
 {
-  static G4int currentEvent(-1);
-  
   G4Track*              theTrack     = theStep->GetTrack();
   G4ParticleDefinition* particleType = theTrack->GetDefinition();
   G4StepPoint*          thePrePoint  = theStep->GetPreStepPoint();
@@ -92,11 +81,9 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   
   InitVar();
 
+  const G4double MDposZ = 5 * CLHEP::cm;
+
   eventNr=*evNr;
-  if(currentEvent!=eventNr){ //new event
-    for(int i=0;i<3;i++) interactionNr[i]=0;
-    currentEvent=eventNr;
-  }
   
   if(theMaterial){    
     if(theMaterial->GetName().compare("detectorMat")==0)
@@ -105,7 +92,7 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
       material=0;
 
       eLossPercent = 1. - thePostPoint->GetKineticEnergy()/thePrePoint->GetKineticEnergy();
-      
+
       if(_pn.compare("eBrem")==0 &&                           // only for eBrem
 	 (_polarization.getX()>0 || _polarization.getY()>0)){ // only for transverse polarization
 	depol=0;
@@ -113,7 +100,7 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
 	else if( eLossPercent >= perpXDepol[0] ) depol = perpDepol.Eval(eLossPercent,0,"S")/100.;
 	else depol = 0.;
       }
-      
+
       _polarization *= (1.-depol);
       theStep->GetTrack()->SetPolarization(_polarization);
     }
@@ -121,63 +108,34 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
 
   G4TouchableHandle theTouchable = thePrePoint->GetTouchableHandle();
   if(theTouchable->GetVolume(0)->GetName().compare("detector")==0)
-    volume = theTouchable->GetCopyNumber(1);
+    unitNo = theTouchable->GetCopyNumber(1);
   else
-    volume=-999;
-
+    unitNo = -999;
+ 
   pType = particleType->GetPDGEncoding();
   trackID = theStep->GetTrack()->GetTrackID();
   parentID = theStep->GetTrack()->GetParentID();
 
-  if(_pn.compare("msc")==0)
-    process = 1;
-  else if(_pn.compare("CoulombScat")==0)
-    process = 2;
-  else if(_pn.compare("eBrem")==0)
-    process = 3;
-  else if(_pn.compare("Transportation")==0)
-    process = 4;
-  else if(_pn.compare("eIoni")==0)
-    process = 5;
-  else if(_pn.compare("CoupledTransportation")==0){
-    process = 6;
-  }else{
-    process = 0;
-  }  
+  preE  =  thePrePoint->GetTotalEnergy();
+  preKE = thePostPoint->GetKineticEnergy();
 
   prePosX  =  thePrePoint->GetPosition().getX();
   prePosY  =  thePrePoint->GetPosition().getY();
   prePosZ  =  thePrePoint->GetPosition().getZ();
-  postPosX = thePostPoint->GetPosition().getX();
-  postPosY = thePostPoint->GetPosition().getY();
-  postPosZ = thePostPoint->GetPosition().getZ();
-
   preMomX  =  thePrePoint->GetMomentum().getX();
   preMomY  =  thePrePoint->GetMomentum().getY();
   preMomZ  =  thePrePoint->GetMomentum().getZ();
-  postMomX = thePostPoint->GetMomentum().getX();
-  postMomY = thePostPoint->GetMomentum().getY();
-  postMomZ = thePostPoint->GetMomentum().getZ();
-
-  // preE  =  thePrePoint->GetKineticEnergy();
-  // postE = thePostPoint->GetKineticEnergy();
-  preE  =  thePrePoint->GetTotalEnergy();
-  postE = thePostPoint->GetTotalEnergy();
   
   if(thePrePoint->GetMomentum().getR()>0){
-    prePhi = thePrePoint->GetMomentum().getPhi();
-    preTheta = thePrePoint->GetMomentum().getTheta();
+    G4double prePhi = thePrePoint->GetMomentum().getPhi();
+    G4double preTheta = thePrePoint->GetMomentum().getTheta();
     preAngX = atan2(sin(preTheta)*cos(prePhi),cos(preTheta)) * 180. / CLHEP::pi;
     preAngY = atan2(sin(preTheta)*sin(prePhi),cos(preTheta)) * 180. / CLHEP::pi;
-    prePhi   *= 180. / CLHEP::pi;
-    preTheta *= 180. / CLHEP::pi;
-  }
 
-  // if(fabs(preAngX)<200 && trackID==1 && parentID==0 && prePosZ<40.5 && prePosZ>30){    
-  //   G4cout<<G4endl<<preAngX<<G4endl<<" Pos: "<<prePosX<<" "<<prePosY<<" "<<prePosZ<<" "<<G4endl;
-  //   G4cout<<" Mom: "<<preMomX<<" "<<preMomY<<" "<<preMomZ<<" "<<G4endl;
-  //   G4cout<<" Ang: "<<prePhi<<" "<<preTheta<<G4endl;
-  // }
+    projPosX = prePosX + (MDposZ - prePosZ) * tan(preAngX * CLHEP::pi/180.);
+    projPosY = prePosY + (MDposZ - prePosZ) * tan(preAngY * CLHEP::pi/180.);
+    
+  }
 
   /*fill tree*/ 
   if(material==1){
@@ -186,36 +144,29 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
 }
 
 void mscSteppingAction::InitVar(){
-  prePosX  = -999;
-  prePosY  = -999;
-  prePosZ  = -999;
-  postPosX = -999;
-  postPosY = -999;
-  postPosZ = -999;
-
-  preMomX  = -999;
-  preMomY  = -999;
-  preMomZ  = -999;
-  postMomX = -999;
-  postMomY = -999;
-  postMomZ = -999;
-
-  prePhi   = -999;
-  preTheta = -999;
-  preAngX  = -999;
-  preAngY  = -999;
-
-  preE  = -999;
-  postE = -999;
-  
   eventNr = -999;
   material = -999;
-  volume = -999;
+  unitNo = -999;
   pType = -999;
   trackID = -999;
   parentID = -999;
-  intNr = -999;
-  process = -999;
+
+  preE  = -999;
+  preKE = -999;
+
+  prePosX  = -999;
+  prePosY  = -999;
+  prePosZ  = -999;
+  preMomX  = -999;
+  preMomY  = -999;
+  preMomZ  = -999;
+
+  preAngX  = -999;
+  preAngY  = -999;
+
+  projPosX = -999;
+  projPosY = -999;
+  
 }
 
 
