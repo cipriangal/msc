@@ -68,8 +68,6 @@
 #include "G4Log.hh"
 #include "G4Exp.hh"
 
-#include "QweakSimMScAnalyzingPower.hh"
-
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -647,14 +645,14 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  G4cout<<" ~~ Wentzel ~~ polarization.R: "<<polarization.getR()<<G4endl;
 	}
       
-	//scale by 1/energy, sin Theta and transvers polarization
-	G4double _amplitude=1.0/eEnergy * sint *
-	                    sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
+	////scale by 1/energy, sin Theta and transvers polarization
+	// G4double _amplitude=1.0/eEnergy * sint *
+	//                     sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
 
-	//if E<1 AN could be larger than 1
-	if(_amplitude > 1 ) _amplitude=1.;
+	// //if E<1 AN could be larger than 1
+	// if(_amplitude > 1 ) _amplitude=1.;
 
-	//G4double _amplitude = AnalyzingPower(eEnergy, sint);
+	G4double _amplitude = AnalyzingPower(eEnergy, cost);
 	
 	if( _prob < _amplitude * sin(phi-pi) )
 	  phi-=pi;
@@ -707,14 +705,14 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  G4cout<<" ~~ Wentzel ~~ polarization.R: "<<polarization.getR()<<G4endl;
 	}
 	
-	//scale by 1/energy, sin Theta and transvers polarization
-	G4double _amplitude=1.0/eEnergy * sint *
-	                    sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
+	// //scale by 1/energy, sin Theta and transvers polarization
+	// G4double _amplitude=1.0/eEnergy * sint *
+	//                     sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
 
-	//if E<1 AN could be larger than 1
-	if(_amplitude > 1 ) _amplitude=1.;
+	// //if E<1 AN could be larger than 1
+	// if(_amplitude > 1 ) _amplitude=1.;
 
-	//G4double _amplitude = AnalyzingPower(eEnergy, sint);
+	G4double _amplitude = AnalyzingPower(eEnergy, cost);
 
 	if( _prob < _amplitude * sin(phi-pi) )
 	  phi-=pi;

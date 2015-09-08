@@ -61,6 +61,8 @@
 #include "G4MaterialCutsCouple.hh"
 #include "G4WentzelOKandVIxSection.hh"
 
+#include "QweakSimMScAnalyzingPower.hh"
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class QweakSimWentzelVIModel : public G4VMscModel

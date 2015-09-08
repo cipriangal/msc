@@ -71,8 +71,6 @@
 #include "G4Log.hh"
 #include "G4Exp.hh"
 
-#include "QweakSimMScAnalyzingPower.hh"
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 using namespace std;
@@ -961,13 +959,13 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
       G4cout<<" ~~ Urban ~~ polarization.R: "<<polarization.getR()<<G4endl;
     }
     
-    //scale by 1/energy, sin Theta and transvers polarization
-    G4double _amplitude=1.0/eEnergy * sth *
-    	                sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
-    //if E<1 AN could be larger than 1
-    if(_amplitude > 1 ) _amplitude=1.;
+    // //scale by 1/energy, sin Theta and transvers polarization
+    // G4double _amplitude=1.0/eEnergy * sth *
+    // 	                sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
+    // //if E<1 AN could be larger than 1
+    // if(_amplitude > 1 ) _amplitude=1.;
 
-    //G4double _amplitude = AnalyzingPower(eEnergy, sth);
+    G4double _amplitude = AnalyzingPower(eEnergy, cth);
     
     if( _prob < _amplitude * sin(phi-pi) )
       phi-=pi;

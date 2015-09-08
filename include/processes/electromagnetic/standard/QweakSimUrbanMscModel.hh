@@ -63,6 +63,9 @@
 #include "G4Log.hh"
 #include "G4Exp.hh"
 
+#include "QweakSimMScAnalyzingPower.hh"
+
+
 class G4ParticleChangeForMSC;
 class G4SafetyHelper;
 class G4LossTableManager;
