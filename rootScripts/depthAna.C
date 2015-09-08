@@ -1,7 +1,17 @@
 TCanvas *c1=new TCanvas("c1","c1",1400,600);
 string onm;
+const int units=15;
 
 void depthAna(){
+
+  string infile="../output/depth15x2mm/o_msc_V_mottx1e2_1e5_15Sections.root";
+  string oufile="../output/depth15x2mm/o_dis_V_mottx1e2_1e5_15Sections.root";
+  onm="../output/depth15x2mm/y_dis_V_mottx1e2_1e5_15Sections.pdf";
+  c1->Print(Form("%s[",onm.c_str()),"pdf");
+  getDist(infile,oufile);
+  calcLightAsym(oufile);
+  c1->Print(Form("%s]",onm.c_str()),"pdf");
+  
   // string infile="../output/depth11x2mm/o_msc_L_5e5_11Sections.root";
   // string oufile="../output/depth11x2mm/o_dis_L_5e5_11Sections.root";
   // onm="../output/depth11x2mm/y_dis_L_5e5_11Sections.pdf";
@@ -10,14 +20,14 @@ void depthAna(){
   // calcLightAsym(oufile);
   // c1->Print(Form("%s]",onm.c_str()),"pdf");
 
-  string infile="../output/depth11x2mm/o_msc_V_mottx1e2_1e6_11Sections.root";
-  string oufile="../output/depth11x2mm/o_dis_V_mottx1e2_1e6_11Sections.root";
-  onm="../output/depth11x2mm/y_dis_V_mottx1e2_1e6_11Sections.pdf";
-  c1->Print(Form("%s[",onm.c_str()),"pdf");
-  getDist(infile,oufile);
-  calcLightAsym(oufile);
-  c1->Print(Form("%s]",onm.c_str()),"pdf");
-
+  // string infile="../output/depth11x2mm/o_msc_V_mottx1e2_1e6_11Sections.root";
+  // string oufile="../output/depth11x2mm/o_dis_V_mottx1e2_1e6_11Sections.root";
+  // onm="../output/depth11x2mm/y_dis_V_mottx1e2_1e6_11Sections.pdf";
+  // c1->Print(Form("%s[",onm.c_str()),"pdf");
+  // getDist(infile,oufile);
+  // calcLightAsym(oufile);
+  // c1->Print(Form("%s]",onm.c_str()),"pdf");
+  
   // string infile="../output/depth11x2mm/o_msc_V_2phx1e4_1e5_11Sections.root";
   // string oufile="../output/depth11x2mm/o_dis_V_2phx1e4_1e5_11Sections.root";
   // onm="../output/depth11x2mm/y_dis_V_2phx1e4_1e5_11Sections.pdf";
@@ -37,12 +47,12 @@ void getDist(string infile, string oufile){
   const string partType[3]={"trackID==1 && parentID==0 && pType==11","pType==11","pType==22"};
 
   TFile *fout=new TFile(oufile.c_str(),"RECREATE");
-  TH2D *distX[3][11];
+  TH2D *distX[3][units];
   
   TFile *fin=TFile::Open(infile.c_str(),"READ");
   TTree *t=(TTree*)fin->Get("t");
 
-  for(int j=0;j<11;j++){
+  for(int j=0;j<units;j++){
     double zpos=2.+2.1*j;
 
     for(int i=0;i<3;i++){
@@ -62,7 +72,7 @@ void getDist(string infile, string oufile){
   fin->Close();
   fout->cd();
 
-  for(int j=0;j<11;j++)
+  for(int j=0;j<units;j++)
     for(int i=0;i<3;i++){
       distX[i][j]->Write();
     }
@@ -79,7 +89,7 @@ void calcLightAsym(string infile){
   TFile *fin=TFile::Open(infile.c_str(),"READ");
   
   TGraphErrors *g[3];
-  TH1D *asym[3][11];
+  TH1D *asym[3][units];
   const string type[3]={"Pe","Ae","Ph"};
   const string tit[3]={"Primary e-","All e","Photons"};
   
@@ -88,7 +98,7 @@ void calcLightAsym(string infile){
     g[i]->SetName(Form("g_%s",type[i].c_str()));
     g[i]->SetTitle(Form("%s;z position [mm]; light imbalance",tit[i].c_str()));
     
-    for(int j=0;j<11;j++){
+    for(int j=0;j<units;j++){
       asym[i][j]=new TH1D(Form("asym_%s_%d",type[i].c_str(),j),"light imbalance",
 			  201,-1.2,1.2);
 
