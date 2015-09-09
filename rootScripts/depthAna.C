@@ -4,9 +4,9 @@ const int units=15;
 
 void depthAna(){
 
-  string infile="../output/depth15x2mm/o_msc_V_mottx1e2_1e5_15Sections.root";
-  string oufile="../output/depth15x2mm/o_dis_V_mottx1e2_1e5_15Sections.root";
-  onm="../output/depth15x2mm/y_dis_V_mottx1e2_1e5_15Sections.pdf";
+  string infile="../output/depth15x2mm/o_msc_V_mottx1e2_1e6_15Sections.root";
+  string oufile="../output/depth15x2mm/o_dis_V_mottx1e2_1e6_15Sections.root";
+  onm="../output/depth15x2mm/y_dis_V_mottx1e2_1e6_15Sections.pdf";
   c1->Print(Form("%s[",onm.c_str()),"pdf");
   getDist(infile,oufile);
   calcLightAsym(oufile);
@@ -47,7 +47,7 @@ void getDist(string infile, string oufile){
   const string partType[3]={"trackID==1 && parentID==0 && pType==11","pType==11","pType==22"};
 
   TFile *fout=new TFile(oufile.c_str(),"RECREATE");
-  TH2D *distX[3][units];
+  TH2D *distY[3][units];
   
   TFile *fin=TFile::Open(infile.c_str(),"READ");
   TTree *t=(TTree*)fin->Get("t");
@@ -57,13 +57,13 @@ void getDist(string infile, string oufile){
 
     for(int i=0;i<3;i++){
       fout->cd();
-      distX[i][j]=new TH2D(Form("distX%s_z%d",type[i].c_str(),j),
-			   Form("%s E>2MeV;x pos [cm];x angle [deg]",tit[i].c_str()),
+      distY[i][j]=new TH2D(Form("distY%s_z%d",type[i].c_str(),j),
+			   Form("%s E>2MeV;y pos [cm];y angle [deg]",tit[i].c_str()),
 			   200,-15,15,
 			   180,-90,90);    
-      cout<<distX[i][j]->GetName()<<endl;
-      t->Project(distX[i][j]->GetName(),"preAngX:prePosX/10",
-		 Form("%s && preE>=2 && material==1 && volume==%d && abs(prePosZ-%f)<0.05",
+      cout<<distY[i][j]->GetName()<<endl;
+      t->Project(distY[i][j]->GetName(),"preAngX:projPosX/10",
+		 Form("%s && preE>=2 && material==1 && unitNo==%d && abs(prePosZ-%f)<0.05",
 		      partType[i].c_str(),j,zpos));
     }
 
@@ -74,7 +74,7 @@ void getDist(string infile, string oufile){
 
   for(int j=0;j<units;j++)
     for(int i=0;i<3;i++){
-      distX[i][j]->Write();
+      distY[i][j]->Write();
     }
 
   
@@ -102,8 +102,8 @@ void calcLightAsym(string infile){
       asym[i][j]=new TH1D(Form("asym_%s_%d",type[i].c_str(),j),"light imbalance",
 			  201,-1.2,1.2);
 
-      TH2D *distX=(TH2D*)fin->Get(Form("distX%s_z%d",type[i].c_str(),j));
-      calcMean(distX,asym[i][j]);
+      TH2D *distY=(TH2D*)fin->Get(Form("distY%s_z%d",type[i].c_str(),j));
+      calcMean(distY,asym[i][j]);
       
       double zpos=2.+2.1*j;
       g[i]->SetPoint(j,zpos,asym[i][j]->GetMean());
@@ -113,11 +113,11 @@ void calcLightAsym(string infile){
       c1->cd(0);
       c1->Divide(2);
       c1->cd(1);  
-      distX->GetXaxis()->SetRangeUser(-20,20);
-      distX->GetYaxis()->SetRangeUser(-35,35);
-      distX->GetZaxis()->SetRangeUser(1,200000);
-      distX->SetStats(0);
-      distX->DrawCopy("colz");
+      distY->GetXaxis()->SetRangeUser(-20,20);
+      distY->GetYaxis()->SetRangeUser(-35,35);
+      distY->GetZaxis()->SetRangeUser(1,200000);
+      distY->SetStats(0);
+      distY->DrawCopy("colz");
       gPad->SetLogz(1);
       gPad->SetGridx(1);
       gPad->SetGridy(1);
