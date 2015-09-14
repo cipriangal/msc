@@ -5,11 +5,18 @@ cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 project(msc)
 
 # Find Geant4
-if(NOT DEFINED Geant4_DIR)
+SITE_NAME(mySite)
+if(${mySite} MATCHES "ifarm*")
+   set(Geant4_DIR /w/hallc-scifs2/qweak/ciprian/geant41001p01/source/geant4.10.01.p01/build)
+   message( "On ifarm using custom geant4_dir: " ${Geant4_DIR})
+else()
+   if(NOT DEFINED Geant4_DIR)
 	set(Geant4_DIR $ENV{G4INSTALL}/build)
-endif(NOT DEFINED Geant4_DIR)
+   endif(NOT DEFINED Geant4_DIR)
+endif()
+
 find_package(Geant4 REQUIRED COMPONENTS gdml qt ui_all vis_all)
-execute_process(COMMAND geant4-config --version
+execute_process(COMMAND ${Geant4_DIR}/geant4-config --version
                 OUTPUT_VARIABLE GEANT4_VERSION
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 message(STATUS "Found Geant4 ${GEANT4_VERSION}")
@@ -27,23 +34,12 @@ else(GEANT4_VERSION VERSION_LESS "10.0.0")
 endif(GEANT4_VERSION VERSION_LESS "10.0.0")
 
 #----------------------------------------------------------------------------
-# Find Geant4 package, activating all available UI and Vis drivers by default
-# You can set WITH_GEANT4_UIVIS to OFF via the command line or ccmake/cmake-gui
-# to build a batch mode only executable
-#
-option(WITH_GEANT4_UIVIS "Build example with Geant4 UI and Vis drivers" ON)
-if(WITH_GEANT4_UIVIS)
-  find_package(Geant4 REQUIRED ui_all vis_all)
-else()
-  find_package(Geant4 REQUIRED)
-endif()
-
-#----------------------------------------------------------------------------
 # Setup Geant4 include directories and compile definitions
 # Setup include directory for this project
 #
 include(${Geant4_USE_FILE})
 include_directories(${PROJECT_SOURCE_DIR}/include)
+message(STATUS "Geant4 include files come from: ${Geant4_USE_FILE}")
 
 # Load ROOT and setup include directory
 find_package(ROOT REQUIRED)
