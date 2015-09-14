@@ -68,6 +68,7 @@
 #include "G4Log.hh"
 #include "G4Exp.hh"
 
+#include <fstream>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -265,6 +266,7 @@ G4double QweakSimWentzelVIModel::ComputeTruePathLengthLimit(
   // FIXME
   ePolarized=false;
   debugPrint=false;
+  writeANdata=true;
   if(strcmp(track.GetParticleDefinition()->GetParticleName().data() , "e-") == 0)
     if(strcmp(track.GetMaterial()->GetName(),"PBA") == 0){
       if(track.GetPolarization().getR() >= 0.1) debugPrint=true;
@@ -653,7 +655,14 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	// if(_amplitude > 1 ) _amplitude=1.;
 
 	G4double _amplitude = AnalyzingPower(eEnergy, cost);
-	
+
+	if(writeANdata){
+	  std::ofstream ofs;
+	  ofs.open("o_msc_ANdata.txt",std::ofstream::app);
+	  ofs<<eEnergy<<" "<<cost<<" "<<_amplitude<<" "<<polarization.getR()<<G4endl;
+	  ofs.close();
+	}
+
 	if( _prob < _amplitude * sin(phi-pi) )
 	  phi-=pi;
 	phi+= polarization.getPhi() - oldDirection.getPhi();
@@ -713,6 +722,13 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	// if(_amplitude > 1 ) _amplitude=1.;
 
 	G4double _amplitude = AnalyzingPower(eEnergy, cost);
+
+	if(writeANdata){
+	  std::ofstream ofs;
+	  ofs.open("o_msc_ANdata.txt",std::ofstream::app);
+	  ofs<<eEnergy<<" "<<cost<<" "<<_amplitude<<" "<<polarization.getR()<<G4endl;
+	  ofs.close();
+	}
 
 	if( _prob < _amplitude * sin(phi-pi) )
 	  phi-=pi;

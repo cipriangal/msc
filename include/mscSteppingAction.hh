@@ -7,7 +7,6 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TGraph.h"
-#include "MScAnalyzingPowerData.hh"
 
 class mscSteppingAction : public G4UserSteppingAction
 {

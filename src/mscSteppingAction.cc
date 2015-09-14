@@ -9,6 +9,7 @@
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTypes.hh"
 
+#include <fstream>
 /*
   Brem depolarization: PhysRev.114.887
   implemented only for transverse polarization
@@ -22,6 +23,11 @@ mscSteppingAction::mscSteppingAction(G4int *evN)
 {
   //eventID pointer from the mscEventAction.cc file
   evNr=evN;
+
+  std::ofstream ofs;
+  ofs.open("o_msc_ANdata.txt",std::ofstream::out);
+  ofs<<"energy[MeV] cos(theta) anaPower polarization"<<G4endl;
+  ofs.close();
   
   for(int i=0;i<perpNval;i++) perpDepol.SetPoint(i,perpXDepol[i],perpYDepol[i]);   
   
@@ -95,7 +101,6 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   G4String _pn=thePostPoint->GetProcessDefinedStep()->GetProcessName();
   G4double depol(0),eLossPercent(0);
 
-  info.Init();
   InitVar();
 
   eventNr=*evNr;
@@ -194,12 +199,6 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   //   G4cout<<" Mom: "<<preMomX<<" "<<preMomY<<" "<<preMomZ<<" "<<G4endl;
   //   G4cout<<" Ang: "<<prePhi<<" "<<preTheta<<G4endl;
   // }
-
-  if(info.updated){
-    powE=info.energy;
-    powTh=info.theta;
-    powPow=info.power;
-  }
   
   /*fill tree*/ 
   if(material==1){
