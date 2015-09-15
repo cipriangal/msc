@@ -39,9 +39,9 @@ mscDetectorConstruction::mscDetectorConstruction()
   fMessenger 
     = new G4GenericMessenger(this, "/msc/det/", "Detector construction control");
 
-  // G4double PbRadiationLength = 0.5612 * cm;
-  // radiatorThickness = 0.40 * PbRadiationLength;  
-  radiatorThickness = 2. * cm; //QweakSimG4 preradiator thickness
+  G4double PbRadiationLength = 0.5612 * cm;
+  radiatorThickness = 0.001 * PbRadiationLength;  
+  // radiatorThickness = 2. * cm; //QweakSimG4 preradiator thickness
   // Define /msc/det/setRadiatorThickness command
   G4GenericMessenger::Command& setRadiatorThicknessCmd
     = fMessenger->DeclareMethod("setRadiatorThickness", 
@@ -118,9 +118,9 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
 {
 
   // Geometry parameters
-  G4double detectorThickness = 1.*mm;
-  G4double SizeX  = 200.*cm;
-  G4double SizeY  =  20.*cm;
+  G4double detectorThickness = 0.01 * mm;
+  G4double SizeX  = 200. * cm;
+  G4double SizeY  =  20. * cm;
 
   G4double worldSizeXY = 400 * cm;
   G4double worldSizeZ  =  50 * cm; 
@@ -178,7 +178,7 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
                  0,                // no rotation
                  G4ThreeVector(0., 0., 0.), 
                  radiatorLV,       // its logical volume                         
-                 "Radiator",       // its name
+                 "radiator",       // its name
                  worldLV,          // its mother  volume
                  false,            // no boolean operation
                  0,                // copy number
@@ -187,23 +187,43 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   //
   //Detectors
   //
+  /*add new at the exit from the Pb*/
+  G4VSolid* detector1Solid 
+    = new G4Box("detector1",  // its name
+		SizeX/2, SizeY/2, detectorThickness/2); // its size
+  
+  G4LogicalVolume* detector1Logical
+    = new G4LogicalVolume(
+			  detector1Solid,    // its solid
+			  detectorMaterial, // its material
+			  "detector1");  // its name
+  
+  new G4PVPlacement(
+		    0,                // no rotation
+		    G4ThreeVector(0., 0., (radiatorThickness+detectorThickness)/2.), 
+		    detector1Logical,          // its logical volume                    
+		    "detector1",    // its name
+		    worldLV,          // its mother  volume
+		    false,            // no boolean operation
+		    0,                // copy number
+		    fCheckOverlaps);  // checking overlaps 
 
   /*add new detector 3 cm behind radiator*/
-  G4VSolid* Detector2Solid 
-    = new G4Box("Detector2",  // its name
+  G4VSolid* detector2Solid 
+    = new G4Box("detector2",  // its name
 		SizeX/2, SizeY/2, detectorThickness/2); // its size
   
   G4LogicalVolume* detector2Logical
     = new G4LogicalVolume(
-			  Detector2Solid,    // its solid
+			  detector2Solid,    // its solid
 			  detectorMaterial, // its material
-			  "Detector2");  // its name
+			  "detector2");  // its name
   
   new G4PVPlacement(
 		    0,                // no rotation
-		    G4ThreeVector(0., 0., (radiatorThickness+detectorThickness)/2 + 3.*cm), 
+		    G4ThreeVector(0., 0., (radiatorThickness+detectorThickness)/2. + 3.*cm), 
 		    detector2Logical,          // its logical volume                    
-		    "Detector2",    // its name
+		    "detector2",    // its name
 		    worldLV,          // its mother  volume
 		    false,            // no boolean operation
 		    0,                // copy number
