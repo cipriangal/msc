@@ -131,15 +131,15 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   }
 
   if(thePostPV){
-    if(thePostPV->GetName().compare("Radiator")==0){
+    if(thePostPV->GetName().compare("radiator")==0){
       volume=0;
       interactionNr[0]++;
       intNr=interactionNr[0];
-    }else if(thePostPV->GetName().compare("Detector1")==0){
+    }else if(thePostPV->GetName().compare("detector1")==0){
       volume=1;
       interactionNr[1]++;           
       intNr=interactionNr[1];
-    }else if(thePostPV->GetName().compare("Detector2")==0){
+    }else if(thePostPV->GetName().compare("detector2")==0){
       volume=2;
       interactionNr[2]++;     
       intNr=interactionNr[2];
