@@ -59,24 +59,33 @@ void drawData(){
   gPad->SetLogz(1);
   c1->Print(onm.c_str(),"pdf");
   gPad->SetLogz(0);
-  
-  // double ene,th,pow;
-  // t->SetBranchAddress("energy",&ene);
-  // t->SetBranchAddress("theta",&th);
-  // t->SetBranchAddress("AN",&pow);
-  
-  // int nev=t->GetEntries();
-  
-  // TH2D *eThDist=new TH2D("eThDist",";theta [deg]; log(Q) [MeV]",180,0,180,100,-1,3.5);
 
-  // double deg=180./3.1415926536;
-  // for(int i=0;i<nev;i++){
-  //   t->GetEntry(i);
-  //   if(i%100000==1) cout<<i<<endl;
-  //   if(energy<=0) continue;
-  //   double q=sqrt(4.*pow(ene,2)*sin(th/deg));
-  //   eThDist->Fill(th,q,
-  // }
+  t->Draw("theta : log10(energy) : abs(AN)","energy>0","colz");
+  htemp->SetTitle("abs(Analyzing power 1000x2ph); log10(E) [MeV]; theta [deg]");
+  htemp->Draw("colz");
+  gPad->SetLogz(1);
+  c1->Print(onm.c_str(),"pdf");
+  gPad->SetLogz(0);
+
+  t->Draw("theta : log10(q) : abs(AN)","energy>0 && theta<30","colz");
+  htemp->SetTitle("abs(Analyzing power 1000x2ph); log10(q) [MeV]; theta [deg]");
+  htemp->Draw("colz");
+  gPad->SetLogz(1);
+  c1->Print(onm.c_str(),"pdf");
+  gPad->SetLogz(0);
+
+  t->Draw("theta : log10(q)","energy>0 && theta<30","colz");
+  gPad->SetLogz(1);
+  c1->Print(onm.c_str(),"pdf");
+  gPad->SetLogz(0);
+
+  t->Draw("theta : log10(energy) : abs(AN)","energy>0 && theta<30","colz");
+  htemp->SetTitle("abs(Analyzing power 1000x2ph); log10(E) [MeV]; theta [deg]");
+  htemp->Draw("colz");
+  gPad->SetLogz(1);
+  c1->Print(onm.c_str(),"pdf");
+  gPad->SetLogz(0);
+
 
   fin->Close();
 }
