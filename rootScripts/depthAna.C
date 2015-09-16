@@ -6,10 +6,11 @@ void depthAna(){
 
   string infile="../output/depth15x2mm/o_msc_V_mottx1e2_1e6_15Sections.root";
   string oufile="../output/depth15x2mm/o_dis_V_mottx1e2_1e6_15Sections.root";
-  onm="../output/depth15x2mm/y_dis_V_mottx1e2_1e6_15Sections.pdf";
+  onm="../output/depth15x2mm/y_dis_V_mottx1e2_1e6_15Sections_Eang.pdf";
   c1->Print(Form("%s[",onm.c_str()),"pdf");
-  getDist(infile,oufile);
-  calcLightAsym(oufile);
+  //getDist(infile,oufile);
+  //calcLightAsym(oufile);
+  drawEang(oufile);
   c1->Print(Form("%s]",onm.c_str()),"pdf");
   
   // string infile="../output/depth11x2mm/o_msc_L_5e5_11Sections.root";
@@ -46,8 +47,10 @@ void getDist(string infile, string oufile){
   const string tit[3]={"Primary e-","All e","Photons"};
   const string partType[3]={"trackID==1 && parentID==0 && pType==11","pType==11","pType==22"};
 
-  TFile *fout=new TFile(oufile.c_str(),"RECREATE");
+  TFile *fout=new TFile(oufile.c_str(),"UPDATE");
+  //TFile *fout=new TFile(oufile.c_str(),"RECREATE");
   TH2D *distY[3][units];
+  TH2D *distEang[3][units];
   
   TFile *fin=TFile::Open(infile.c_str(),"READ");
   TTree *t=(TTree*)fin->Get("t");
@@ -55,15 +58,24 @@ void getDist(string infile, string oufile){
   for(int j=0;j<units;j++){
     double zpos=2.+2.1*j;
 
-    for(int i=0;i<3;i++){
+    for(int i=0;i<2;i++){
       fout->cd();
-      distY[i][j]=new TH2D(Form("distY%s_z%d",type[i].c_str(),j),
-			   Form("%s E>2MeV;y pos [cm];y angle [deg]",tit[i].c_str()),
-			   200,-15,15,
-			   180,-90,90);    
-      cout<<distY[i][j]->GetName()<<endl;
-      t->Project(distY[i][j]->GetName(),"preAngX:projPosX/10",
-		 Form("%s && preE>=2 && material==1 && unitNo==%d && abs(prePosZ-%f)<0.05",
+      // distY[i][j]=new TH2D(Form("distY%s_z%d",type[i].c_str(),j),
+      // 			   Form("%s E>2MeV;y pos [cm];y angle [deg]",tit[i].c_str()),
+      // 			   200,-15,15,
+      // 			   180,-90,90);    
+      distEang[i][j]=new TH2D(Form("distEang%s_z%d",type[i].c_str(),j),
+			      Form("%s ;log10(E) [MeV];y angle [deg]",tit[i].c_str()),
+			      400,-0.5,3.2,
+			      180,-90,90);    
+      cout<<distEang[i][j]->GetName()<<endl;
+      
+      // t->Project(distY[i][j]->GetName(),"preAngX:projPosX/10",
+      // 		 Form("%s && preE>=2 && material==1 && unitNo==%d && abs(prePosZ-%f)<0.05",
+      // 		      partType[i].c_str(),j,zpos));
+
+      t->Project(distEang[i][j]->GetName(),"preAngX:log10(preE)",
+		 Form("%s && material==1 && unitNo==%d && abs(prePosZ-%f)<0.05",
 		      partType[i].c_str(),j,zpos));
     }
 
@@ -73,12 +85,47 @@ void getDist(string infile, string oufile){
   fout->cd();
 
   for(int j=0;j<units;j++)
-    for(int i=0;i<3;i++){
-      distY[i][j]->Write();
+    for(int i=0;i<2;i++){
+      //distY[i][j]->Write();
+      distEang[i][j]->Write();
     }
 
   
   fout->Close();  
+}
+
+void drawEang(string infile){
+  gStyle->SetOptStat(1211);
+  gStyle->SetOptFit(1);
+
+  TFile *fin=TFile::Open(infile.c_str(),"READ");
+  
+  const string type[3]={"Pe","Ae","Ph"};
+  const string tit[3]={"Primary e-","All e","Photons"};
+  
+  for(int i=0;i<2;i++){    
+    for(int j=0;j<units;j++){
+      TH2D *distEang=(TH2D*)fin->Get(Form("distEang%s_z%d",type[i].c_str(),j));
+      double zpos=2.+2.1*j;
+      distEang->SetTitle(Form("%s z=%f",distEang->GetTitle(),zpos));
+      c1->Clear();
+      c1->cd(0);
+      c1->Divide(2);
+      c1->cd(1);  
+      //distEang->GetXaxis()->SetRangeUser(-20,20);
+      //distEang->GetYaxis()->SetRangeUser(-35,35);
+      distEang->GetZaxis()->SetRangeUser(1,4000);
+      distEang->SetStats(0);
+      distEang->DrawCopy("colz");
+      gPad->SetLogz(1);
+      gPad->SetGridx(1);
+      gPad->SetGridy(1);
+      c1->cd(2);
+      c1->Print(onm.c_str(),"pdf");
+    }
+  }
+
+  fin->Close();
 }
 
 void calcLightAsym(string infile){
@@ -129,7 +176,7 @@ void calcLightAsym(string infile){
 
     c1->Clear();
     g[i]->SetMarkerStyle(20);
-    g[i]->Fit("pol0");
+    //g[i]->Fit("pol0");
     g[i]->Draw("APL");
     gPad->SetGridy(1);
     c1->Print(onm.c_str(),"pdf");
