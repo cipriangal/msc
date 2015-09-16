@@ -11,17 +11,7 @@ void ANdataAna(){
   c1->Print(Form("%s[",onm.c_str()),"pdf");
   getData();
   drawData();
-  c1->Print(Form("%s]",onm.c_str()),"pdf");
-
-  // fnm="../output/anaPowerData/o_ANd_1e3x2ph.root";
-  // inm="../output/anaPowerData/o_msc_ANdata_1e3x2ph.txt";
-  // onm="../output/anaPowerData/y_ANd_1e3x2ph.pdf";
-  // c1->Print(Form("%s[",onm.c_str()),"pdf");
-  // getData();
-  // drawData();
-  // c1->Print(Form("%s]",onm.c_str()),"pdf");
-
-  
+  c1->Print(Form("%s]",onm.c_str()),"pdf");  
 }
 
 void getData(){
@@ -52,37 +42,30 @@ void getData(){
 
 void drawData(){
   TFile *fin=TFile::Open(fnm.c_str(),"READ");
-  TTree *t=(TTree*)fin->Get("t");
+  TTree *t=(TTree*)fin->Get("t");  
 
-  TH2D *eThDist=new TH2D("eThDist",";theta [deg]; log(energy) [MeV]",180,0,180,100,-1,3.5);
-  //TH2D *anaPow =new TH2D("anaPow","Analyzing power;theta [deg]; log(energy) [MeV]",180,0,180,100,-5,3.5);
-
-  t->Project("eThDist","log10(energy):acos(theta)*180./3.1415926536","energy>0");
   c1->Clear();
   c1->cd();
-  
+  gStyle->SetOptStat(0);
   t->Draw("theta : log10(energy) : AN","energy>0","colz");
-  htemp->SetTitle("Analyzing power 100xMott; log10(energy) [MeV]; theta [deg]");
-  htemp->Draw("colz");
-  c1->Print(onm.c_str(),"pdf");
-  
-  t->Draw("theta : log10(energy) : AN","energy>0");
   c1->Print(onm.c_str(),"pdf");
 
-  eThDist->Draw("colz");
+  t->Draw("theta : log10(energy)","energy>0","colz");
+  htemp->SetTitle("Occupancy 100xMott; log10(energy) [MeV]; theta [deg]");
+  htemp->Draw("colz");
   gPad->SetLogz(1);
   c1->Print(onm.c_str(),"pdf");
   gPad->SetLogz(0);
-  
-  // double ene,th,pol,pow;
-  // int n=t->GetEntries();
-  // t->SetBranchAddress("energy",&ene);
-  // t->SetBranchAddress("theta",&th);
-  // t->SetBranchAddress("polR",&pol);
-  // t->SetBranchAddress("AN",&pow);
 
-  // for(int i=0;i<n;i++){
-  // }
+  t->Draw("theta : log10(energy) : AN","energy>0 && theta<30","colz");
+  c1->Print(onm.c_str(),"pdf");
+
+  t->Draw("theta : log10(energy)","energy>0 && theta<30","colz");
+  htemp->SetTitle("Occupancy 100xMott; log10(energy) [MeV]; theta [deg]");
+  htemp->Draw("colz");
+  gPad->SetLogz(1);
+  c1->Print(onm.c_str(),"pdf");
+  gPad->SetLogz(0);
   
   fin->Close();
 }
