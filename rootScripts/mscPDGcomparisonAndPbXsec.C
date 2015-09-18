@@ -14,10 +14,11 @@ void mscPDGcomparisonAndPbXsec(){
   gStyle->SetOptFit(1);
   
   double length[12]={0.01,0.02,0.03,0.05,0.10,0.20,0.3,0.4,0.5,0.7,0.9,1.};
-  double ene[12]={10,20,100,500,0,0,0,0,0,0,0,0};
+  double ene[12]={10,20,100,150,500,0,0,0,0,0,0,0,0};
 
-  doDep(length,4,100,0);
-  doDep(ene,4,0.02,1);
+  // doDep(length,4,100,0);
+  // doDep(ene,4,0.02,1);
+  doDep(ene,5,0.001,1);
   
   c1->Print(Form("%s]",onm.c_str()),"pdf");
 }
