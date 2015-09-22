@@ -150,7 +150,8 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
     hPosAngUnit->Fill(projPosX,preAngX,unitNo);
   
   /*fill tree*/ 
-  if(material==1){
+  G4int fillTree=0;
+  if(material==1 && fillTree){
     tout->Fill();
   }
 }
