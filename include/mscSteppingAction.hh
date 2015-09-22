@@ -5,6 +5,7 @@
 #include "globals.hh"
 
 #include "TFile.h"
+#include "TH3D.h"
 #include "TTree.h"
 #include "TGraph.h"
 
@@ -21,6 +22,7 @@ private:
   G4int *evNr;
   TFile *fout;
   TTree *tout;
+  TH3D *hPosAngUnit;
 
   //tree variables
   G4int eventNr;

@@ -27,6 +27,11 @@ mscSteppingAction::mscSteppingAction(G4int *evN)
   
   /*Create root file and initialize what I want to put in it*/
   fout=new TFile("o_msc.root","RECREATE");
+  hPosAngUnit=new TH3D("hPosAngUnit","E>2 primaries;pos [cm];angle [deg];unit number",
+		       200,-30,30,
+		       180,-90,90,
+		       20,0,20);
+  
   tout=new TTree("t","Stepping action event tree");
 
   tout->Branch("evNr",&eventNr,"evNr/I");
@@ -60,6 +65,7 @@ mscSteppingAction::~mscSteppingAction()
 {
   /*Write out root file*/
   fout->cd();
+  hPosAngUnit->Write();
   tout->Write();
   fout->Close();
 }
@@ -137,6 +143,12 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
     
   }
 
+  /*fill histo*/
+  double zpos=2.+2.1*unitNo;  
+  if( fabs(projPosX)<30 && fabs(preAngX)<90 && unitNo<20 && unitNo>=0 &&
+      trackID==1 && parentID==0 && material==1 && preE>=2 && fabs(prePosZ-zpos)<0.05 && pType==11)
+    hPosAngUnit->Fill(projPosX,preAngX,unitNo);
+  
   /*fill tree*/ 
   if(material==1){
     tout->Fill();
