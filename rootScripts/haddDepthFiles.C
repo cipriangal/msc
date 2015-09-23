@@ -5,7 +5,7 @@ void haddDepthFiles(){
 
   string hadd="hadd "+fout;
   for(int i=start;i<stop;i++)
-    hadd+=Form(" /lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/msc/mott/1e2/V_015_299/o_msc.root",i);
+    hadd+=Form(" /lustre/expphy/volatile/hallc/qweak/ciprian/farmoutput/msc/mott/1e2/V_015_%03d/o_msc.root",i);
 
   cout<<hadd<<" "<<hadd.length()<<endl;
   gSystem->Exec(hadd.c_str());
