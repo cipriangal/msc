@@ -22,7 +22,8 @@ private:
   G4int *evNr;
   TFile *fout;
   TTree *tout;
-  TH3D *hPosAngUnit;
+  TH3D *hPosAngUnit_Pe;
+  TH3D *hPosAngUnit_Ae;
 
   //tree variables
   G4int eventNr;
