@@ -27,14 +27,18 @@ mscSteppingAction::mscSteppingAction(G4int *evN)
   
   /*Create root file and initialize what I want to put in it*/
   fout=new TFile("o_msc.root","RECREATE");
-  hPosAngUnit_Pe=new TH3D("hPosAngUnit_Pe","E>2 primaries;pos [cm];angle [deg];unit number",
-			  200,-30,30,
-			  180,-90,90,
-			  20,0,20);
-  hPosAngUnit_Ae=new TH3D("hPosAngUnit_Ae","E>2 all e;pos [cm];angle [deg];unit number",
-			  200,-30,30,
-			  180,-90,90,
-			  20,0,20);
+
+  for(int i=0;i<nrUnit;i++){
+    hdistPe[i]=new TH3D(Form("hdistPe_%d",i),Form("primaries @ unit %d;pos [cm];angle [deg];E [MeV]",i),
+			801,-100.125,100.125,
+			180,-90,90,
+			301,0,301);
+
+    hdistAe[i]=new TH3D(Form("hdistAe_%d",i),Form("all e @ unit %d;pos [cm];angle [deg];E [MeV]",i),
+			801,-100.125,100.125,
+			180,-90,90,
+			301,0,301);    
+  }
   
   tout=new TTree("t","Stepping action event tree");
 
@@ -69,8 +73,10 @@ mscSteppingAction::~mscSteppingAction()
 {
   /*Write out root file*/
   fout->cd();
-  hPosAngUnit_Pe->Write();
-  hPosAngUnit_Ae->Write();
+  for(int i=0;i<nrUnit;i++){
+    hdistPe[i]->Write();
+    hdistAe[i]->Write();
+  }
   tout->Write();
   fout->Close();
 }
@@ -149,12 +155,16 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   }
 
   /*fill histo*/
-  double zpos=2.+2.1*unitNo;  
-  if( fabs(projPosX/10.)<30 && fabs(preAngX)<90 && unitNo<20 && unitNo>=0 &&
-      material==1 && preE>=2 && fabs(prePosZ-zpos)<0.05 && pType==11){
-    hPosAngUnit_Ae->Fill(projPosX/10.,preAngX,unitNo);
+  if(unitNo>=nrUnit || unitNo<0){
+    G4cerr<<__PRETTY_FUNCTION__<<" you have too many segmentation units defined "<<unitNo<<" max="<<nrUnit<<G4endl;
+    exit(1);
+  }
+
+  G4double histE = (preE>300) ? 300.5 : preE;
+  if( fabs(projPosX/10.)<100 && fabs(preAngX)<90 && material==1 && pType==11){
+    hdistAe[unitNo]->Fill(projPosX/10.,preAngX,histE);
     if(trackID==1 && parentID==0)
-      hPosAngUnit_Pe->Fill(projPosX/10.,preAngX,unitNo);
+      hdistPe[unitNo]->Fill(projPosX/10.,preAngX,histE);
   }
   
   /*fill tree*/ 

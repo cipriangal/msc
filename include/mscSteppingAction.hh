@@ -22,8 +22,9 @@ private:
   G4int *evNr;
   TFile *fout;
   TTree *tout;
-  TH3D *hPosAngUnit_Pe;
-  TH3D *hPosAngUnit_Ae;
+  static const G4int nrUnit=15;
+  TH3D *hdistPe[nrUnit];//pos, ang, E
+  TH3D *hdistAe[nrUnit];
 
   //tree variables
   G4int eventNr;
