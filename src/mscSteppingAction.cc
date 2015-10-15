@@ -155,16 +155,18 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   }
 
   /*fill histo*/
-  if(unitNo>=nrUnit || unitNo<0){
-    G4cerr<<__PRETTY_FUNCTION__<<" you have too many segmentation units defined "<<unitNo<<" max="<<nrUnit<<G4endl;
-    exit(1);
-  }
-
-  G4double histE = (preE>300) ? 300.5 : preE;
-  if( fabs(projPosX/10.)<100 && fabs(preAngX)<90 && material==1 && pType==11){
-    hdistAe[unitNo]->Fill(projPosX/10.,preAngX,histE);
-    if(trackID==1 && parentID==0)
-      hdistPe[unitNo]->Fill(projPosX/10.,preAngX,histE);
+  if(unitNo!=-999){
+    if(unitNo>=nrUnit || unitNo<0){
+      G4cerr<<__PRETTY_FUNCTION__<<" you have too many segmentation units defined "<<unitNo<<" max="<<nrUnit<<G4endl;
+      exit(1);
+    }
+    
+    G4double histE = (preE>300) ? 300.5 : preE;
+    if( fabs(projPosX/10.)<100 && fabs(preAngX)<90 && material==1 && pType==11){
+      hdistAe[unitNo]->Fill(projPosX/10.,preAngX,histE);
+      if(trackID==1 && parentID==0)
+	hdistPe[unitNo]->Fill(projPosX/10.,preAngX,histE);
+    }
   }
   
   /*fill tree*/ 
