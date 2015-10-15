@@ -232,7 +232,9 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
 
   for(G4int i=0;i<nrUnits;i++){
     G4double zpos=(i+0.5)*(unitRadThickness+detectorThickness);
-    std::string cnm="container"+std::to_string(i);
+    std::stringstream gppIsDumb;
+    gppIsDumb<<"container"<<i;
+    std::string cnm=gppIsDumb.str();
     new G4PVPlacement(
 		      0,                // no rotation
 		      G4ThreeVector(0., 0., zpos), 
