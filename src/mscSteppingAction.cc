@@ -29,13 +29,13 @@ mscSteppingAction::mscSteppingAction(G4int *evN)
   fout=new TFile("o_msc.root","RECREATE");
 
   for(int i=0;i<nrUnit;i++){
-    hdistPe[i]=new TH3D(Form("hdistPe_%d",i),Form("primaries @ unit %d;pos [cm];angle [deg];E [MeV]",i),
-			801,-100.125,100.125,
+    hdistPe[i]=new TH3I(Form("hdistPe_%d",i),Form("primaries @ unit %d;pos [cm];angle [deg];E [MeV]",i),
+			201,-100.5,100.5,
 			180,-90,90,
 			301,0,301);
 
-    hdistAe[i]=new TH3D(Form("hdistAe_%d",i),Form("all e @ unit %d;pos [cm];angle [deg];E [MeV]",i),
-			801,-100.125,100.125,
+    hdistAe[i]=new TH3I(Form("hdistAe_%d",i),Form("all e @ unit %d;pos [cm];angle [deg];E [MeV]",i),
+			201,-100.5,100.5,
 			180,-90,90,
 			301,0,301);    
   }

@@ -5,7 +5,7 @@
 #include "globals.hh"
 
 #include "TFile.h"
-#include "TH3D.h"
+#include "TH3I.h"
 #include "TTree.h"
 #include "TGraph.h"
 
@@ -23,8 +23,8 @@ private:
   TFile *fout;
   TTree *tout;
   static const G4int nrUnit=15;
-  TH3D *hdistPe[nrUnit];//pos, ang, E
-  TH3D *hdistAe[nrUnit];
+  TH3I *hdistPe[nrUnit];//pos, ang, E
+  TH3I *hdistAe[nrUnit];
 
   //tree variables
   G4int eventNr;
