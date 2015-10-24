@@ -26,6 +26,8 @@
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 
+#include "G4UserLimits.hh"
+
 #include <stdio.h>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -186,6 +188,11 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
 			  radiatorSol,    // its solid
 			  radiatorMaterial, // its material
 			  "radiatorLogical");  // its name
+
+  //FIXME -- define step limitation for this container
+  G4double MaxStepInPbRadiator = 0.1*unitRadThickness;
+  radiatorLogical->SetUserLimits(new G4UserLimits(MaxStepInPbRadiator));
+  //FIXME -- define step limitation for this container
   
   new G4PVPlacement(
 		    0,                   // no rotation
