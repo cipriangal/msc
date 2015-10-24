@@ -29,8 +29,10 @@ private:
   //tree variables
   G4int eventNr;
   G4int material; //PBA:0 ; detectorMat:1
-  G4int unitNo;   
-
+  G4int unitNo;
+  
+  G4double stepSize;
+  
   G4int pType;    
   G4int trackID;
   G4int parentID;
@@ -50,7 +52,7 @@ private:
 
   G4double  projPosX; //position at MD face (z=5 cm)
   G4double  projPosY;
-    
+
   TGraph perpDepol;
 
 };
