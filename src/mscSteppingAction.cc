@@ -46,6 +46,8 @@ mscSteppingAction::mscSteppingAction(G4int *evN)
   tout->Branch("material",&material,"material/I");
   tout->Branch("unitNo",&unitNo,"unitNo/I");
 
+  tout->Branch("stepSize", &stepSize, "stepSize/D");
+
   tout->Branch("pType",&pType,"pType/I");
   tout->Branch("trackID",&trackID,"trackID/I");
   tout->Branch("parentID",&parentID,"parentID/I");
@@ -154,6 +156,8 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
     
   }
 
+  stepSize=theStep->GetStepLength();
+  
   /*fill histo*/
   if(unitNo!=-999){
     if(unitNo>=nrUnit || unitNo<0){
@@ -172,6 +176,7 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   /*fill tree*/ 
   G4int fillTree=0;
   if(material==1 && fillTree){
+  //if(fillTree){
     tout->Fill();
   }
 }
@@ -199,6 +204,7 @@ void mscSteppingAction::InitVar(){
 
   projPosX = -999;
   projPosY = -999;
+  stepSize = -999;
   
 }
 
