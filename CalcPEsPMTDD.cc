@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 {
 
   if( argc !=3 ) {
-    cout<<" usage: build/CalcPEsPMTDD [#slices] [path to infile with distributions]"<<endl;
+    cout<<" usage: build/calcPEsPMTDD [#slices] [path to infile with distributions]"<<endl;
     return 1;
   }
 
@@ -71,16 +71,15 @@ int main(int argc, char** argv)
 	    pt1[0]=dist->GetXaxis()->GetBinCenter(xx);
 	    pt1[2]=dist->GetYaxis()->GetBinCenter(yy);
 	    pt1[1]=dist->GetZaxis()->GetBinCenter(zz);
-	    if(pt1[1]>100) pt1[1]=99.99;
-	    else if(pt1[1]<5) pt1[1]=5.01;
+	    if(pt1[1]>100) pt1[1]=100.;
 	    
 	    pt2[0]=-pt1[0];
 	    pt2[2]=-pt1[2];
 	    pt2[1]=pt1[1];
 	    
-	    if(fabs(pt1[0])>40) continue;
-	    if(fabs(pt1[2])>=57) continue;
-	    if(pt1[1]>100 || pt1[1]<5) continue;
+	    if(fabs(pt1[0])>90) continue;
+	    if(fabs(pt1[2])>80) continue;
+	    if(pt1[1]>100 || pt1[1]<3) continue;
 	    
 	    if(debugPrint || counter%printStep==1)
 	      cout<<endl<<counter<<" !! Calc for pos, ang, E: "<<pt1[0]<<" "<<pt1[2]<<" "<<pt1[1]<<endl;
@@ -133,7 +132,7 @@ int main(int argc, char** argv)
 }
 
 void readPEs(){
-  ifstream fin("output/md3_angle_scan.txt");
+  ifstream fin("macros/yl_md3_angle_scan.txt");
   double x1,x2,x3,x4,x5,x6,x7,x8,x9;  
   string data;
   getline(fin,data);
