@@ -92,11 +92,12 @@ int main(int argc, char** argv)
 	    
 	    getCorners(0,scanPoints[0].size(),0,pt2,pts2);
 	    getPEs(pts2,pt2,lp2,rp2);
-	    
+
+	    //cout<<lp1<<" "<<rp1<<" "<<lp2<<" "<<rp2<<" "<<lpe<<" "<<rpe<<endl;
+
 	    if(lp1!=-1 && rp1!=-1 && lp2!=-1 && rp2!=-1){
 	      lpe=(lp1+rp2)/2;
 	      rpe=(rp1+lp2)/2;	    
-	      //cout<<lp1<<" "<<rp1<<" "<<lp2<<" "<<rp2<<" "<<lpe<<" "<<rpe<<endl;
 	    }else{
 	      cout<<"Problem with interpolator!"<<lpe<<" "<<rpe<<" "<<pt1[0]<<" "<<pt1[1]<<" "<<pt1[2]<<endl;
 	      exit(1);
@@ -143,12 +144,11 @@ void readPEs(){
   while(fin>>x1>>x2>>x3>>x4>>x5>>x6>>x7>>x8>>x9){
     scanPoints[0].push_back(x1);//position
     scanPoints[1].push_back(x2);//energy
-    double ang=asin(tan(x3*3.14159265359/180.))/3.14159265359*180.;
-    scanPoints[2].push_back(ang);//angle
+    scanPoints[2].push_back(x3);//angle
     scanPoints[3].push_back(x6);//LPEs
     scanPoints[4].push_back(x8);//RPEs
     if(debugPrint)
-      cout<<x1<<" "<<x2<<" "<<ang<<" "<<x6<<" "<<x8<<endl;
+      cout<<x1<<" "<<x2<<" "<<x3<<" "<<x6<<" "<<x8<<endl;
   }
   
   fin.close();
