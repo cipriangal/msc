@@ -189,10 +189,10 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
 			  radiatorMaterial, // its material
 			  "radiatorLogical");  // its name
 
-  //FIXME -- define step limitation for this container
-  G4double MaxStepInPbRadiator = 0.1*unitRadThickness;
+  // define step limitation for this container
+  G4double MaxStepInPbRadiator = 0.01*mm;
   radiatorLogical->SetUserLimits(new G4UserLimits(MaxStepInPbRadiator));
-  //FIXME -- define step limitation for this container
+  // define step limitation for this container
   
   new G4PVPlacement(
 		    0,                   // no rotation
