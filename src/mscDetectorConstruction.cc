@@ -198,15 +198,15 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
 			  detectorMaterial, // its material
 			  "detector1");  // its name
   
-  new G4PVPlacement(
-		    0,                // no rotation
-		    G4ThreeVector(0., 0., (radiatorThickness+detectorThickness)/2.), 
-		    detector1Logical,          // its logical volume                    
-		    "detector1",    // its name
-		    worldLV,          // its mother  volume
-		    false,            // no boolean operation
-		    0,                // copy number
-		    fCheckOverlaps);  // checking overlaps 
+  // new G4PVPlacement(
+  // 		    0,                // no rotation
+  // 		    G4ThreeVector(0., 0., (radiatorThickness+detectorThickness)/2.), 
+  // 		    detector1Logical,          // its logical volume                    
+  // 		    "detector1",    // its name
+  // 		    worldLV,          // its mother  volume
+  // 		    false,            // no boolean operation
+  // 		    0,                // copy number
+  // 		    fCheckOverlaps);  // checking overlaps 
 
   /*add new detector 3 cm behind radiator*/
   G4VSolid* detector2Solid 
@@ -221,7 +221,7 @@ G4VPhysicalVolume* mscDetectorConstruction::DefineVolumes()
   
   new G4PVPlacement(
 		    0,                // no rotation
-		    G4ThreeVector(0., 0., (radiatorThickness+detectorThickness)/2. + 3.*cm), 
+		    G4ThreeVector(0., 0., radiatorThickness/2. + 3.*cm), 
 		    detector2Logical,          // its logical volume                    
 		    "detector2",    // its name
 		    worldLV,          // its mother  volume
