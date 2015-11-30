@@ -26,10 +26,12 @@ private:
   // methods
   //
   void DefineMaterials();
-  G4VPhysicalVolume* DefineVolumes();
-
+  G4VPhysicalVolume* BuildQweakGeometry();
+  G4VPhysicalVolume* BuildSimpleDetector();
+  G4VPhysicalVolume* BuildStackedDetector();
   // data members
   //
+  G4int nrUnits;
   G4double radiatorThickness;
 
   G4GenericMessenger*  fMessenger; // messenger 
