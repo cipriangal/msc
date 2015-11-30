@@ -266,7 +266,7 @@ G4double QweakSimWentzelVIModel::ComputeTruePathLengthLimit(
   // FIXME
   ePolarized=false;
   debugPrint=false;
-  writeANdata=true;
+  writeANdata=false;
   if(strcmp(track.GetParticleDefinition()->GetParticleName().data() , "e-") == 0)
     if(strcmp(track.GetMaterial()->GetName(),"PBA") == 0){
       if(track.GetPolarization().getR() >= 0.1) debugPrint=true;
@@ -647,22 +647,20 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  G4cout<<" ~~ Wentzel ~~ polarization.R: "<<polarization.getR()<<G4endl;
 	}
       
-	////scale by 1/energy, sin Theta and transvers polarization
+	//scale by 1/energy, sin Theta and transvers polarization
 	// G4double _amplitude=1.0/eEnergy * sint *
 	//                     sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
-
-	// //if E<1 AN could be larger than 1
+	//if E<1 AN could be larger than 1
 	// if(_amplitude > 1 ) _amplitude=1.;
 
 	G4double _amplitude = AnalyzingPower(eEnergy, cost);
-
 	if(writeANdata){
 	  std::ofstream ofs;
 	  ofs.open("o_msc_ANdata.txt",std::ofstream::app);
 	  ofs<<eEnergy<<" "<<cost<<" "<<_amplitude<<" "<<polarization.getR()<<G4endl;
 	  ofs.close();
 	}
-
+	
 	if( _prob < _amplitude * sin(phi-pi) )
 	  phi-=pi;
 	phi+= polarization.getPhi() - oldDirection.getPhi();
@@ -714,15 +712,13 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  G4cout<<" ~~ Wentzel ~~ polarization.R: "<<polarization.getR()<<G4endl;
 	}
 	
-	// //scale by 1/energy, sin Theta and transvers polarization
+	//scale by 1/energy, sin Theta and transvers polarization
 	// G4double _amplitude=1.0/eEnergy * sint *
 	//                     sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
-
-	// //if E<1 AN could be larger than 1
+	//if E<1 AN could be larger than 1
 	// if(_amplitude > 1 ) _amplitude=1.;
 
 	G4double _amplitude = AnalyzingPower(eEnergy, cost);
-
 	if(writeANdata){
 	  std::ofstream ofs;
 	  ofs.open("o_msc_ANdata.txt",std::ofstream::app);

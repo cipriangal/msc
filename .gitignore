@@ -30,6 +30,7 @@
 ## Output
 *.root
 output
+o_*
 *~
 *.rndm
 *.macro

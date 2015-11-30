@@ -969,14 +969,12 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
     // if(_amplitude > 1 ) _amplitude=1.;
 
     G4double _amplitude = AnalyzingPower(eEnergy, cth);
-
     if(writeANdata){
       std::ofstream ofs;
       ofs.open("o_msc_ANdata.txt",std::ofstream::app);
       ofs<<eEnergy<<" "<<cth<<" "<<_amplitude<<" "<<polarization.getR()<<G4endl;
       ofs.close();
     }
-
     
     if( _prob < _amplitude * sin(phi-pi) )
       phi-=pi;

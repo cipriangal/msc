@@ -5,6 +5,7 @@
 #include "globals.hh"
 
 #include "TFile.h"
+#include "TH3I.h"
 #include "TTree.h"
 #include "TGraph.h"
 
@@ -21,39 +22,36 @@ private:
   G4int *evNr;
   TFile *fout;
   TTree *tout;
+  static const G4int nrUnit=15;
+  TH3I *hdistPe[nrUnit];//pos, ang, E
+  TH3I *hdistAe[nrUnit];
 
   //tree variables
-  G4double  prePosX; //position
-  G4double  prePosY;
-  G4double  prePosZ;
-  G4double postPosX;
-  G4double postPosY;
-  G4double postPosZ;  
-  
-  G4double  preMomX; //momentum
-  G4double  preMomY;
-  G4double  preMomZ;
-  G4double postMomX;
-  G4double postMomY;
-  G4double postMomZ;
-
-  G4double prePhi;
-  G4double preTheta;
-  G4double preAngX; //angle along x (long section of the detector)
-  G4double preAngY; //angle along y (short section of the detector)
-  
-  G4double  preE;
-  G4double postE;
-
-  
   G4int eventNr;
   G4int material; //PBA:0 ; detectorMat:1
-  G4int volume;   //Radiator:0 ; Det1:1 ; Det2:2
+  G4int unitNo;
+  
+  G4double stepSize;
+  
   G4int pType;    
   G4int trackID;
   G4int parentID;
-  G4int intNr;
-  G4int process; //0:N/A 1:msc 2:CoulombScat 3:eBrem 4:Transportation 5:eIon 6:coupledTransportation
+
+  G4double  preE; // total energy
+  G4double  preKE;// kinetic energy
+
+  G4double  prePosX; //position
+  G4double  prePosY;
+  G4double  prePosZ;
+  G4double  preMomX; //momentum
+  G4double  preMomY;
+  G4double  preMomZ;  
+  
+  G4double preAngX; //angle along x (long section of the detector)
+  G4double preAngY; //angle along y (short section of the detector)
+
+  G4double  projPosX; //position at MD face (z=5 cm)
+  G4double  projPosY;
 
   G4double powE;
   G4double powTh;
@@ -61,8 +59,6 @@ private:
   
   TGraph perpDepol;
 
-  //number of interactions in 0:PBA | 1:det1 | 2:det2
-  std::vector<G4int> interactionNr; 
 };
 
 #endif
