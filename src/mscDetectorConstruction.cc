@@ -9,13 +9,6 @@
 #include "G4PVPlacement.hh"
 #include "G4PVReplica.hh"
 
-#include "G4SDManager.hh"
-#include "G4SDChargedFilter.hh"
-#include "G4MultiFunctionalDetector.hh"
-#include "G4VPrimitiveScorer.hh"
-#include "G4PSEnergyDeposit.hh"
-#include "G4PSTrackLength.hh"
-
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
 
@@ -27,6 +20,14 @@
 #include "G4SystemOfUnits.hh"
 
 #include "G4UserLimits.hh"
+#include "G4RunManager.hh"
+
+#include "G4GeometryManager.hh"
+#include "G4SolidStore.hh"
+#include "G4LogicalVolumeStore.hh"
+#include "G4PhysicalVolumeStore.hh"
+#include "G4LogicalBorderSurface.hh"
+#include "G4LogicalSkinSurface.hh"
 
 #include <stdio.h>
 
@@ -34,35 +35,41 @@
 
 mscDetectorConstruction::mscDetectorConstruction()
  : G4VUserDetectorConstruction(),
-   fMessenger(0),
+   nrUnits(0),
    fCheckOverlaps(true)
 {
-  // Define /msc/det commands using generic messenger class
-  fMessenger 
-    = new G4GenericMessenger(this, "/msc/det/", "Detector construction control");
-
-  // Define /msc/det/setRadiatorThickness command
-  G4GenericMessenger::Command& setRadiatorThicknessCmd
-    = fMessenger->DeclareMethod("setRadiatorThickness", 
-                                 &mscDetectorConstruction::SetRadiatorThickness, 
-                                 "set the thickness (z component) of the radiator (in cm)");
-  setRadiatorThicknessCmd.SetUnitCategory("Length");
-  nrUnits=0;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 mscDetectorConstruction::~mscDetectorConstruction()
 { 
-  delete fMessenger;
 }
 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void mscDetectorConstruction::UpdateGeometry()
+{
+  // clean-up previous geometry
+  G4GeometryManager::GetInstance()->OpenGeometry();
+  G4PhysicalVolumeStore::GetInstance()->Clean();
+  G4LogicalVolumeStore::GetInstance()->Clean();
+  G4SolidStore::GetInstance()->Clean();
+  G4LogicalSkinSurface::CleanSurfaceTable();
+  G4LogicalBorderSurface::CleanSurfaceTable();
+  
+  //define new one
+  G4RunManager::GetRunManager()->DefineWorldVolume(Construct());
+  G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4VPhysicalVolume* mscDetectorConstruction::Construct()
 {
   // Define materials 
   DefineMaterials();
+
+  G4cout<<G4endl<<G4endl<< " ~~~~~~~~~~~~~ "<< G4endl<< nrUnits<<G4endl<< __PRETTY_FUNCTION__<<G4endl;
   
   // Define volumes
   if( nrUnits == -1 )                                   
