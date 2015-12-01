@@ -3,6 +3,7 @@
 #include "mscRunAction.hh"
 #include "mscEventAction.hh"
 #include "mscSteppingAction.hh"
+#include "mscMessenger.hh"
 
 #include "G4RunManager.hh"
 #include "G4ScoringManager.hh"
@@ -76,6 +77,8 @@ int main(int argc,char** argv)
   //
   G4RunManager * runManager = new G4RunManager;
 
+  mscMessenger *mscMess = new mscMessenger();  
+  
   // Activate command-based scorer
   G4ScoringManager* scoringManager = G4ScoringManager::GetScoringManager(); 
   scoringManager->SetVerboseLevel(1);
@@ -84,6 +87,7 @@ int main(int argc,char** argv)
   //
   mscDetectorConstruction* detConstruction = new mscDetectorConstruction();
   runManager->SetUserInitialization(detConstruction);
+  mscMess->SetDetCon( detConstruction );
 
   // Calls a reference physics list for the simulation
   G4PhysListFactory factory;
