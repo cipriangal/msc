@@ -197,8 +197,8 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildStackedDetector()
 			  "radiatorLogical");  // its name
 
   // define step limitation for this container
-  G4double MaxStepInPbRadiator = 0.01*mm;
-  radiatorLogical->SetUserLimits(new G4UserLimits(MaxStepInPbRadiator));
+  if(stepSizeG4>0)
+    radiatorLogical->SetUserLimits(new G4UserLimits(stepSizeG4));
   // define step limitation for this container
   
   new G4PVPlacement(
@@ -260,6 +260,31 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildStackedDetector()
 		      fCheckOverlaps);  // checking overlaps 
     
   }
+
+  //
+  //MDdetector
+  //
+  G4VSolid* mdDetectorSolid 
+    = new G4Box("mdDetectorSol",  // its name
+		SizeX/2, SizeY/2, detectorThickness/2); // its size
+  
+  G4LogicalVolume* mdDetectorLogical
+    = new G4LogicalVolume(
+			  mdDetectorSolid,     // its solid
+			  detectorMaterial,  // its material
+			  "mdDetectorLogical");// its name
+  
+  new G4PVPlacement(
+		    0,                // no rotation
+		    G4ThreeVector(0., 0., 5.*cm), 
+		    mdDetectorLogical,  // its logical volume                    
+		    "mdDetector",       // its name
+		    worldLV,// its mother  volume
+		    false,            // no boolean operation
+		    0,                // copy number
+		    fCheckOverlaps);  // checking overlaps 
+  
+  mdDetectorLogical->SetVisAttributes(detectorVisAtt);
   
   //                                        
   // Visualization attributes
@@ -336,13 +361,13 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildSimpleDetector()
 			  "radiatorLogical");  // its name
 
   // define step limitation for this container
-  G4double MaxStepInPbRadiator = 0.01*mm;
-  radiatorLogical->SetUserLimits(new G4UserLimits(MaxStepInPbRadiator));
+  if(stepSizeG4>0)
+    radiatorLogical->SetUserLimits(new G4UserLimits(stepSizeG4));
   // define step limitation for this container
   
   new G4PVPlacement(
 		    0,                   // no rotation
-		    G4ThreeVector(0., 0., 0.), 
+		    G4ThreeVector(0., 0., radiatorThickness/2.), 
 		    radiatorLogical,     // its logical volume                         
 		    "Radiator",          // its name
 		    worldLV,// its mother  volume

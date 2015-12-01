@@ -56,6 +56,11 @@ mscMessenger::mscMessenger(){
     initOutCmd = new G4UIcmdWithAnInteger("/msc/SteppingAction/initOutput",this);
     initOutCmd->SetGuidance("Initialize the output");
     initOutCmd->SetParameterName("initOutput", false);
+
+    stepSizeG4Cmd = new G4UIcmdWithADoubleAndUnit("/msc/det/setStepSizeG4",this);
+    stepSizeG4Cmd->SetGuidance("val>0 set that as maximum step size in Pb");
+    stepSizeG4Cmd->SetGuidance("val==0 leave G4 default");
+    stepSizeG4Cmd->SetParameterName("stepSizeG4", false);
 }
 
 mscMessenger::~mscMessenger(){
@@ -65,6 +70,7 @@ mscMessenger::~mscMessenger(){
   delete writeTreeCmd;
   delete writeANCmd;
   delete initOutCmd;
+  delete stepSizeG4Cmd;
 }
 
 
@@ -93,6 +99,9 @@ void mscMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue){
     fStepAct->SetWriteTree(val);
   }else if( cmd == initOutCmd ){
     fStepAct->InitOutput();
+  }else if( cmd == stepSizeG4Cmd ){
+    G4double val= stepSizeG4Cmd->GetNewDoubleValue(newValue);
+    fDetCon->SetStepSizeG4(val);
   }
 
 }

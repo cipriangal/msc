@@ -39,51 +39,7 @@ private:
   G4UIcmdWithAnInteger *writeTreeCmd;
   G4UIcmdWithAnInteger *writeANCmd;
   G4UIcmdWithAnInteger *initOutCmd;
-  
-  // G4UIcmdWithAnInteger *seedCmd;
-  // G4UIcmdWithABool     *kryptCmd;
-  // G4UIcmdWithABool     *opticalCmd;
-  
-  // G4UIcmdWithAString   *detfilesCmd;
-  
-  // G4UIcmdWithAString   *newfieldCmd;
-  // G4UIcmdWithAString   *fieldScaleCmd;
-  // G4UIcmdWithAString   *fieldCurrCmd;
-  // G4UIcmdWithAString   *genSelectCmd;
-  
-
-  // G4UIcmdWithADoubleAndUnit *tgtPosCmd;
-  
-  // G4UIcmdWithADoubleAndUnit *beamCurrCmd;
-  // G4UIcmdWithADoubleAndUnit *beamECmd;
-  
-  // G4UIcmdWithABool       *rasTypeCmd;
-  
-  // G4UIcmdWithADoubleAndUnit *rasXCmd;
-  // G4UIcmdWithADoubleAndUnit *rasYCmd;
-  
-  // G4UIcmdWithADoubleAndUnit *beamX0Cmd;
-  // G4UIcmdWithADoubleAndUnit *beamY0Cmd;
-  
-  // G4UIcmdWithADoubleAndUnit *beamth0Cmd;
-  // G4UIcmdWithADoubleAndUnit *beamph0Cmd;
-  
-  // G4UIcmdWithADoubleAndUnit *beamCorrThCmd;
-  // G4UIcmdWithADoubleAndUnit *beamCorrPhCmd;
-  
-  // G4UIcmdWithADoubleAndUnit *beamdthCmd;
-  // G4UIcmdWithADoubleAndUnit *beamdphCmd;
-  
-  // G4UIcmdWithAString   *fileCmd;
-  
-  // ////////////////////////////////////////////////
-  // // To general event generators
-  // G4UIcmdWithADoubleAndUnit *thminCmd;
-  // G4UIcmdWithADoubleAndUnit *thmaxCmd;
-  // G4UIcmdWithADoubleAndUnit *thCoMminCmd;
-  // G4UIcmdWithADoubleAndUnit *thCoMmaxCmd;
-  // G4UIcmdWithADoubleAndUnit *EminCmd;
-  // G4UIcmdWithADoubleAndUnit *EmaxCmd;
+  G4UIcmdWithADoubleAndUnit *stepSizeG4Cmd;
   
 };
 

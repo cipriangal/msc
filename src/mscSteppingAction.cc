@@ -36,24 +36,24 @@ void  mscSteppingAction::InitOutput(){
   fout=new TFile("o_msc.root","RECREATE");
 
   for(int i=0;i<nrUnits;i++){
-    hdistPe[i]=new TH3I(Form("hdistPe_%d",i),Form("primaries @ unit %d;pos [cm];angle [deg];E [MeV]",i),
+    hdistPe[i]=new TH3I(Form("distPe_%d",i),Form("primaries @ unit %d;pos [cm];angle [deg];E [MeV]",i),
 			201,-100.5,100.5,
 			180,-90,90,
 			301,0,301);
     
-    hdistAe[i]=new TH3I(Form("hdistAe_%d",i),Form("all e @ unit %d;pos [cm];angle [deg];E [MeV]",i),
+    hdistAe[i]=new TH3I(Form("distAe_%d",i),Form("all e @ unit %d;pos [cm];angle [deg];E [MeV]",i),
 			201,-100.5,100.5,
 			180,-90,90,
 			301,0,301);    
   }
 
   if(nrUnits==0){
-    hdistPe[0]=new TH3I("hdistPe","primaries @ MD ;pos [cm];angle [deg];E [MeV]",
+    hdistPe[0]=new TH3I("distPe","primaries @ MD ;pos [cm];angle [deg];E [MeV]",
 			201,-100.5,100.5,
 			180,-90,90,
 			301,0,301);
     
-    hdistAe[0]=new TH3I("hdistAe","all e @ MD;pos [cm];angle [deg];E [MeV]",
+    hdistAe[0]=new TH3I("distAe","all e @ MD;pos [cm];angle [deg];E [MeV]",
 			201,-100.5,100.5,
 			180,-90,90,
 			301,0,301);    
