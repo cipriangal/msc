@@ -20,22 +20,25 @@ public:
   mscMessenger();
   ~mscMessenger();
   
-  void SetPriGen ( mscPrimaryGeneratorAction *pg ){ fprigen  = pg; }
-  void SetDetCon ( mscDetectorConstruction *dc )  { fdetcon  = dc; }
-  void SetEvAct  ( mscEventAction *ev )           { fevact   = ev; }
+  void SetPriGen ( mscPrimaryGeneratorAction *pg ){ fPriGen  = pg; }
+  void SetDetCon ( mscDetectorConstruction *dc )  { fDetCon  = dc; }
+  void SetEvAct  ( mscEventAction *ev )           { fEvAct   = ev; }
   void SetStepAct( mscSteppingAction *st )        { fStepAct = st; }
   
   void SetNewValue(G4UIcommand* cmd, G4String newValue);
   
 private:
-  mscDetectorConstruction *fdetcon;
-  mscEventAction *fevact;
-  mscPrimaryGeneratorAction *fprigen;
+  mscDetectorConstruction *fDetCon;
+  mscEventAction *fEvAct;
+  mscPrimaryGeneratorAction *fPriGen;
   mscSteppingAction *fStepAct;
 
   G4UIcmdWithAnInteger *nrUnitsCmd;
   G4UIcmdWithADoubleAndUnit *radThickCmd;
   G4UIcmdWithAString *polCmd;
+  G4UIcmdWithAnInteger *writeTreeCmd;
+  G4UIcmdWithAnInteger *writeANCmd;
+  G4UIcmdWithAnInteger *initOutCmd;
   
   // G4UIcmdWithAnInteger *seedCmd;
   // G4UIcmdWithABool     *kryptCmd;

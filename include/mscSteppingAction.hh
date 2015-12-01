@@ -27,15 +27,25 @@ public:
   
   void UserSteppingAction(const G4Step*);
   void InitVar();
+  void InitOutput();
+  
+  void SetNrUnits(G4int val){nrUnits=val;}
+  void SetWriteANdata(G4int val){writeANdata=val;}
+  void SetWriteTree(G4int val){writeTree=val;}
   
 private:
   G4int *evNr;
   TFile *fout;
   TTree *tout;
-  static const G4int MaxNrUnit=15;
-  G4int nrUnit;
-  TH3I *hdistPe[MaxNrUnit];//pos, ang, E
-  TH3I *hdistAe[MaxNrUnit];
+
+  G4int nrUnits;
+  G4int writeANdata;
+  G4int writeTree;
+  TGraph perpDepol;
+
+  static const G4int MaxNrUnits=15;
+  TH3I *hdistPe[MaxNrUnits];//pos, ang, E
+  TH3I *hdistAe[MaxNrUnits];
 
   //tree variables
   G4int eventNr;
@@ -61,8 +71,6 @@ private:
   G4double  projPosX; //position at MD face (z=5 cm)
   G4double  projPosY;
   G4double  stepSize;
-    
-  TGraph perpDepol;
 
 };
 

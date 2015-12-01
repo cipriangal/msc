@@ -11,24 +11,31 @@
 
 #include <fstream>
 
-mscSteppingAction::mscSteppingAction(G4int *evN)		
+mscSteppingAction::mscSteppingAction(G4int *evN)
 {
   //eventID pointer from the mscEventAction.cc file
   evNr=evN;
+  nrUnits=10;
+  writeANdata=0;
+  writeTree=0;
 
-  if(0){
+  for(int i=0;i<perpNval;i++) perpDepol.SetPoint(i,perpXDepol[i],perpYDepol[i]);   
+}
+
+void  mscSteppingAction::InitOutput(){
+
+  if(writeANdata){
     std::ofstream ofs;
     ofs.open("o_msc_ANdata.txt",std::ofstream::out);
     ofs<<"energy[MeV] cos(theta) anaPower polarization"<<G4endl;
     ofs.close();
   }
   
-  for(int i=0;i<perpNval;i++) perpDepol.SetPoint(i,perpXDepol[i],perpYDepol[i]);   
   
   /*Create root file and initialize what I want to put in it*/
   fout=new TFile("o_msc.root","RECREATE");
 
-  for(int i=0;i<nrUnit;i++){
+  for(int i=0;i<nrUnits;i++){
     hdistPe[i]=new TH3I(Form("hdistPe_%d",i),Form("primaries @ unit %d;pos [cm];angle [deg];E [MeV]",i),
 			201,-100.5,100.5,
 			180,-90,90,
@@ -39,35 +46,48 @@ mscSteppingAction::mscSteppingAction(G4int *evN)
 			180,-90,90,
 			301,0,301);    
   }
+
+  if(nrUnits==0){
+    hdistPe[0]=new TH3I("hdistPe","primaries @ MD ;pos [cm];angle [deg];E [MeV]",
+			201,-100.5,100.5,
+			180,-90,90,
+			301,0,301);
+    
+    hdistAe[0]=new TH3I("hdistAe","all e @ MD;pos [cm];angle [deg];E [MeV]",
+			201,-100.5,100.5,
+			180,-90,90,
+			301,0,301);    
+  }
   
-  tout=new TTree("t","Stepping action event tree");
-  
-  tout->Branch("evNr",&eventNr,"evNr/I");
-  tout->Branch("material",&material,"material/I");
-  tout->Branch("unitNo",&unitNo,"unitNo/I");
-
-  tout->Branch("stepSize", &stepSize, "stepSize/D");
-
-  tout->Branch("pType",&pType,"pType/I");
-  tout->Branch("trackID",&trackID,"trackID/I");
-  tout->Branch("parentID",&parentID,"parentID/I");
-
-  tout->Branch("preE",&preE,"preE/D");
-  tout->Branch("preKE",&preKE,"preKE/D");
-
-  tout->Branch("prePosX", &prePosX, "prePosX/D");
-  tout->Branch("prePosY", &prePosY, "prePosY/D");
-  tout->Branch("prePosZ", &prePosZ, "prePosZ/D");
-  tout->Branch("preMomX", &preMomX, "preMomX/D");
-  tout->Branch("preMomY", &preMomY, "preMomY/D");
-  tout->Branch("preMomZ", &preMomZ, "preMomZ/D");
-
-  tout->Branch("preAngX",&preAngX,"preAngX/D");
-  tout->Branch("preAngY",&preAngY,"preAngY/D");
-
-  tout->Branch("projPosX",&projPosX,"projPosX/D");
-  tout->Branch("projPosY",&projPosY,"projPosY/D");
-  
+  if(writeTree){
+    tout=new TTree("t","Stepping action event tree");
+    
+    tout->Branch("evNr",&eventNr,"evNr/I");
+    tout->Branch("material",&material,"material/I");
+    tout->Branch("unitNo",&unitNo,"unitNo/I");
+    
+    tout->Branch("stepSize", &stepSize, "stepSize/D");
+    
+    tout->Branch("pType",&pType,"pType/I");
+    tout->Branch("trackID",&trackID,"trackID/I");
+    tout->Branch("parentID",&parentID,"parentID/I");
+    
+    tout->Branch("preE",&preE,"preE/D");
+    tout->Branch("preKE",&preKE,"preKE/D");
+    
+    tout->Branch("prePosX", &prePosX, "prePosX/D");
+    tout->Branch("prePosY", &prePosY, "prePosY/D");
+    tout->Branch("prePosZ", &prePosZ, "prePosZ/D");
+    tout->Branch("preMomX", &preMomX, "preMomX/D");
+    tout->Branch("preMomY", &preMomY, "preMomY/D");
+    tout->Branch("preMomZ", &preMomZ, "preMomZ/D");
+    
+    tout->Branch("preAngX",&preAngX,"preAngX/D");
+    tout->Branch("preAngY",&preAngY,"preAngY/D");
+    
+    tout->Branch("projPosX",&projPosX,"projPosX/D");
+    tout->Branch("projPosY",&projPosY,"projPosY/D");
+  }
 }
 
 
@@ -75,11 +95,16 @@ mscSteppingAction::~mscSteppingAction()
 {
   /*Write out root file*/
   fout->cd();
-  for(int i=0;i<nrUnit;i++){
+  for(int i=0;i<nrUnits;i++){
     hdistPe[i]->Write();
     hdistAe[i]->Write();
   }
-  tout->Write();
+  if(nrUnits==0){
+    hdistPe[0]->Write();
+    hdistAe[0]->Write();
+  }
+  if(writeTree)
+    tout->Write();
   fout->Close();
 }
 
@@ -99,8 +124,6 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   G4double depol(0),eLossPercent(0);
 
   InitVar();
-
-  const G4double MDposZ = 5 * CLHEP::cm;
 
   eventNr=*evNr;
   
@@ -150,17 +173,24 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
     G4double preTheta = thePrePoint->GetMomentum().getTheta();
     preAngX = atan2(sin(preTheta)*cos(prePhi),cos(preTheta)) * 180. / CLHEP::pi;
     preAngY = atan2(sin(preTheta)*sin(prePhi),cos(preTheta)) * 180. / CLHEP::pi;
+
+    const G4double MDposZ = 5 * CLHEP::cm;
     projPosX = prePosX + (MDposZ - prePosZ) * tan(preAngX * CLHEP::pi/180.);
     projPosY = prePosY + (MDposZ - prePosZ) * tan(preAngY * CLHEP::pi/180.);
     
+  }
+  if(nrUnits==0){
+    projPosX = prePosX;
+    projPosY = prePosY;
   }
 
   stepSize=theStep->GetStepLength();
   
   /*fill histo*/
   if(unitNo!=-999){
-    if(unitNo>=nrUnit || unitNo<0){
-      G4cerr<<__PRETTY_FUNCTION__<<" you have too many segmentation units defined "<<unitNo<<" max="<<nrUnit<<G4endl;
+    if(unitNo>=nrUnits || unitNo>=MaxNrUnits || unitNo<0){
+      G4cerr<<__PRETTY_FUNCTION__<<":"<<G4endl;
+      G4cerr<<" you have too many segmentation units defined "<<unitNo<<" max="<<MaxNrUnits<<G4endl;
       exit(1);
     }
     
@@ -173,11 +203,9 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   }
   
   /*fill tree*/ 
-  G4int fillTree=0;
-  if(material==1 && fillTree){
-  //if(fillTree){
-    tout->Fill();
-  }
+  if(writeTree==1 && material==1) tout->Fill();
+  else if(writeTree==2) tout->Fill();
+
 }
 
 void mscSteppingAction::InitVar(){

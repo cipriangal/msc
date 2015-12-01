@@ -18,9 +18,9 @@
 mscMessenger::mscMessenger(){
     /*  Initialize all the things it talks to to NULL */
 
-    fdetcon       = NULL;
-    fevact        = NULL;
-    fprigen       = NULL;
+    fDetCon       = NULL;
+    fEvAct        = NULL;
+    fPriGen       = NULL;
     fStepAct      = NULL;
 
     nrUnitsCmd = new G4UIcmdWithAnInteger("/msc/setNrUnits",this);
@@ -40,12 +40,30 @@ mscMessenger::mscMessenger(){
     polCmd->SetGuidance(" default L; accepted: L, mL, V, mV");
     polCmd->SetParameterName("radThickness", false);
 
+    writeTreeCmd = new G4UIcmdWithAnInteger("/msc/SteppingAction/setWriteTree",this);
+    writeTreeCmd->SetGuidance("Output tree from stepping action?");
+    writeTreeCmd->SetGuidance(" 0: no");
+    writeTreeCmd->SetGuidance(" 1: write tree for detector material");
+    writeTreeCmd->SetGuidance(" 2: write tree for all steps");
+    writeTreeCmd->SetParameterName("writeTree", false);
+
+    writeANCmd = new G4UIcmdWithAnInteger("/msc/SteppingAction/setANdata",this);
+    writeANCmd->SetGuidance("Output text file with AN at each call to phys process?");
+    writeANCmd->SetGuidance(" 0: no");
+    writeANCmd->SetGuidance(" else: yes");
+    writeANCmd->SetParameterName("writeANdata", false);
+
+    initOutCmd = new G4UIcmdWithAnInteger("/msc/SteppingAction/initOutput",this);
+    initOutCmd->SetGuidance("Initialize the output");
+    initOutCmd->SetParameterName("initOutput", false);
 }
 
 mscMessenger::~mscMessenger(){
   delete nrUnitsCmd;
   delete radThickCmd;
   delete polCmd;
+  delete writeTreeCmd;
+  delete writeANCmd;
 }
 
 
@@ -53,13 +71,27 @@ void mscMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue){
 
   if( cmd == nrUnitsCmd ){
     G4int val = nrUnitsCmd->GetNewIntValue(newValue);
-    fdetcon->SetNrUnits( val );
-    fdetcon->UpdateGeometry();
+    fDetCon->SetNrUnits(val);
+    fDetCon->UpdateGeometry();
+    if(val>=15){
+      G4cerr<< __PRETTY_FUNCTION__<<" your number of units is larger than max 15 "<<val<<G4endl;
+      G4cerr<<" You will need to modify the code! Exiting!"<<G4endl;
+      exit(1);
+    }
+    fStepAct->SetNrUnits(val);
   }else if( cmd == radThickCmd ){
     G4double val = radThickCmd->GetNewDoubleValue(newValue);
-    fdetcon->SetRadiatorThickness( val );
+    fDetCon->SetRadiatorThickness( val );
   }else if( cmd == polCmd ){
-    fprigen->SetPolarization( newValue );
+    fPriGen->SetPolarization( newValue );
+  }else if( cmd == writeANCmd ){
+    G4int val = writeANCmd->GetNewIntValue(newValue);
+    fStepAct->SetWriteANdata(val);
+  }else if( cmd == writeTreeCmd ){
+    G4int val = writeTreeCmd->GetNewIntValue(newValue);
+    fStepAct->SetWriteTree(val);
+  }else if( cmd == initOutCmd ){
+    fStepAct->InitOutput();
   }
 
 }
