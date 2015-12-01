@@ -47,7 +47,7 @@ mscMessenger::mscMessenger(){
     writeTreeCmd->SetGuidance(" 2: write tree for all steps");
     writeTreeCmd->SetParameterName("writeTree", false);
 
-    writeANCmd = new G4UIcmdWithAnInteger("/msc/SteppingAction/setANdata",this);
+    writeANCmd = new G4UIcmdWithAnInteger("/msc/SteppingAction/setWriteANdata",this);
     writeANCmd->SetGuidance("Output text file with AN at each call to phys process?");
     writeANCmd->SetGuidance(" 0: no");
     writeANCmd->SetGuidance(" else: yes");
