@@ -70,8 +70,6 @@ G4VPhysicalVolume* mscDetectorConstruction::Construct()
   // Define materials 
   DefineMaterials();
 
-  G4cout<<G4endl<<G4endl<< " ~~~~~~~~~~~~~ "<< G4endl<< nrUnits<<G4endl<< __PRETTY_FUNCTION__<<G4endl;
-  
   // Define volumes
   if( nrUnits == -1 )                                   
     return BuildQweakGeometry();
