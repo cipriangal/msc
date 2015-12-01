@@ -1,5 +1,16 @@
-## does not work for now
-##/msc/det/setRadiatorThickness 4. cm
+## 0 for simple sim, -1 for QweakSimG4 (not yet implemented), n>0 for stacks
+/msc/setNrUnits 0
+## needed for simple simulation .. has no effect on stacked/QweakSimG4
+/msc/det/setRadiatorThickness 2. cm
+
+## polarization for the parimary event (L,mL,V,mV accepted)
+/msc/PrimaryEventGen/setPolarization V
+
+/msc/SteppingAction/setWriteTree 0
+/msc/SteppingAction/setWriteANdata 0
+### the initOutput should always be there!!
+/msc/SteppingAction/initOutput 1
+
 /msc/event/setPrintModulo 10000
 
-/run/beamOn 10000
+/run/beamOn 10
