@@ -119,7 +119,9 @@ int main(int argc,char** argv)
   //
   runManager->SetUserAction(new mscEventAction(&evNumber));
   //
-  runManager->SetUserAction(new mscSteppingAction(&evNumber));
+  mscSteppingAction *stepAct=new mscSteppingAction(&evNumber);
+  runManager->SetUserAction(stepAct);
+  mscMess->SetStepAct(stepAct);
 
   // Initialize G4 kernel
   //
