@@ -30,10 +30,16 @@ mscMessenger::mscMessenger(){
     nrUnitsCmd->SetGuidance("n>0: n Stacked detectors with 2mm Pb and 0.1mm detMaterial");
     nrUnitsCmd->SetParameterName("nrUnits", false);
 
+    radThickCmd = new G4UIcmdWithADoubleAndUnit("/msc/det/setRadiatorThickness",this);
+    radThickCmd->SetGuidance("Used only for the simple simulation");
+    radThickCmd->SetGuidance(" use before setNrUnits");
+    radThickCmd->SetParameterName("radThickness", false);
+
 }
 
 mscMessenger::~mscMessenger(){
   delete nrUnitsCmd;
+  delete radThickCmd;
 }
 
 
@@ -43,6 +49,9 @@ void mscMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue){
     G4int val = nrUnitsCmd->GetNewIntValue(newValue);
     fdetcon->SetNrUnits( val );
     fdetcon->UpdateGeometry();
+  }else if( cmd == radThickCmd ){
+    G4double val = radThickCmd->GetNewIntValue(newValue);
+    fdetcon->SetRadiatorThickness( val );
   }
 
 }

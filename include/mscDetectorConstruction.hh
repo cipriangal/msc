@@ -17,10 +17,7 @@ public:
   
   virtual G4VPhysicalVolume* Construct();
   
-  //void SetRadiatorThickness(G4double thicknessValue){
-  //   radiatorThickness=thicknessValue;
-  //   G4cout<<G4endl<<G4endl<<" ~~~~ Setting radiator thickness to "<<thicknessValue<<G4endl<<G4endl;
-  // }
+  void SetRadiatorThickness(G4double val){radiatorThickness = val;}
 
   virtual void UpdateGeometry();
   void SetNrUnits( G4int val ){nrUnits=val;}
@@ -35,6 +32,7 @@ private:
   // data members
   //
   G4int nrUnits;
+  G4double radiatorThickness;
   G4bool  fCheckOverlaps; // option to activate checking of volumes overlaps
 };
 

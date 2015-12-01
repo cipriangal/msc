@@ -34,6 +34,7 @@ private:
   mscSteppingAction *fStepAct;
 
   G4UIcmdWithAnInteger *nrUnitsCmd;
+  G4UIcmdWithADoubleAndUnit *radThickCmd;
   
   // G4UIcmdWithAnInteger *seedCmd;
   // G4UIcmdWithABool     *kryptCmd;
@@ -46,7 +47,7 @@ private:
   // G4UIcmdWithAString   *fieldCurrCmd;
   // G4UIcmdWithAString   *genSelectCmd;
   
-  // G4UIcmdWithADoubleAndUnit *tgtLenCmd;
+
   // G4UIcmdWithADoubleAndUnit *tgtPosCmd;
   
   // G4UIcmdWithADoubleAndUnit *beamCurrCmd;

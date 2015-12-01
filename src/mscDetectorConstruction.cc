@@ -36,6 +36,7 @@
 mscDetectorConstruction::mscDetectorConstruction()
  : G4VUserDetectorConstruction(),
    nrUnits(0),
+   radiatorThickness(2*cm),
    fCheckOverlaps(true)
 {
 }
@@ -278,7 +279,6 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildStackedDetector()
 G4VPhysicalVolume* mscDetectorConstruction::BuildSimpleDetector()
 {
   // Geometry parameters
-  G4double radThickness = 2. * cm;  
   G4double detectorThickness = 0.01 * mm;
   G4double SizeX  = 200. * cm;
   G4double SizeY  =  20. * cm;
@@ -327,7 +327,7 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildSimpleDetector()
   //
   G4VSolid* radiatorSol
     = new G4Box("radiator",		   // its name
-		SizeX/2., SizeY/2., radThickness/2.); // its size
+		SizeX/2., SizeY/2., radiatorThickness/2.); // its size
   
   G4LogicalVolume* radiatorLogical
     = new G4LogicalVolume(
