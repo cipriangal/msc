@@ -23,7 +23,7 @@ mscEventAction::mscEventAction(G4int *evN)
   G4GenericMessenger::Command& setPrintModulo 
     = fMessenger->DeclareProperty("setPrintModulo", 
                                   fPrintModulo, 
-                                 "Print events modulo n");
+				  "Print event number modulo n");
   setPrintModulo.SetRange("value>0");                                
 }
 
