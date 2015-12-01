@@ -177,18 +177,13 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
     const G4double MDposZ = 5 * CLHEP::cm;
     projPosX = prePosX + (MDposZ - prePosZ) * tan(preAngX * CLHEP::pi/180.);
     projPosY = prePosY + (MDposZ - prePosZ) * tan(preAngY * CLHEP::pi/180.);
-    
-  }
-  if(nrUnits==0){
-    projPosX = prePosX;
-    projPosY = prePosY;
   }
 
   stepSize=theStep->GetStepLength();
   
   /*fill histo*/
   if(unitNo!=-999){
-    if(unitNo>=nrUnits || unitNo>=MaxNrUnits || unitNo<0){
+    if(unitNo>=MaxNrUnits || unitNo<0){
       G4cerr<<__PRETTY_FUNCTION__<<":"<<G4endl;
       G4cerr<<" you have too many segmentation units defined "<<unitNo<<" max="<<MaxNrUnits<<G4endl;
       exit(1);
