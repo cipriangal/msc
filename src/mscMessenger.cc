@@ -1,0 +1,48 @@
+#include "mscMessenger.hh"
+
+#include "G4UIcmdWithAnInteger.hh"
+#include "G4UIcmdWithAString.hh"
+#include "G4UIcmdWithADoubleAndUnit.hh"
+#include "G4UIcmdWithABool.hh"
+
+#include "mscDetectorConstruction.hh"
+#include "mscEventAction.hh"
+#include "mscPrimaryGeneratorAction.hh"
+#include "mscSteppingAction.hh"
+
+#include "G4UImanager.hh"
+#include "G4RunManager.hh"
+
+#include <iostream>
+
+mscMessenger::mscMessenger(){
+    /*  Initialize all the things it talks to to NULL */
+
+    fdetcon       = NULL;
+    fevact        = NULL;
+    fprigen       = NULL;
+    fStepAct      = NULL;
+
+    nrUnitsCmd = new G4UIcmdWithAnInteger("/msc/setNrUnits",this);
+    nrUnitsCmd->SetGuidance("Set number of units for segmentation");
+    nrUnitsCmd->SetGuidance("-1: for QweakSimG4 bar");
+    nrUnitsCmd->SetGuidance("0: for simple Pb bar with detMaterial");
+    nrUnitsCmd->SetGuidance("n>0: n Stacked detectors with 2mm Pb and 0.1mm detMaterial");
+    nrUnitsCmd->SetParameterName("nrUnits", false);
+
+}
+
+mscMessenger::~mscMessenger(){
+  delete nrUnitsCmd;
+}
+
+
+void mscMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue){
+
+  if( cmd == nrUnitsCmd ){
+    G4int val = nrUnitsCmd->GetNewIntValue(newValue);
+    fdetcon->SetNrUnits( val );
+    fdetcon->UpdateGeometry();
+  }
+
+}
