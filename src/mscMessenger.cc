@@ -64,6 +64,7 @@ mscMessenger::~mscMessenger(){
   delete polCmd;
   delete writeTreeCmd;
   delete writeANCmd;
+  delete initOutCmd;
 }
 
 
