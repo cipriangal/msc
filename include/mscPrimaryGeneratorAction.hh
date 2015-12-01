@@ -22,11 +22,10 @@ public:
 
   virtual void GeneratePrimaries(G4Event* event);
   
-  // set methods
-  void SetRandomFlag(G4bool value);
-
+  void SetPolarization(G4String val){polarization = val;}
 private:
   G4ParticleGun*  fParticleGun; // G4 particle gun
+  G4String polarization;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

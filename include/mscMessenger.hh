@@ -35,6 +35,7 @@ private:
 
   G4UIcmdWithAnInteger *nrUnitsCmd;
   G4UIcmdWithADoubleAndUnit *radThickCmd;
+  G4UIcmdWithAString *polCmd;
   
   // G4UIcmdWithAnInteger *seedCmd;
   // G4UIcmdWithABool     *kryptCmd;

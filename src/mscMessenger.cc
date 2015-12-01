@@ -35,11 +35,17 @@ mscMessenger::mscMessenger(){
     radThickCmd->SetGuidance(" use before setNrUnits");
     radThickCmd->SetParameterName("radThickness", false);
 
+    polCmd = new G4UIcmdWithAString("/msc/PrimaryEventGen/setPolarization",this);
+    polCmd->SetGuidance(" Set the polarization direction for each event:");
+    polCmd->SetGuidance(" default L; accepted: L, mL, V, mV");
+    polCmd->SetParameterName("radThickness", false);
+
 }
 
 mscMessenger::~mscMessenger(){
   delete nrUnitsCmd;
   delete radThickCmd;
+  delete polCmd;
 }
 
 
@@ -50,8 +56,10 @@ void mscMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue){
     fdetcon->SetNrUnits( val );
     fdetcon->UpdateGeometry();
   }else if( cmd == radThickCmd ){
-    G4double val = radThickCmd->GetNewIntValue(newValue);
+    G4double val = radThickCmd->GetNewDoubleValue(newValue);
     fdetcon->SetRadiatorThickness( val );
+  }else if( cmd == polCmd ){
+    fprigen->SetPolarization( newValue );
   }
 
 }

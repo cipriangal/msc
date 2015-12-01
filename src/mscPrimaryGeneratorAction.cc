@@ -15,7 +15,8 @@
 
 mscPrimaryGeneratorAction::mscPrimaryGeneratorAction()
  : G4VUserPrimaryGeneratorAction(),
-   fParticleGun(0)
+   fParticleGun(0),
+   polarization("V")
 {
   G4int nofParticles = 1;
   fParticleGun = new G4ParticleGun(nofParticles);
@@ -46,24 +47,34 @@ void mscPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   // on DetectorConstruction class we get world volume
   // from G4LogicalVolumeStore
   //
-  G4double worldZHalfLength = 0;
-  G4LogicalVolume* worlLV
-    = G4LogicalVolumeStore::GetInstance()->GetVolume("World");
-  G4Box* worldBox = 0;
-  if ( worlLV) worldBox = dynamic_cast< G4Box*>(worlLV->GetSolid()); 
-  if ( worldBox ) {
-    worldZHalfLength = worldBox->GetZHalfLength();  
-  }
-  else  {
-    G4cerr << "World volume of box not found." << G4endl;
-    G4cerr << "Perhaps you have changed geometry." << G4endl;
-    G4cerr << "The gun will be place in the center." << G4endl;
-  } 
+  // G4double worldZHalfLength = 0;
+  // G4LogicalVolume* worlLV
+  //   = G4LogicalVolumeStore::GetInstance()->GetVolume("World");
+  // G4Box* worldBox = 0;
+  // if ( worlLV) worldBox = dynamic_cast< G4Box*>(worlLV->GetSolid()); 
+  // if ( worldBox ) {
+  //   worldZHalfLength = worldBox->GetZHalfLength();  
+  // }
+  // else  {
+  //   G4cerr << __PRETTY_FUNCTION__ <<" :"<<G4endl;
+  //   G4cerr << "  World volume of box not found." << G4endl;
+  //   G4cerr << "  Perhaps you have changed geometry." << G4endl;
+  //   G4cerr << "  The gun will be place in the center." << G4endl;
+  // } 
   
   // Set gun position
-  fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., -worldZHalfLength - 10.*cm));
-  //fParticleGun->SetParticlePolarization(G4ThreeVector(0.,0.,1.)); //L
-  fParticleGun->SetParticlePolarization(G4ThreeVector(0.,1.,0.)); //V
+  fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., - 10.*cm));
+
+  if(polarization=="V"){    
+    fParticleGun->SetParticlePolarization(G4ThreeVector(0.,1.,0.));
+  }else if(polarization=="L"){
+    fParticleGun->SetParticlePolarization(G4ThreeVector(0.,0.,1.));
+  }else if(polarization=="mL"){
+    fParticleGun->SetParticlePolarization(G4ThreeVector(0.,0.,-1.));
+  }else if(polarization=="mV"){
+    fParticleGun->SetParticlePolarization(G4ThreeVector(0.,-1.,0.));
+  }else
+    fParticleGun->SetParticlePolarization(G4ThreeVector(0.,0.,1.));//default longitudinal
 
   fParticleGun->GeneratePrimaryVertex(anEvent);
 }

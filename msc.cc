@@ -111,7 +111,9 @@ int main(int argc,char** argv)
 
   // Set user action classes
   //
-  runManager->SetUserAction(new mscPrimaryGeneratorAction());
+  mscPrimaryGeneratorAction *prigen=new mscPrimaryGeneratorAction();
+  runManager->SetUserAction( prigen );
+  mscMess->SetPriGen(prigen);
   //
   runManager->SetUserAction(new mscRunAction());
   //
