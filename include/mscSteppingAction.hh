@@ -38,6 +38,11 @@ private:
   TFile *fout;
   TTree *tout;
 
+  G4int currentEv;
+  std::vector<G4int> savedTracks;
+  std::vector<G4int> savedParents;
+  G4int recordTrack(G4int trID, G4int parID);
+  
   G4int nrUnits;
   G4int writeANdata;
   G4int writeTree;
