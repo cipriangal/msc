@@ -18,6 +18,7 @@ mscSteppingAction::mscSteppingAction(G4int *evN)
   nrUnits=10;
   writeANdata=0;
   writeTree=0;
+  currentEv=-1;
 
   for(int i=0;i<perpNval;i++) perpDepol.SetPoint(i,perpXDepol[i],perpYDepol[i]);   
 }
@@ -47,7 +48,7 @@ void  mscSteppingAction::InitOutput(){
 			301,0,301);    
   }
 
-  if(nrUnits==0){
+  if(nrUnits<=0){
     hdistPe[0]=new TH3I("distPe","primaries @ MD ;pos [cm];angle [deg];E [MeV]",
 			201,-100.5,100.5,
 			180,-90,90,
@@ -99,7 +100,7 @@ mscSteppingAction::~mscSteppingAction()
     hdistPe[i]->Write();
     hdistAe[i]->Write();
   }
-  if(nrUnits==0){
+  if(nrUnits<=0){
     hdistPe[0]->Write();
     hdistAe[0]->Write();
   }
@@ -126,10 +127,19 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   InitVar();
 
   eventNr=*evNr;
+  if(currentEv!=eventNr){
+    savedTracks.clear();
+    savedParents.clear();
+    currentEv=eventNr;
+  }
   
   if(theMaterial){    
-    if(theMaterial->GetName().compare("detectorMat")==0)
-      material=1;
+    if(theMaterial->GetName().compare("detectorMat")==0)       material=1;
+    else if(theMaterial->GetName().compare("Aluminum")==0)     material=2;
+    else if(theMaterial->GetName().compare("Tyvek")==0)        material=3;
+    else if(theMaterial->GetName().compare("Lead")==0)         material=4;
+    else if(theMaterial->GetName().compare("Quartz")==0)       material=5;
+    else if(theMaterial->GetName().compare("SiElast_Glue")==0) material=6;
     else if(theMaterial->GetName().compare("PBA")==0){
       material=0;
 
@@ -190,13 +200,23 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
     }
     
     G4double histE = (preE>300) ? 300.5 : preE;
-    if( fabs(projPosX/10.)<100 && fabs(preAngX)<90 && material==1 && pType==11){
+    if( fabs(projPosX/10.)<100 && fabs(preAngX)<90 && abs(pType)==11 && material==1 ){
       hdistAe[unitNo]->Fill(projPosX/10.,preAngX,histE);
       if(trackID==1 && parentID==0)
 	hdistPe[unitNo]->Fill(projPosX/10.,preAngX,histE);
     }
   }
-  
+
+  if(nrUnits==-1){
+    G4double histE = (preE>300) ? 300.5 : preE;
+    if( fabs(prePosX/10.)<100 && fabs(preAngX)<90 && abs(pType)==11 &&
+	material==5 && recordTrack(trackID,parentID) ){
+      hdistAe[0]->Fill(prePosX/10.,preAngX,histE);
+      if(trackID==1 && parentID==0)
+	hdistPe[0]->Fill(prePosX/10.,preAngX,histE);
+    }
+  }
+	
   /*fill tree*/ 
   if(writeTree==1 && material==1) tout->Fill();
   else if(writeTree==2) tout->Fill();
@@ -229,6 +249,13 @@ void mscSteppingAction::InitVar(){
   stepSize = -999;
 }
 
-
+G4int mscSteppingAction::recordTrack(G4int trID, G4int parID){
+  for(int i=0;i<int(savedTracks.size());i++)
+    if(trID==savedTracks[i] && parID==savedParents[i])
+      return 0;
+  savedTracks.push_back(trID);
+  savedParents.push_back(parID);
+  return 1;
+}
 
 
