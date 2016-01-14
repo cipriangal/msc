@@ -75,6 +75,7 @@ G4VPhysicalVolume* mscDetectorConstruction::Construct()
 {
   // Define materials 
   DefineMaterials();
+  //return BuildQweakGeometry();
 
   // Define volumes
   if( nrUnits == -1 )                                   
@@ -485,7 +486,15 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildQweakGeometry()
   std::vector< G4SubtractionSolid* >  LeftQuartz_Solid;
   std::vector< G4SubtractionSolid* >  LeftGuide_Solid;
   std::vector< G4SubtractionSolid* >  RightGuide_Solid;
-
+  // clear vector containing temp solids for boolean soild union
+  LeftQuartz_Solid.clear();
+  LeftQuartz_Solid.resize(4);  //need 4 chamfers on quartz bar proper
+  RightQuartz_Solid.clear();
+  RightQuartz_Solid.resize(4); //need 4 chamfers on quartz bar proper
+  LeftGuide_Solid.clear();
+  LeftGuide_Solid.resize(5); //need 4 chamfers + 1 angle cut on light guide
+  RightGuide_Solid.clear();
+  RightGuide_Solid.resize(5);  //need 4 chamfers + 1 angle cut on light guide
 
   G4Colour  orange      (255/255., 127/255.,   0/255.);
   G4Colour  blue        (  0/255.,   0/255., 255/255.);
@@ -538,8 +547,8 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildQweakGeometry()
   G4double Container_Center_Z         =  -4.25*cm;
   G4ThreeVector Position_CerenkovContainer=G4ThreeVector(0,0,0);
   G4ThreeVector Container_Center = G4ThreeVector(Container_Center_X, Container_Center_Y, Container_Center_Z);
-  G4double Container_FullLength_X     =  95.6*inch;
-  G4double Container_FullLength_Y     =  9.6*inch;
+  G4double Container_FullLength_X     =  99.8*inch;//95.6*inch;
+  G4double Container_FullLength_Y     =  15.6*inch;//9.6*inch;
   G4double Container_FullLength_Z     =  14.0*inch+2.0*Container_Center_Z;
 
   G4Box* CerenkovContainer_Solid  = new G4Box("CerenkovContainer_Solid",
@@ -1390,13 +1399,13 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildQweakGeometry()
   G4ThreeVector Position_ActiveArea  = G4ThreeVector(0,0,0);
   
   G4VPhysicalVolume*
-  ActiveArea_Physical   = new G4PVPlacement(0,Position_ActiveArea + Container_Center,
-					    ActiveArea_Logical,
-					    "ActiveArea_Physical",
-					    CerenkovContainer_Logical,
-					    false,0,
-					    fCheckOverlaps);
-  
+    ActiveArea_Physical   = new G4PVPlacement(0,Position_ActiveArea + Container_Center,
+					      ActiveArea_Logical,
+					      "ActiveArea_Physical",
+					      CerenkovContainer_Logical,
+					      false,0,
+					      fCheckOverlaps);
+
   //****************************************************************************************************
   //****************************************************************************************************
 
@@ -1523,7 +1532,7 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildQweakGeometry()
 						ActiveArea_Logical,
 						false,0,
 						fCheckOverlaps);
-  
+
   //****************************************************************************************************
   //****************************************************************************************************
   
