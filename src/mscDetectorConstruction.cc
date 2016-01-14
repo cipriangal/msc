@@ -144,6 +144,16 @@ void mscDetectorConstruction::DefineMaterials()
   G4Material* matTyvek = new G4Material("Tyvek",0.96*g/cm3 , 2);
   matTyvek -> AddElement(elH, 2);
   matTyvek -> AddElement(elC, 1);
+
+  
+  G4Material *matLimeGlass = new G4Material("LimeGlass",2.200*g/cm3, 2);
+  matLimeGlass->AddElement(elSi, 1);
+  matLimeGlass->AddElement(elO , 2);
+
+  // Photocathode material, approximated as elemental cesium
+  G4Element* elK  = nistManager->FindOrBuildElement("K");
+  G4Material *matPhotocathode =  new G4Material("Photocathode",5.0*g/cm3,1);
+  matPhotocathode -> AddElement(elK, 1);
   
   // Print materials
   G4cout << G4endl << G4endl << "~~~~~~~~~~~~~~~~~~~~~Material Printout~~~~~~~~~~~~~~~~~~~~~~~~" << G4endl;
@@ -459,7 +469,8 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildQweakGeometry()
   G4Material* leadMaterial     = G4Material::GetMaterial("Lead");
   G4Material* glueMaterial     = G4Material::GetMaterial("SiElast_Glue");
   G4Material* padMaterial      = G4Material::GetMaterial("Tyvek");
-
+  G4Material* limeGlassMaterial= G4Material::GetMaterial("LimeGlass");
+  G4Material* cathodeMaterial  = G4Material::GetMaterial("Photocathode");
   // placing the chamfers
   G4ThreeVector    Position_Chamfer1;
   G4RotationMatrix Rotation_Chamfer1;  
@@ -1999,168 +2010,185 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildQweakGeometry()
 					      1,
 					      fCheckOverlaps);
 
-//   /////FIXME -- put this back maybe?!
-
-//   //-----------------------------------
-//   // define the PMTContainer
-//   //-----------------------------------
+  //~~~~~~~~~~~~~~~~~~ FIXME
   
-//   G4double thetaY = atan(LightGuide_FullThickness*(1 - redfr)/(LightGuide_FullLength));
-//   G4double Xoffs = 0.0*cm;//7.0*cm;
+  //-----------------------------------
+  // define the PMTContainer
+  //-----------------------------------
   
-//   //Flat on guide face configuration
-//   G4double PMTContXShift = QuartzBar_FullLength + LightGuide_FullLength - 0.5*PMTEntranceWindow_Diameter - Xoffs;
-//   G4double PMTContYShift = 0.0;
-//   G4double PMTContZShift = 0.5*QuartzBar_FullThickness + 0.5*PMTContainer_FullLength_Z
-//     - (LightGuide_FullLength - 0.5*PMTEntranceWindow_Diameter-Xoffs)*tan(thetaY);
+  G4double thetaY = atan(LightGuide_FullThickness*(1 - redfr)/(LightGuide_FullLength));
+  G4double Xoffs = 0.0*cm;//7.0*cm;
+
+  G4double PMTEntranceWindow_Thickness   =  1.0*mm; // assumed PMT glass thickness
+  G4double PMTEntranceWindow_Diameter    =  12.7*cm;//QuartzBar_FullHeight;
+  G4double PMTContainer_Diameter    =  PMTEntranceWindow_Diameter+1.0*mm;
+  G4double Cathode_Thickness   = 1.0*mm;
+  G4double PMTContainer_FullLength_Z    =  2.0*mm+PMTEntranceWindow_Thickness+Cathode_Thickness;
+  //Flat on guide face configuration
+  G4double PMTContXShift = QuartzBar_FullLength + LightGuide_FullLength - 0.5*PMTEntranceWindow_Diameter - Xoffs;
+  G4double PMTContYShift = 0.0;
+  G4double PMTContZShift = 0.5*QuartzBar_FullThickness + 0.5*PMTContainer_FullLength_Z
+    - (LightGuide_FullLength - 0.5*PMTEntranceWindow_Diameter-Xoffs)*tan(thetaY);
+
+    // placing the left PMTContainer
+
+  G4ThreeVector     Translation_PMTContainerLeft;
+  // relocation of the left Photon Detector Container
+  Translation_PMTContainerLeft.setX(1.0*PMTContXShift);
+  Translation_PMTContainerLeft.setY(1.0*PMTContYShift);
+  Translation_PMTContainerLeft.setZ(1.0*PMTContZShift);
   
-//   // relocation of the left Photon Detector Container
-//   Translation_PMTContainerLeft.setX(1.0*PMTContXShift);
-//   Translation_PMTContainerLeft.setY(1.0*PMTContYShift);
-//   Translation_PMTContainerLeft.setZ(1.0*PMTContZShift);
+  //Flat on guide face configuration
+  G4RotationMatrix Rotation_PMTContainerLeft; 
+  Rotation_PMTContainerLeft.rotateY(thetaY);
+  G4Transform3D Transform3D_PMTContainerLeft(Rotation_PMTContainerLeft,
+					     Translation_PMTContainerLeft);
+
+  G4ThreeVector     Translation_PMTContainerRight;
+  // relocation of the right Photon Detector Container
+  Translation_PMTContainerRight.setX(-1.0*PMTContXShift);
+  Translation_PMTContainerRight.setY(1.0*PMTContYShift);
+  Translation_PMTContainerRight.setZ(1.0*PMTContZShift);
+
+  //Flat on guide face configuration
+  G4RotationMatrix Rotation_PMTContainerRight; 
+  Rotation_PMTContainerRight.rotateY(-thetaY);
+  G4Transform3D Transform3D_PMTContainerRight(Rotation_PMTContainerRight,
+					      Translation_PMTContainerRight);
+
+
+  G4double PMTQuartzOpticalFilm_Thickness=  0.1*mm;
+  G4double PMTQuartzOpticalFilmZShift = 0.5*(PMTQuartzOpticalFilm_Thickness - PMTContainer_FullLength_Z);
+
+  // relocation of the PMTEntranceWindow
+  G4ThreeVector Translation_PMTQuartzOpticalFilm;
+  Translation_PMTQuartzOpticalFilm.setX(0.0*cm);
+  Translation_PMTQuartzOpticalFilm.setY(0.0*cm);
+  Translation_PMTQuartzOpticalFilm.setZ(PMTQuartzOpticalFilmZShift);
+
+  //-------------------------------------------------------------------------------------
+  // location and orientation of the PMT Entrance Window within the PMT Container
+  //-------------------------------------------------------------------------------------
+
+  G4double PMTEntWindZShift = 0.5*(PMTEntranceWindow_Thickness - PMTContainer_FullLength_Z)+PMTQuartzOpticalFilm_Thickness;
   
-//   //   //On guide edge configuration
-//   //   Rotation_PMTContainerLeft.rotateY(90.0*degree);
+  // relocation of the PMTEntranceWindow
+  G4ThreeVector    Translation_PMTEntranceWindow;
+  Translation_PMTEntranceWindow.setX(0.0*cm);
+  Translation_PMTEntranceWindow.setY(0.0*cm);
+  Translation_PMTEntranceWindow.setZ(PMTEntWindZShift);
   
-//   //Flat on guide face configuration
-//   Rotation_PMTContainerLeft.rotateY(thetaY);
-//   G4Transform3D Transform3D_PMTContainerLeft(Rotation_PMTContainerLeft,
-// 					     Translation_PMTContainerLeft);
+  //-------------------------------------------------------------------------------------
+  // location and orientation of the cathode WITHIN the PMT
+  //-------------------------------------------------------------------------------------
+
+  G4double CathodeZShift = PMTEntranceWindow_Thickness + 0.5*(Cathode_Thickness - PMTContainer_FullLength_Z) + PMTQuartzOpticalFilm_Thickness;
+
+  // location of the Photon Detector relative to  Photon Detector Container
+  G4ThreeVector    Translation_Cathode;
+  Translation_Cathode.setX(0.0*cm);
+  Translation_Cathode.setY(0.0*cm);
+  Translation_Cathode.setZ(CathodeZShift);
+
+
+  G4Tubs* PMTContainer_Solid    =
+    new G4Tubs("PMTContainer_Solid",0.0*cm,
+	       0.5 * PMTContainer_Diameter,
+	       0.5 * PMTContainer_FullLength_Z,
+	       0.0*degree,360.0*degree);
+
+
+  G4LogicalVolume* PMTContainer_Logical  =
+    new G4LogicalVolume(PMTContainer_Solid,
+			defaultMaterial,
+			"PMTContainer_Log",
+			0,0,0);
   
-//     // relocation of the right Photon Detector Container
-//     Translation_PMTContainerRight.setX(-1.0*PMTContXShift);
-//     Translation_PMTContainerRight.setY(1.0*PMTContYShift);
-//     Translation_PMTContainerRight.setZ(1.0*PMTContZShift);
+  // left side
+  G4VPhysicalVolume* PMTContainer_PhysicalLeft  =
+    new G4PVPlacement(Transform3D_PMTContainerLeft,
+		      PMTContainer_Logical,
+		      "PMTContainer_Physical",
+		      ActiveArea_Logical,
+		      false,
+		      0, // copy number for left PMTContainer
+		      fCheckOverlaps);
 
-// //   //On guide edge configuration
-// //   Rotation_PMTContainerLeft.rotateY(-90.0*cm);
-
-//     //Flat on guide face configuration
-//     Rotation_PMTContainerRight.rotateY(-thetaY);
-//     G4Transform3D Transform3D_PMTContainerRight(Rotation_PMTContainerRight,
-//             Translation_PMTContainerRight);
-
-
-
-//     G4double PMTQuartzOpticalFilmZShift = 0.5*(PMTQuartzOpticalFilm_Thickness - PMTContainer_FullLength_Z);
-
-//     // relocation of the PMTEntranceWindow
-//     Translation_PMTQuartzOpticalFilm.setX(0.0*cm);
-//     Translation_PMTQuartzOpticalFilm.setY(0.0*cm);
-//     Translation_PMTQuartzOpticalFilm.setZ(PMTQuartzOpticalFilmZShift);
-
-//     //-------------------------------------------------------------------------------------
-//     // location and orientation of the PMT Entrance Window within the PMT Container
-//     //-------------------------------------------------------------------------------------
-
-//     G4double PMTEntWindZShift = 0.5*(PMTEntranceWindow_Thickness - PMTContainer_FullLength_Z)+PMTQuartzOpticalFilm_Thickness;
-
-//     // relocation of the PMTEntranceWindow
-//     Translation_PMTEntranceWindow.setX(0.0*cm);
-//     Translation_PMTEntranceWindow.setY(0.0*cm);
-//     Translation_PMTEntranceWindow.setZ(PMTEntWindZShift);
-
-//     //-------------------------------------------------------------------------------------
-//     // location and orientation of the cathode WITHIN the PMT
-//     //-------------------------------------------------------------------------------------
-
-//     G4double CathodeZShift = PMTEntranceWindow_Thickness + 0.5*(Cathode_Thickness - PMTContainer_FullLength_Z) + PMTQuartzOpticalFilm_Thickness;
-
-//     // location of the Photon Detector relative to  Photon Detector Container
-//     Translation_Cathode.setX(0.0*cm);
-//     Translation_Cathode.setY(0.0*cm);
-//     Translation_Cathode.setZ(CathodeZShift);
+    // right side
+   G4VPhysicalVolume* PMTContainer_PhysicalRight =
+     new G4PVPlacement(Transform3D_PMTContainerRight,
+		       PMTContainer_Logical,
+		       "PMTContainer_Physical",
+		       ActiveArea_Logical,
+		       false,
+		       1, // copy number for right PMTContainer
+		       fCheckOverlaps);
 
 
-//     //   G4Box* PMTContainer_Solid    = new G4Box("PMTContainer_Solid",
-//     // 					   0.5 * PMTContainer_FullLength_X,   // half X
-//     // 					   0.5 * PMTContainer_FullLength_Y ,  // half Y
-//     // 					   0.5 * PMTContainer_FullLength_Z);  // half Z
-//     G4Tubs* PMTContainer_Solid    = new G4Tubs("PMTContainer_Solid",0.0*cm,
-//             0.5 * PMTContainer_Diameter,
-//             0.5 * PMTContainer_FullLength_Z,
-//             0.0*degree,360.0*degree);
+   //----------------------------------------
+   // define the glue or grease or cookie layer
+   //----------------------------------------
+   G4double PMTQuartzOpticalFilm_Diameter =  12.7*cm;
+   G4Tubs* PMTQuartzOpticalFilm_Solid = new G4Tubs("PMTQuartzOpticalFilm_Solid",0.0*cm,
+						   0.5*PMTQuartzOpticalFilm_Diameter,
+						   0.5*PMTQuartzOpticalFilm_Thickness,
+						   0.0*degree,360.0*degree);
 
+   G4LogicalVolume* PMTQuartzOpticalFilm_Logical  =
+     new G4LogicalVolume(PMTQuartzOpticalFilm_Solid,
+			 glueMaterial,
+			 "PMTQuartzOpticalFilm_Log",
+			 0,0,0);
+   
+   G4VPhysicalVolume* PMTQuartzOpticalFilm_Physical =
+     new G4PVPlacement(0,Translation_PMTQuartzOpticalFilm,
+		       PMTQuartzOpticalFilm_Logical,
+		       "PMTQuartzOpticalFilm_Physical",
+		       PMTContainer_Logical,
+		       false, 0, fCheckOverlaps); // copy number for left photon detector
 
-//     PMTContainer_Logical  = new G4LogicalVolume(PMTContainer_Solid,
-//             PMTContainer_Material,
-//             "PMTContainer_Log",
-//             0,0,0);
-
-//     // left side
-//     PMTContainer_PhysicalLeft  = new G4PVPlacement(Transform3D_PMTContainerLeft,
-//             PMTContainer_Logical,
-//             "PMTContainer_Physical",
-//             ActiveArea_Logical,
-//             false,
-//             0, // copy number for left PMTContainer
-//             fCheckOverlaps);
-
-//     // right side
-//     PMTContainer_PhysicalRight = new G4PVPlacement(Transform3D_PMTContainerRight,
-//             PMTContainer_Logical,
-//             "PMTContainer_Physical",
-//             ActiveArea_Logical,
-//             false,
-//             1, // copy number for right PMTContainer
-//             fCheckOverlaps);
-
-
-//     //----------------------------------------
-//     // define the glue or grease or cookie layer
-//     //----------------------------------------
-
-
-//     G4Tubs* PMTQuartzOpticalFilm_Solid = new G4Tubs("PMTQuartzOpticalFilm_Solid",0.0*cm,
-//             0.5*PMTQuartzOpticalFilm_Diameter,
-//             0.5*PMTQuartzOpticalFilm_Thickness,
-//             0.0*degree,360.0*degree);
-
-//     PMTQuartzOpticalFilm_Logical  = new G4LogicalVolume(PMTQuartzOpticalFilm_Solid,
-//             PMTQuartzOpticalFilm_Material,
-//             "PMTQuartzOpticalFilm_Log",
-//             0,0,0);
-//     PMTQuartzOpticalFilm_Physical = new G4PVPlacement(0,Translation_PMTQuartzOpticalFilm,
-//             PMTQuartzOpticalFilm_Logical,
-//             "PMTQuartzOpticalFilm_Physical",
-//             PMTContainer_Logical,
-//             false, 0, fCheckOverlaps); // copy number for left photon detector
-
-
-
-//     //----------------------------------------
-//     // define the PMTEntranceWindow
-//     //----------------------------------------
-
-//     G4Tubs* PMTEntranceWindow_Solid = new G4Tubs("PMTEntranceWindow_Solid",0.0*cm,
-//             0.5*PMTEntranceWindow_Diameter,
-//             0.5*PMTEntranceWindow_Thickness,
-//             0.0*degree,360.0*degree);
-
-//     PMTEntranceWindow_Logical  = new G4LogicalVolume(PMTEntranceWindow_Solid,
-//             PMTEntrancepadMaterial,
-//             "PMTEntranceWindow_Log",
-//             0,0,0);
-//     PMTEntranceWindow_Physical = new G4PVPlacement(0,Translation_PMTEntranceWindow,
-//             PMTEntranceWindow_Logical,
-//             "PMTEntranceWindow_Physical",
-//             PMTContainer_Logical,
-//             false, 0, fCheckOverlaps); // copy number for left photon detector
-
-//     //---------------------------
-//     // define the Photon Detector
-//     //---------------------------
-
-//     G4Tubs* Cathode_Solid = new G4Tubs("Cathode_Solid",0.0*cm,0.5*Cathode_Diameter,
-//                                        0.5*Cathode_Thickness,0.0*degree,360.0*degree);
-
-//     Cathode_Logical  = new G4LogicalVolume(Cathode_Solid,Cathode_Material,"Cathode_Log",0,0,0);
-
-//     Cathode_Physical = new G4PVPlacement(0,Translation_Cathode,Cathode_Logical,"Cathode_Physical",PMTContainer_Logical,
-//                                          false, 0, fCheckOverlaps); // copy number for left photon detector
-
-
-
+   //----------------------------------------
+   // define the PMTEntranceWindow
+   //----------------------------------------
+   
+   G4Tubs* PMTEntranceWindow_Solid = new G4Tubs("PMTEntranceWindow_Solid",0.0*cm,
+						0.5*PMTEntranceWindow_Diameter,
+						0.5*PMTEntranceWindow_Thickness,
+						0.0*degree,360.0*degree);
+   
+   G4LogicalVolume* PMTEntranceWindow_Logical  =
+     new G4LogicalVolume(PMTEntranceWindow_Solid,
+			 limeGlassMaterial,
+			 "PMTEntranceWindow_Log",
+			 0,0,0);
+   
+   G4VPhysicalVolume* PMTEntranceWindow_Physical =
+     new G4PVPlacement(0,Translation_PMTEntranceWindow,
+		       PMTEntranceWindow_Logical,
+		       "PMTEntranceWindow_Physical",
+		       PMTContainer_Logical,
+		       false, 0, fCheckOverlaps); // copy number for left photon detector
+   
+   //---------------------------
+   // define the Photon Detector
+   //---------------------------
+   G4double ReductionInPhotocathodeDiameter = 5*mm;
+   G4double Cathode_Diameter = PMTEntranceWindow_Diameter - ReductionInPhotocathodeDiameter;
+   G4Tubs* Cathode_Solid = new G4Tubs("Cathode_Solid",0.0*cm,0.5*Cathode_Diameter,
+				      0.5*Cathode_Thickness,0.0*degree,360.0*degree);
+   
+   G4LogicalVolume* Cathode_Logical  =
+     new G4LogicalVolume(Cathode_Solid,
+			 cathodeMaterial,
+			 "Cathode_Log",0,0,0);
+   
+   G4VPhysicalVolume* Cathode_Physical =
+     new G4PVPlacement(0,Translation_Cathode,
+		       Cathode_Logical,
+		       "Cathode_Physical",
+		       PMTContainer_Logical,
+		       false, 0, fCheckOverlaps); // copy number for left photon detector
+   
 
 
 
