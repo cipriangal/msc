@@ -41,24 +41,24 @@ void  mscSteppingAction::InitOutput(){
     hdistPe[i]=new TH3I(Form("distPe_%d",i),Form("primaries @ unit %d;pos [cm];angle [deg];E [MeV]",i),
 			201,-100.5,100.5,
 			180,-90,90,
-			301,0,301);
+			101,0,101);
     
     hdistAe[i]=new TH3I(Form("distAe_%d",i),Form("all e @ unit %d;pos [cm];angle [deg];E [MeV]",i),
 			201,-100.5,100.5,
 			180,-90,90,
-			301,0,301);    
+			101,0,101);    
   }
 
   if(nrUnits<=0){
     hdistPe[0]=new TH3I("distPe","primaries @ MD ;pos [cm];angle [deg];E [MeV]",
 			201,-100.5,100.5,
 			180,-90,90,
-			301,0,301);
+			101,0,101);
     
     hdistAe[0]=new TH3I("distAe","all e @ MD;pos [cm];angle [deg];E [MeV]",
 			201,-100.5,100.5,
 			180,-90,90,
-			301,0,301);    
+			101,0,101);    
   }
   
   if(writeTree){
@@ -200,7 +200,7 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
       exit(1);
     }
     
-    G4double histE = (preE>300) ? 300.5 : preE;
+    G4double histE = (preE>100) ? 100.5 : preE;
     if( fabs(projPosX/10.)<100 && fabs(preAngX)<90 && abs(pType)==11 && material==1 ){
       hdistAe[unitNo]->Fill(projPosX/10.,preAngX,histE);
       if(trackID==1 && parentID==0)
@@ -209,7 +209,7 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   }
 
   if(nrUnits==-1){
-    G4double histE = (preE>300) ? 300.5 : preE;
+    G4double histE = (preE>100) ? 100.5 : preE;
     if( fabs(prePosX/10.)<100 && fabs(preAngX)<90 && abs(pType)==11 &&
 	material==5 && recordTrack(trackID,parentID) ){
       hdistAe[0]->Fill(prePosX/10.,preAngX,histE);
