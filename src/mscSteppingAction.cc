@@ -11,7 +11,8 @@
 
 #include <fstream>
 
-mscSteppingAction::mscSteppingAction(G4int *evN)
+mscSteppingAction::mscSteppingAction(G4int *evN,std::vector<double> *asInfo):
+  asymInfo(asInfo)
 {
   //eventID pointer from the mscEventAction.cc file
   evNr=evN;

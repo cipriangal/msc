@@ -22,7 +22,7 @@ static const double perpYDepol[perpNval]={0.203,0.277,0.399,0.522,0.764,0.890,1.
 class mscSteppingAction : public G4UserSteppingAction
 {
 public:
-  mscSteppingAction(G4int*);
+  mscSteppingAction(G4int*,std::vector<double> *);
   ~mscSteppingAction();
   
   void UserSteppingAction(const G4Step*);
@@ -35,6 +35,8 @@ public:
   
 private:
   G4int *evNr;
+  std::vector< double >* asymInfo;
+  
   TFile *fout;
   TTree *tout;
 
