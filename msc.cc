@@ -35,6 +35,7 @@
 #endif
 
 #include <time.h>
+#include <vector>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -89,6 +90,9 @@ int main(int argc,char** argv)
   runManager->SetUserInitialization(detConstruction);
   mscMess->SetDetCon( detConstruction );
 
+  /*vector to pass asym information around*/
+  std::vector<double> asymInfo(4,-2);
+
   // Calls a reference physics list for the simulation
   G4PhysListFactory factory;
   G4VModularPhysicsList* physlist = factory.GetReferencePhysList("QGSP_BERT_LIV");
@@ -100,7 +104,7 @@ int main(int argc,char** argv)
 
   // Replace the standard EM with the customized version to add Pb A_T
 #if USE_CUSTOM_NUCLEAR_SCATTERING
-  physlist->ReplacePhysics(new QweakSimEmLivermorePhysics());
+  physlist->ReplacePhysics(new QweakSimEmLivermorePhysics(0,&asymInfo));
 #endif
 
   runManager->SetUserInitialization(physlist);
@@ -117,9 +121,9 @@ int main(int argc,char** argv)
   //
   runManager->SetUserAction(new mscRunAction());
   //
-  runManager->SetUserAction(new mscEventAction(&evNumber));
+  runManager->SetUserAction(new mscEventAction(&evNumber,&asymInfo));
   //
-  mscSteppingAction *stepAct=new mscSteppingAction(&evNumber);
+  mscSteppingAction *stepAct=new mscSteppingAction(&evNumber,&asymInfo);
   runManager->SetUserAction(stepAct);
   mscMess->SetStepAct(stepAct);
 
