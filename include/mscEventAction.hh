@@ -9,7 +9,7 @@ class G4GenericMessenger;
 class mscEventAction : public G4UserEventAction
 {
 public:
-  mscEventAction(G4int *evN);
+  mscEventAction(G4int *evN,std::vector<double>*asInfo);
   virtual ~mscEventAction();
 
   virtual void  BeginOfEventAction(const G4Event* event);
@@ -24,6 +24,7 @@ private:
   G4GenericMessenger*  fMessenger;
   G4int  fPrintModulo;
   G4int *evNr;
+  std::vector<double> *asymInfo;
 };
 
 // inline functions

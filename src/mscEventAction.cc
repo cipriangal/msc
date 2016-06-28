@@ -10,10 +10,11 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-mscEventAction::mscEventAction(G4int *evN)
+mscEventAction::mscEventAction(G4int *evN,std::vector<double>*asInfo)
  : G4UserEventAction(),
    fMessenger(0),
-   fPrintModulo(1)
+   fPrintModulo(1),
+   asymInfo(asInfo)
 {
   evNr=evN;
   // Define /msc/event commands using generic messenger class
@@ -56,7 +57,10 @@ void mscEventAction::EndOfEventAction(const G4Event* event)
   if ( eventID % fPrintModulo == 0) {
     G4cout << "---> End of event: " << eventID << G4endl;     
   }
-
+  
+  //reset asymInfo	
+  asymInfo->at(0)=-2;
+  asymInfo->at(2)=-2;
 }  
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
