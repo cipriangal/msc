@@ -4,7 +4,6 @@
 #include "TGraph.h"
 #include "math.h"
 #include "MSAnalyzingPowerData.hh"
-#include "QweakSimSystemOfUnits.hh"
 
 inline G4double Mott(G4double energy, G4double theta);
 
