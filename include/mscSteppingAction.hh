@@ -62,18 +62,25 @@ private:
   G4int trackID;
   G4int parentID;
 
-  G4double  preE; // total energy
-  G4double  preKE;// kinetic energy
+  G4double polX;
+  G4double polY;
+  G4double polZ;
 
-  G4double  prePosX; //position
-  G4double  prePosY;
-  G4double  prePosZ;
-  G4double  preMomX; //momentum
-  G4double  preMomY;
-  G4double  preMomZ;  
+  G4double asymInfoPP;
+  G4double asymInfoPM;
   
-  G4double preAngX; //angle along x (long section of the detector)
-  G4double preAngY; //angle along y (short section of the detector)
+  G4double  postE; // total energy
+  G4double  postKE;// kinetic energy
+
+  G4double  postPosX; //position
+  G4double  postPosY;
+  G4double  postPosZ;
+  G4double  postMomX; //momentum
+  G4double  postMomY;
+  G4double  postMomZ;    
+  
+  G4double postAngX; //angle along x (long section of the detector)
+  G4double postAngY; //angle along y (short section of the detector)
 
   G4double  projPosX; //position at MD face (z=5 cm)
   G4double  projPosY;

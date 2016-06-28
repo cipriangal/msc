@@ -74,18 +74,25 @@ void  mscSteppingAction::InitOutput(){
     tout->Branch("trackID",&trackID,"trackID/I");
     tout->Branch("parentID",&parentID,"parentID/I");
     
-    tout->Branch("preE",&preE,"preE/D");
-    tout->Branch("preKE",&preKE,"preKE/D");
+    tout->Branch("polX", &polX, "polX/D");
+    tout->Branch("polY", &polY, "polY/D");
+    tout->Branch("polZ", &polZ, "polZ/D");
+
+    tout->Branch("asymInfoPP", &asymInfoPP, "asymInfoPP/D");
+    tout->Branch("asymInfoPM", &asymInfoPM, "asymInfoPM/D");
     
-    tout->Branch("prePosX", &prePosX, "prePosX/D");
-    tout->Branch("prePosY", &prePosY, "prePosY/D");
-    tout->Branch("prePosZ", &prePosZ, "prePosZ/D");
-    tout->Branch("preMomX", &preMomX, "preMomX/D");
-    tout->Branch("preMomY", &preMomY, "preMomY/D");
-    tout->Branch("preMomZ", &preMomZ, "preMomZ/D");
+    tout->Branch("postE",&postE,"postE/D");
+    tout->Branch("postKE",&postKE,"postKE/D");
     
-    tout->Branch("preAngX",&preAngX,"preAngX/D");
-    tout->Branch("preAngY",&preAngY,"preAngY/D");
+    tout->Branch("postPosX", &postPosX, "postPosX/D");
+    tout->Branch("postPosY", &postPosY, "postPosY/D");
+    tout->Branch("postPosZ", &postPosZ, "postPosZ/D");
+    tout->Branch("postMomX", &postMomX, "postMomX/D");
+    tout->Branch("postMomY", &postMomY, "postMomY/D");
+    tout->Branch("postMomZ", &postMomZ, "postMomZ/D");
+    
+    tout->Branch("postAngX",&postAngX,"postAngX/D");
+    tout->Branch("postAngY",&postAngY,"postAngY/D");
     
     tout->Branch("projPosX",&projPosX,"projPosX/D");
     tout->Branch("projPosY",&projPosY,"projPosY/D");
@@ -164,30 +171,40 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
     unitNo = theTouchable->GetCopyNumber(1);
   else
     unitNo = -999;
+
+  polX  =  _polarization.getX();
+  polY  =  _polarization.getY();
+  polZ  =  _polarization.getZ();
+
+  if(_polarization.getR()>0.001){
+    asymInfoPP = asymInfo->at(0);
+    asymInfoPM = asymInfo->at(1);
+  }
+    
   
   pType = particleType->GetPDGEncoding();
   trackID = theStep->GetTrack()->GetTrackID();
   parentID = theStep->GetTrack()->GetParentID();
   
-  preE  =  thePrePoint->GetTotalEnergy();
-  preKE = thePostPoint->GetKineticEnergy();
+  postE  =  thePostPoint->GetTotalEnergy();
+  postKE = thePostPoint->GetKineticEnergy();
 
-  prePosX  =  thePrePoint->GetPosition().getX();
-  prePosY  =  thePrePoint->GetPosition().getY();
-  prePosZ  =  thePrePoint->GetPosition().getZ();
-  preMomX  =  thePrePoint->GetMomentum().getX();
-  preMomY  =  thePrePoint->GetMomentum().getY();
-  preMomZ  =  thePrePoint->GetMomentum().getZ();
+  postPosX  =  thePostPoint->GetPosition().getX();
+  postPosY  =  thePostPoint->GetPosition().getY();
+  postPosZ  =  thePostPoint->GetPosition().getZ();
+  postMomX  =  thePostPoint->GetMomentum().getX();
+  postMomY  =  thePostPoint->GetMomentum().getY();
+  postMomZ  =  thePostPoint->GetMomentum().getZ();
   
-  if(thePrePoint->GetMomentum().getR()>0){
-    G4double prePhi = thePrePoint->GetMomentum().getPhi();
-    G4double preTheta = thePrePoint->GetMomentum().getTheta();
-    preAngX = atan2(sin(preTheta)*cos(prePhi),cos(preTheta)) * 180. / CLHEP::pi;
-    preAngY = atan2(sin(preTheta)*sin(prePhi),cos(preTheta)) * 180. / CLHEP::pi;
+  if(thePostPoint->GetMomentum().getR()>0){
+    G4double postPhi = thePostPoint->GetMomentum().getPhi();
+    G4double postTheta = thePostPoint->GetMomentum().getTheta();
+    postAngX = atan2(sin(postTheta)*cos(postPhi),cos(postTheta)) * 180. / CLHEP::pi;
+    postAngY = atan2(sin(postTheta)*sin(postPhi),cos(postTheta)) * 180. / CLHEP::pi;
 
     const G4double MDposZ = 5 * CLHEP::cm;
-    projPosX = prePosX + (MDposZ - prePosZ) * tan(preAngX * CLHEP::pi/180.);
-    projPosY = prePosY + (MDposZ - prePosZ) * tan(preAngY * CLHEP::pi/180.);
+    projPosX = postPosX + (MDposZ - postPosZ) * tan(postAngX * CLHEP::pi/180.);
+    projPosY = postPosY + (MDposZ - postPosZ) * tan(postAngY * CLHEP::pi/180.);
   }
 
   stepSize=theStep->GetStepLength();
@@ -200,21 +217,21 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
       exit(1);
     }
     
-    G4double histE = (preE>100) ? 100.5 : preE;
-    if( fabs(projPosX/10.)<100 && fabs(preAngX)<90 && abs(pType)==11 && material==1 ){
-      hdistAe[unitNo]->Fill(projPosX/10.,preAngX,histE);
+    G4double histE = (postE>100) ? 100.5 : postE;
+    if( fabs(projPosX/10.)<100 && fabs(postAngX)<90 && abs(pType)==11 && material==1 ){
+      hdistAe[unitNo]->Fill(projPosX/10.,postAngX,histE);
       if(trackID==1 && parentID==0)
-	hdistPe[unitNo]->Fill(projPosX/10.,preAngX,histE);
+	hdistPe[unitNo]->Fill(projPosX/10.,postAngX,histE);
     }
   }
 
   if(nrUnits==-1){
-    G4double histE = (preE>100) ? 100.5 : preE;
-    if( fabs(prePosX/10.)<100 && fabs(preAngX)<90 && abs(pType)==11 &&
+    G4double histE = (postE>100) ? 100.5 : postE;
+    if( fabs(postPosX/10.)<100 && fabs(postAngX)<90 && abs(pType)==11 &&
 	material==5 && recordTrack(trackID,parentID) ){
-      hdistAe[0]->Fill(prePosX/10.,preAngX,histE);
+      hdistAe[0]->Fill(postPosX/10.,postAngX,histE);
       if(trackID==1 && parentID==0)
-	hdistPe[0]->Fill(prePosX/10.,preAngX,histE);
+	hdistPe[0]->Fill(postPosX/10.,postAngX,histE);
     }
   }
 	
@@ -232,18 +249,25 @@ void mscSteppingAction::InitVar(){
   trackID = -999;
   parentID = -999;
 
-  preE  = -999;
-  preKE = -999;
+  polX  = -999;
+  polY  = -999;
+  polZ  = -999;
 
-  prePosX  = -999;
-  prePosY  = -999;
-  prePosZ  = -999;
-  preMomX  = -999;
-  preMomY  = -999;
-  preMomZ  = -999;
+  asymInfoPP  = -999;
+  asymInfoPM  = -999;
 
-  preAngX  = -999;
-  preAngY  = -999;
+  postE  = -999;
+  postKE = -999;
+
+  postPosX  = -999;
+  postPosY  = -999;
+  postPosZ  = -999;
+  postMomX  = -999;
+  postMomY  = -999;
+  postMomZ  = -999;
+
+  postAngX  = -999;
+  postAngY  = -999;
 
   projPosX = -999;
   projPosY = -999;
