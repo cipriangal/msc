@@ -4,6 +4,8 @@
 #include "G4UserEventAction.hh"
 #include "globals.hh"
 
+#include <vector>
+
 class G4GenericMessenger;
 
 class mscEventAction : public G4UserEventAction
