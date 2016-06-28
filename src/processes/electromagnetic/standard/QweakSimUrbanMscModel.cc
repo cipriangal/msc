@@ -71,6 +71,7 @@
 #include "G4Log.hh"
 #include "G4Exp.hh"
 
+#include "QweakSimMScAnalyzingPower.hh"
 #include <fstream>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -104,8 +105,8 @@ static const G4double Tdat[22] = {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-QweakSimUrbanMscModel::QweakSimUrbanMscModel(const G4String& nam)
-  : G4VMscModel(nam)
+QweakSimUrbanMscModel::QweakSimUrbanMscModel(std::vector<double> *asInfo,const G4String& nam)
+  : G4VMscModel(nam),asymInfo(asInfo)
 {
   masslimite    = 0.6*MeV;
   lambdalimit   = 1.*mm;
@@ -444,9 +445,9 @@ G4double QweakSimUrbanMscModel::ComputeTruePathLengthLimit(
   const G4DynamicParticle* dp = track.GetDynamicParticle();
 
   // FIXME
+  modifyTrajectory=true;
   ePolarized=false;
   debugPrint=false;
-  writeANdata=false;
   if(strcmp(track.GetParticleDefinition()->GetParticleName().data() , "e-") == 0)
     if(strcmp(track.GetMaterial()->GetName(),"PBA") == 0){
       if(track.GetPolarization().getR() >= 0.1) debugPrint=true;
@@ -955,32 +956,58 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
 
   //FIXME
   if(ePolarized){
-    if(debugPrint) G4cout<<" ~~Urban fix ~~ "<<G4endl;
-    G4double _prob=rndmEngineMod->flat();
+
+    G4double transPol=sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
+    if(debugPrint){
+      G4cout<<__PRETTY_FUNCTION__<<G4endl;
+      G4cout<<"\tpolarization.R\ttransPol: "<<polarization.getR()<<"\t"<<transPol<<G4endl;
+    }
+    G4double _amplitude = AnalyzingPower(eEnergy, cth) * transPol;
+
+    G4double tdirx = sth*cos(phi);
+    G4double tdiry = sth*sin(phi);    
+    G4ThreeVector tnewDirection(tdirx,tdiry,cth);
+    tnewDirection.rotateUz(oldDirection);
+    G4double phiPol = tnewDirection.getPhi() - polarization.getPhi();    
+    
+    if(modifyTrajectory){
+      G4double _prob=rndmEngineMod->flat();
+      if( _prob < _amplitude * sin(phiPol) ){
+	phi-=pi;
+      }
+      if(phi<0) phi+=twopi;
+      else if(phi>twopi) phi=fmod(phi,twopi);
+    }
 
     if(debugPrint){
-      G4cout<<" ~~ Urban ~~ polarization.R: "<<polarization.getR()<<G4endl;
+      G4cout<<__PRETTY_FUNCTION__<<G4endl;
+      G4cout<<" aft rot:\tpol.phi\tphi\told.phi\tnew.phi\tphiPol\tsin(phiPol)\tnew.theta : "<<G4endl
+	    <<"\t"<<polarization.getPhi()<<"\t"<<phi<<"\t"<<oldDirection.getPhi()<<"\t"
+	    <<tnewDirection.getPhi()<<"\t"<<phiPol<<"\t"<<sin(phiPol)<<"\t"
+	    <<tnewDirection.getTheta()<<"\t"<<G4endl;
     }
-    
-    // //scale by 1/energy, sin Theta and transvers polarization
-    // G4double _amplitude=1.0/eEnergy * sth *
-    // 	                sqrt(pow(polarization.getX(),2)+pow(polarization.getY(),2));
-    // //if E<1 AN could be larger than 1
-    // if(_amplitude > 1 ) _amplitude=1.;
 
-    G4double _amplitude = AnalyzingPower(eEnergy, cth);
-    if(writeANdata){
-      std::ofstream ofs;
-      ofs.open("o_msc_ANdata.txt",std::ofstream::app);
-      ofs<<eEnergy<<" "<<cth<<" "<<_amplitude<<" "<<polarization.getR()<<G4endl;
-      ofs.close();
+    G4double pp=1.+_amplitude*sin(phiPol);
+    G4double pm=1.-_amplitude*sin(phiPol);
+    if(asymInfo->at(2)==-2){
+      if(asymInfo->at(0)<-1){
+	asymInfo->at(0) = pp;
+	asymInfo->at(1) = pm;
+      }else{
+	asymInfo->at(0) *= pp;
+	asymInfo->at(1) *= pm;
+      }
     }
-    
-    if( _prob < _amplitude * sin(phi-pi) )
-      phi-=pi;
-    phi+= polarization.getPhi() - oldDirection.getPhi();
-    if(phi<0) phi+=twopi;
-    else if(phi>twopi) phi=fmod(phi,twopi);
+
+    if(debugPrint){
+      G4cout<<__PRETTY_FUNCTION__<<G4endl;
+      G4cout<<"\tAmplitude\teEnerty\ttheta(deg)\tphi(deg)\ttheta(rad)\tphi(rad)"<<G4endl;
+      G4cout<<"\t"<<_amplitude<<"\t"<<eEnergy<<"\t"<<acos(cth)*180/3.1415<<"\t"<<phi*180/3.1415
+	    <<"\t"<<acos(cth)<<" \t"<<phi<<G4endl;
+      G4cout<<"\taI(0)-aI(1)/sum\tpp\tpm\taI(0)\taI(1)"<<G4endl
+	    <<"\t"<<(asymInfo->at(0)-asymInfo->at(1))/(asymInfo->at(0)+asymInfo->at(1))
+	    <<"\t"<<pp<<"\t"<<pm<<"\t"<<asymInfo->at(0)<<"\t"<<asymInfo->at(1)<<G4endl;
+    }
   }
   //FIXME
         
@@ -993,9 +1020,10 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
 
   //FIXME
   if(debugPrint){
-    G4cout<<" Urban96 cth, th, phi old.angle(new)" << cth << " " << acos(cth) << " " << phi << " " <<oldDirection.angle(newDirection) << G4endl;
-    G4cout<<" Urban96: old dir: R th phi "<<oldDirection.getR()<<" "<<oldDirection.getTheta()<<" "<<oldDirection.getPhi()<<G4endl;
-    G4cout<<" Urban96: new dir: R th phi "<<newDirection.getR()<<" "<<newDirection.getTheta()<<" "<<newDirection.getPhi()<<G4endl;
+    G4cout<<__PRETTY_FUNCTION__<<G4endl;
+    G4cout<<"\tcth, th, phi old.angle(new):" << cth << " " << acos(cth) << " " << phi << " " <<oldDirection.angle(newDirection) << G4endl;
+    G4cout<<"\told dir: R th phi "<<oldDirection.getR()<<" "<<oldDirection.getTheta()<<" "<<oldDirection.getPhi()<<G4endl;
+    G4cout<<"\tnew dir: R th phi "<<newDirection.getR()<<" "<<newDirection.getTheta()<<" "<<newDirection.getPhi()<<G4endl;
   }
   //FIXME
   /*

@@ -63,9 +63,6 @@
 #include "G4Log.hh"
 #include "G4Exp.hh"
 
-#include "QweakSimMScAnalyzingPower.hh"
-
-
 class G4ParticleChangeForMSC;
 class G4SafetyHelper;
 class G4LossTableManager;
@@ -79,7 +76,7 @@ class QweakSimUrbanMscModel : public G4VMscModel
 
 public:
 
-  QweakSimUrbanMscModel(const G4String& nam = "UrbanMsc-Qweak");
+  QweakSimUrbanMscModel(std::vector<double> *asInfo,const G4String& nam = "UrbanMsc-Qweak");
 
   virtual ~QweakSimUrbanMscModel();
 
@@ -178,11 +175,12 @@ private:
   G4bool   insideskin;
 
   //FIXME 
+  std::vector<double> *asymInfo;
   G4bool   ePolarized; 
   G4ThreeVector polarization;
   G4double eEnergy;
   G4bool   debugPrint;
-  G4bool   writeANdata;
+  G4bool   modifyTrajectory;
   //FIXME
   
   G4bool   latDisplasmentbackup ;
