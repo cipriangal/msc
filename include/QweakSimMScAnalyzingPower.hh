@@ -4,21 +4,32 @@
 #include "TGraph.h"
 #include "math.h"
 #include "MSAnalyzingPowerData.hh"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "QweakSimSystemOfUnits.hh"
 
 inline G4double Mott(G4double energy, G4double theta);
 
 inline G4double AnalyzingPower(G4double energy, G4double cth){
 
-  G4double theta = acos(cth);  
-  G4double ahat = -22e-6 * 207./82.;
+  G4double theta = acos(cth);
+  
+  G4double ahat = -35e-6 * 207./82.;
   G4double twoPhoton = ahat * sqrt(4.*pow(energy/1000.,2) * sin(theta/2.) );
-  twoPhoton *= 1000.;
+  twoPhoton *= 10000.;
   if( fabs(twoPhoton) > 1 ) twoPhoton = 1. * twoPhoton/fabs(twoPhoton);
 
-  G4double mott = Mott(energy,theta/CLHEP::pi *180.) * 100.;
-  if( fabs(mott) > 1 ) mott = 1. * mott/fabs(mott);
+  G4bool debugPrint=false;
+  //G4double mott = Mott(energy,theta/pi *180.);
+  G4double mott = Mott(energy,theta/pi *180.) * 100.;
 
+  if(debugPrint)
+    G4cout<<__PRETTY_FUNCTION__<<G4endl
+	  <<"\tenergy\ttheta(rad)\tmott\ttheta(deg)"<<G4endl
+	  <<"\t"<<energy<<"\t"<<theta<<"\t"<<mott<<"\t"<<theta/pi*180<<G4endl;
+
+  if( fabs(mott) > 1 ) mott = 1. * mott/fabs(mott);
+  //if(mott<0) mott=0;
+
+  if( fabs(twoPhoton) > 1 ) twoPhoton = 1. * twoPhoton/fabs(twoPhoton);
   //return twoPhoton; 
   return mott;
   // return twoPhoton + mott ;  
