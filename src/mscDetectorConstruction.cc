@@ -399,7 +399,7 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildSimpleDetector()
   if(stepSizeG4>0)
     radiatorLogical->SetUserLimits(new G4UserLimits(stepSizeG4));
   // define step limitation for this container
-  
+
   new G4PVPlacement(
 		    0,                   // no rotation
 		    G4ThreeVector(0., 0., radiatorThickness/2.), 
