@@ -1,19 +1,23 @@
 ## needed for simple simulation .. has no effect on stacked/QweakSimG4
 /msc/det/setRadiatorThickness 2. cm
-/msc/det/setStepSizeG4 -1. cm
+### x>0 set max step size for Pb to x
+/msc/det/setStepSizeG4 -0.01 mm
 ## 0 for simple sim, -1 for QweakSimG4 (not yet implemented), n>0 for stacks
 ### this has to be the last command related to geometry (it updates the geometry)
 /msc/setNrUnits 0
 
+## set beam energy with units (default is 1160-0.511 MeV)
+/msc/PrimaryEventGen/beamEnergy 1160 MeV
 ## polarization for the parimary event (L,mL,V,mV accepted)
 /msc/PrimaryEventGen/setPolarization V
 
 ## writeTree: 0 - no output; 1 - output in detector material; 2 - all steps
-/msc/SteppingAction/setWriteTree 0
+/msc/SteppingAction/setWriteTree 1
 /msc/SteppingAction/setWriteANdata 0
+
 ### the initOutput should always be there!!
 /msc/SteppingAction/initOutput 1
 
 /msc/event/setPrintModulo 10000
 
-/run/beamOn 10
+/run/beamOn 1000

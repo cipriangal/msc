@@ -61,6 +61,10 @@ mscMessenger::mscMessenger(){
     stepSizeG4Cmd->SetGuidance("val>0 set that as maximum step size in Pb");
     stepSizeG4Cmd->SetGuidance("val==0 leave G4 default");
     stepSizeG4Cmd->SetParameterName("stepSizeG4", false);
+
+    beamEnergyCmd = new G4UIcmdWithADoubleAndUnit("/msc/PrimaryEventGen/beamEnergy",this);
+    beamEnergyCmd->SetGuidance("set beam energy with unit");
+    beamEnergyCmd->SetParameterName("beamEnergy", false);
 }
 
 mscMessenger::~mscMessenger(){
@@ -102,6 +106,9 @@ void mscMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue){
   }else if( cmd == stepSizeG4Cmd ){
     G4double val= stepSizeG4Cmd->GetNewDoubleValue(newValue);
     fDetCon->SetStepSizeG4(val);
+  }else if( cmd == beamEnergyCmd ){
+    G4double val= beamEnergyCmd->GetNewDoubleValue(newValue);
+    fPriGen->SetBeamEnergy(val);
   }
 
 }

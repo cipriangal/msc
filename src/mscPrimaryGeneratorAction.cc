@@ -16,7 +16,8 @@
 mscPrimaryGeneratorAction::mscPrimaryGeneratorAction()
  : G4VUserPrimaryGeneratorAction(),
    fParticleGun(0),
-   polarization("V")
+   polarization("V"),
+   beamEnergy( (1160.-0.511)*MeV)
 {
   G4int nofParticles = 1;
   fParticleGun = new G4ParticleGun(nofParticles);
@@ -27,7 +28,6 @@ mscPrimaryGeneratorAction::mscPrimaryGeneratorAction()
     = G4ParticleTable::GetParticleTable()->FindParticle("e-");
   fParticleGun->SetParticleDefinition(particleDefinition);
   fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
-  fParticleGun->SetParticleEnergy((1160.0-0.511)*MeV);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -41,26 +41,8 @@ mscPrimaryGeneratorAction::~mscPrimaryGeneratorAction()
 
 void mscPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-  // This function is called at the begining of event
-
-  // In order to avoid dependence of PrimaryGeneratorAction
-  // on DetectorConstruction class we get world volume
-  // from G4LogicalVolumeStore
-  //
-  // G4double worldZHalfLength = 0;
-  // G4LogicalVolume* worlLV
-  //   = G4LogicalVolumeStore::GetInstance()->GetVolume("World");
-  // G4Box* worldBox = 0;
-  // if ( worlLV) worldBox = dynamic_cast< G4Box*>(worlLV->GetSolid()); 
-  // if ( worldBox ) {
-  //   worldZHalfLength = worldBox->GetZHalfLength();  
-  // }
-  // else  {
-  //   G4cerr << __PRETTY_FUNCTION__ <<" :"<<G4endl;
-  //   G4cerr << "  World volume of box not found." << G4endl;
-  //   G4cerr << "  Perhaps you have changed geometry." << G4endl;
-  //   G4cerr << "  The gun will be place in the center." << G4endl;
-  // } 
+  
+  fParticleGun->SetParticleEnergy(beamEnergy);
   
   // Set gun position
   fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., - 30.*cm));

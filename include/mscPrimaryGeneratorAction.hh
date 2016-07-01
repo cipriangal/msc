@@ -23,9 +23,12 @@ public:
   virtual void GeneratePrimaries(G4Event* event);
   
   void SetPolarization(G4String val){polarization = val;}
+  void SetBeamEnergy(G4double val){beamEnergy=val;}
+  
 private:
   G4ParticleGun*  fParticleGun; // G4 particle gun
   G4String polarization;
+  G4double beamEnergy;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

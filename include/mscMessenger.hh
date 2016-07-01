@@ -40,6 +40,7 @@ private:
   G4UIcmdWithAnInteger *writeANCmd;
   G4UIcmdWithAnInteger *initOutCmd;
   G4UIcmdWithADoubleAndUnit *stepSizeG4Cmd;
+  G4UIcmdWithADoubleAndUnit *beamEnergyCmd;
   
 };
 
