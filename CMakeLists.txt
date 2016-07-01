@@ -58,6 +58,9 @@ target_link_libraries(msc ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 add_executable(calcPMTDD CalcPEsPMTDD.cc ${sources} ${headers})
 target_link_libraries(calcPMTDD ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
+add_executable(anaTree anaTree.cc ${sources} ${headers})
+target_link_libraries(anaTree ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
 # build msc. This is so that we can run the executable directly because it
