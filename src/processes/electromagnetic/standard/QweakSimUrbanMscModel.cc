@@ -445,7 +445,7 @@ G4double QweakSimUrbanMscModel::ComputeTruePathLengthLimit(
   const G4DynamicParticle* dp = track.GetDynamicParticle();
 
   // FIXME
-  modifyTrajectory=true;
+  modifyTrajectory=false;
   ePolarized=false;
   debugPrint=false;
   if(strcmp(track.GetParticleDefinition()->GetParticleName().data() , "e-") == 0)
