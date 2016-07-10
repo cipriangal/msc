@@ -7,6 +7,7 @@
 
 #include "TH3D.h"
 #include "TGraphErrors.h"
+#include "TGraph.h"
 #include "TFile.h"
 #include "TTree.h"
 
@@ -43,14 +44,31 @@ int main(int argc, char** argv)
 
   TFile *fout=new TFile("o_calcPMTDD.root","RECREATE");
   TGraphErrors *g[2];
-  g[0]=new TGraphErrors();
-  g[1]=new TGraphErrors();
-  g[0]->SetName("gPe");
-  g[1]->SetName("gAe");
+  TGraph *conv[2];
+  for(int i=0;i<2;i++){
+    g[i]=new TGraphErrors();
+    g[i]->SetName(Form("g%s",part[i].c_str()));
+    conv[i]=new TGraph();
+    conv[i]->SetName(Form("conv_%s",part[i].c_str()));
+  }
+  
+  TH1D *p_p_angPE=new TH1D("p_p_angPE","Primary +;shower angle [deg]",180,-90,90);
+  TH1D *p_m_angPE=new TH1D("p_m_angPE","Primary -;shower angle [deg]",180,-90,90);
+  TH1D *a_p_angPE=new TH1D("a_p_angPE","All     +;shower angle [deg]",180,-90,90);
+  TH1D *a_m_angPE=new TH1D("a_m_angPE","All     -;shower angle [deg]",180,-90,90);
 
+  double plTotPE(0),prTotPE(0);
+  double alTotPE(0),arTotPE(0);
+  int nConv[2]={0,0};
+  
   for(int i=0;i<2;i++)
     for(int j=0;j<nDet;j++){
-      TH3D *dist=(TH3D*)fin->Get(Form("hdist%s_%d",part[i].c_str(),j));
+      TH3D *dist;
+      if( nDet == 1 )
+	dist=(TH3D*)fin->Get(Form("dist%s",part[i].c_str()));
+      else
+	dist=(TH3D*)fin->Get(Form("hdist%s_%d",part[i].c_str(),j));
+
       cout<<"looking at "<<dist->GetTitle()<<endl;
     
       double lTotPE(0),rTotPE(0);
@@ -110,6 +128,18 @@ int main(int argc, char** argv)
 
 	    lTotPE+=lpe*entries;
 	    rTotPE+=rpe*entries;
+	    if(lTotPE+rTotPE>0){
+	      conv[i]->SetPoint(nConv[i],nConv[i],(lTotPE-rTotPE)/(lTotPE+rTotPE));
+	      nConv[i]++;
+	    }
+	      
+	    if(i==0){
+	      p_p_angPE->Fill(pt1[2],rpe*entries);
+	      p_m_angPE->Fill(pt1[2],rpe*entries);
+	    }else{
+	      a_p_angPE->Fill(pt1[2],rpe*entries);
+	      a_m_angPE->Fill(pt1[2],rpe*entries);
+	    }
 	    counter++;
 	    if(isnan(lpe) || isnan(rpe)) exit(2);
 	  }
@@ -118,6 +148,13 @@ int main(int argc, char** argv)
       cout<<partTit[i]<<" : L R (L-R)/(L+R) "
 	  <<setprecision(12)<<lTotPE<<" "<<rTotPE<<" "
 	  <<(lTotPE-rTotPE)/(lTotPE+rTotPE)<<" pm "<<das<<endl;
+      if(i==0){
+	plTotPE=lTotPE;
+	prTotPE=rTotPE;
+      }else{
+	alTotPE=lTotPE;
+	arTotPE=rTotPE;
+      }
       double zpos=2.+2.1*j;
       g[i]->SetPoint(j,zpos,as);
       g[i]->SetPointError(j,0,das);
@@ -125,9 +162,37 @@ int main(int argc, char** argv)
   
   fin->Close();
 
+  TH1D *p_dd_ang=(TH1D*)p_p_angPE->Clone();
+  p_dd_ang->SetName("p_dd_ang");
+  p_dd_ang->SetTitle("phys asym primary");
+  TH1D *a_dd_ang=(TH1D*)a_p_angPE->Clone();
+  a_dd_ang->SetName("a_dd_ang");
+  a_dd_ang->SetTitle("phys asym all primary");
+
+  int nb=p_p_angPE->GetXaxis()->GetNbins();
+  for(int i=1;i<=nb;i++){
+    double vp=p_p_angPE->GetBinContent(i);
+    double vm=p_m_angPE->GetBinContent(nb-i+1);
+    //if(vp+vm>0)
+    p_dd_ang->SetBinContent(i,(vp-vm)/(plTotPE+prTotPE));
+    vp=a_p_angPE->GetBinContent(i);
+    vm=a_m_angPE->GetBinContent(nb-i+1);
+    //if(vp+vm>0)
+    a_dd_ang->SetBinContent(i,(vp-vm)/(alTotPE+arTotPE));
+  }
+  
   fout->cd();
-  g[0]->Write();
-  g[1]->Write();
+  for(int i=0;i<2;i++){
+    g[i]->Write();
+    conv[i]->Write();
+  }
+
+  p_p_angPE->Write();
+  p_m_angPE->Write();
+  a_p_angPE->Write();
+  a_m_angPE->Write();
+  p_dd_ang->Write();
+  a_dd_ang->Write();
   return 0;
   
 }
