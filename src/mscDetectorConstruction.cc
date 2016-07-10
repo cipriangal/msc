@@ -237,6 +237,9 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildStackedDetector()
     G4cout<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<G4endl
 	  <<"\tstepSize: "<<stepSizeG4<<G4endl;
     radiatorLogical->SetUserLimits(new G4UserLimits(stepSizeG4));
+  }else{
+    G4cout<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<G4endl
+	  <<"\tdefault stepSize "<<G4endl;
   }
   // define step limitation for this container
   
@@ -404,6 +407,9 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildSimpleDetector()
     G4cout<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<G4endl
 	  <<"\tstepSize: "<<stepSizeG4<<G4endl;
     radiatorLogical->SetUserLimits(new G4UserLimits(stepSizeG4));
+  }else{
+    G4cout<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<G4endl
+	  <<"\tdefault stepSize "<<G4endl;
   }
   // define step limitation for this container
 
