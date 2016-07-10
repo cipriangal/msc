@@ -43,7 +43,8 @@ mscDetectorConstruction::mscDetectorConstruction()
  : G4VUserDetectorConstruction(),
    nrUnits(0),
    radiatorThickness(2*cm),
-   fCheckOverlaps(true)
+   fCheckOverlaps(true),
+   stepSizeG4(-1)
 {
 }
 
@@ -232,8 +233,11 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildStackedDetector()
 			  "radiatorLogical");  // its name
 
   // define step limitation for this container
-  if(stepSizeG4>0)
+  if(stepSizeG4>0){
+    G4cout<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<G4endl
+	  <<"\tstepSize: "<<stepSizeG4<<G4endl;
     radiatorLogical->SetUserLimits(new G4UserLimits(stepSizeG4));
+  }
   // define step limitation for this container
   
   new G4PVPlacement(
@@ -396,8 +400,11 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildSimpleDetector()
 			  "radiatorLogical");  // its name
 
   // define step limitation for this container
-  if(stepSizeG4>0)
+  if(stepSizeG4>0){
+    G4cout<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<G4endl
+	  <<"\tstepSize: "<<stepSizeG4<<G4endl;
     radiatorLogical->SetUserLimits(new G4UserLimits(stepSizeG4));
+  }
   // define step limitation for this container
 
   new G4PVPlacement(
