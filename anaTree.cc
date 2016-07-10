@@ -196,9 +196,6 @@ int main(int argc, char** argv)
     
   fin->Close();
 
-  // calc_L_angPE->Scale(1./lTotPE);
-  // calc_R_angPE->Scale(1./rTotPE);
-
   TH1D *calc_dd_angPE=(TH1D*)calc_L_angPE->Clone();
   calc_dd_angPE->SetName("calc_dd_angPE");
   calc_dd_angPE->SetTitle("DD calc (Rpe*as - Lpe*as)");
@@ -239,8 +236,12 @@ int main(int argc, char** argv)
     //if(vp+vm>0)
     n_dd_ang->SetBinContent(i,(vp-vm)/(nlTotPE+nrTotPE));
   }
+
   // p_dd_ang->Scale(1./(plTotPE+prTotPE));
   // n_dd_ang->Scale(1./(nlTotPE+nrTotPE));
+
+  calc_L_angPE->Scale(1./lTotPE);
+  calc_R_angPE->Scale(1./rTotPE);
 
   fout->cd();
   p_p_asPE->Write();
