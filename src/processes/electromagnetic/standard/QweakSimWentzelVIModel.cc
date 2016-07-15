@@ -267,6 +267,7 @@ G4double QweakSimWentzelVIModel::ComputeTruePathLengthLimit(
 
   // FIXME
   modifyTrajectory=false;
+  restrict2D=true;
   ePolarized=false;
   debugPrint=false;
   if(strcmp(track.GetParticleDefinition()->GetParticleName().data() , "e-") == 0)
@@ -657,6 +658,14 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	tnewDirection.rotateUz(oldDirection);
 	G4double phiPol = tnewDirection.getPhi() - polarization.getPhi();
 
+	if(restrict2D){
+	  if( (fmod(phiPol,twopi) > -twopi/2 && fmod(phiPol,twopi) < 0) ||
+	      (fmod(phiPol,twopi) > twopi/2 && fmod(phiPol,twopi) < twopi) )
+	    phiPol = -twopi/4;
+	  else
+	    phiPol = twopi/4;
+	}
+	
 	if(modifyTrajectory){
 	  G4double _prob=G4UniformRand();
 	  if( _prob < _amplitude * sin(phiPol) ){
@@ -746,6 +755,14 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	tnewDirection.rotateUz(oldDirection);
 	G4double phiPol = tnewDirection.getPhi() - polarization.getPhi();
 
+	if(restrict2D){
+	  if( (fmod(phiPol,twopi) > -twopi/2 && fmod(phiPol,twopi) < 0) ||
+	      (fmod(phiPol,twopi) > twopi/2 && fmod(phiPol,twopi) < twopi) )
+	    phiPol = -twopi/4;
+	  else
+	    phiPol = twopi/4;
+	}
+	
 	if(modifyTrajectory){
 	  G4double _prob=G4UniformRand();
 	  if( _prob < _amplitude * sin(phiPol) ){

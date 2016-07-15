@@ -167,6 +167,7 @@ protected:
   G4double eEnergy;
   G4bool   debugPrint;
   G4bool   modifyTrajectory;
+  G4bool   restrict2D;
   //FIXME
 
 private:

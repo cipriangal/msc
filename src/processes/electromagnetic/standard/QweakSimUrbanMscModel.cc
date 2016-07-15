@@ -446,6 +446,7 @@ G4double QweakSimUrbanMscModel::ComputeTruePathLengthLimit(
 
   // FIXME
   modifyTrajectory=false;
+  restrict2D=true;
   ePolarized=false;
   debugPrint=false;
   if(strcmp(track.GetParticleDefinition()->GetParticleName().data() , "e-") == 0)
@@ -969,6 +970,14 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
     G4ThreeVector tnewDirection(tdirx,tdiry,cth);
     tnewDirection.rotateUz(oldDirection);
     G4double phiPol = tnewDirection.getPhi() - polarization.getPhi();    
+
+    if(restrict2D){
+      if( (fmod(phiPol,twopi) > -twopi/2 && fmod(phiPol,twopi) < 0) ||
+	  (fmod(phiPol,twopi) > twopi/2 && fmod(phiPol,twopi) < twopi) )
+	phiPol = -twopi/4;
+      else
+	phiPol = twopi/4;
+    }
     
     if(modifyTrajectory){
       G4double _prob=rndmEngineMod->flat();
@@ -978,7 +987,7 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
       if(phi<0) phi+=twopi;
       else if(phi>twopi) phi=fmod(phi,twopi);
     }
-
+    
     if(debugPrint){
       G4cout<<__PRETTY_FUNCTION__<<G4endl;
       G4cout<<" aft rot:\tpol.phi\tphi\told.phi\tnew.phi\tphiPol\tsin(phiPol)\tnew.theta : "<<G4endl
