@@ -266,8 +266,15 @@ G4double QweakSimWentzelVIModel::ComputeTruePathLengthLimit(
   singleScatteringMode = false;
 
   // FIXME
-  modifyTrajectory=false;
-  restrict2D=true;
+  if( (int(asymInfo->at(3)) & 0x2) == 0x2 )
+    modifyTrajectory=true;
+  else
+    modifyTrajectory=false;
+  if( (int(asymInfo->at(3)) & 0x4) == 0x4 )
+    restrict2D=true;
+  else
+    restrict2D=false;
+
   ePolarized=false;
   debugPrint=false;
   if(strcmp(track.GetParticleDefinition()->GetParticleName().data() , "e-") == 0)

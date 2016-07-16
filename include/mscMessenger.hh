@@ -17,7 +17,7 @@ class G4UIcmdWithABool;
 
 class mscMessenger : public G4UImessenger {
 public:
-  mscMessenger();
+  mscMessenger(std::vector<double> *);
   ~mscMessenger();
   
   void SetPriGen ( mscPrimaryGeneratorAction *pg ){ fPriGen  = pg; }
@@ -28,6 +28,7 @@ public:
   void SetNewValue(G4UIcommand* cmd, G4String newValue);
   
 private:
+  std::vector< double >* asymInfo;
   mscDetectorConstruction *fDetCon;
   mscEventAction *fEvAct;
   mscPrimaryGeneratorAction *fPriGen;
@@ -41,6 +42,7 @@ private:
   G4UIcmdWithAnInteger *initOutCmd;
   G4UIcmdWithADoubleAndUnit *stepSizeG4Cmd;
   G4UIcmdWithADoubleAndUnit *beamEnergyCmd;
+  G4UIcmdWithAnInteger *physProcCmd;
   
 };
 

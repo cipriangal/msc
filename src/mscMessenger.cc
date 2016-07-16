@@ -15,7 +15,9 @@
 
 #include <iostream>
 
-mscMessenger::mscMessenger(){
+mscMessenger::mscMessenger(std::vector<double> *asInfo):
+  asymInfo(asInfo)
+{
     /*  Initialize all the things it talks to to NULL */
 
     fDetCon       = NULL;
@@ -65,6 +67,12 @@ mscMessenger::mscMessenger(){
     beamEnergyCmd = new G4UIcmdWithADoubleAndUnit("/msc/PrimaryEventGen/beamEnergy",this);
     beamEnergyCmd->SetGuidance("set beam energy with unit");
     beamEnergyCmd->SetParameterName("beamEnergy", false);
+
+    physProcCmd = new G4UIcmdWithAnInteger("/msc/physicsProcesses/settingFlag",this);
+    physProcCmd->SetGuidance("int with the form: a*2^1+b*2^2.");
+    physProcCmd->SetGuidance("   if you want to modify trajectory a=1");
+    physProcCmd->SetGuidance("   if you want to reduce to 2 dimensions b=1");
+    physProcCmd->SetParameterName("settingFlag", false);
 }
 
 mscMessenger::~mscMessenger(){
@@ -75,6 +83,7 @@ mscMessenger::~mscMessenger(){
   delete writeANCmd;
   delete initOutCmd;
   delete stepSizeG4Cmd;
+  delete physProcCmd;
 }
 
 
@@ -109,6 +118,21 @@ void mscMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue){
   }else if( cmd == beamEnergyCmd ){
     G4double val= beamEnergyCmd->GetNewDoubleValue(newValue);
     fPriGen->SetBeamEnergy(val);
+  }else if( cmd == physProcCmd ){
+    G4int flag=physProcCmd->GetNewIntValue(newValue);
+    asymInfo->at(3)=flag;
+
+    G4cout<<G4endl<<G4endl<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<G4endl;
+    if( (flag & 0x2)==0x2 )
+      G4cout<<"\tWill modify trajectory"<<G4endl;
+    else
+      G4cout<<"\tWon't modify trajectory"<<G4endl;
+
+    if( (flag & 0x4)==0x4 )
+      G4cout<<"\tWill use only 2 D"<<G4endl;
+    else 
+      G4cout<<"\tWill use 3 D"<<G4endl;
+    G4cout<<G4endl<<G4endl;
   }
 
 }

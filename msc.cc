@@ -78,7 +78,20 @@ int main(int argc,char** argv)
   //
   G4RunManager * runManager = new G4RunManager;
 
-  mscMessenger *mscMess = new mscMessenger();  
+  /*
+    vector to pass asym information around
+    0: pp = \Pi (1+A_i)
+    1: pm = \Pi (1-A_i)
+    2: calculation flag (can be used to stop calculation during event 
+       -- not used now; if needed needs to be set in steppingAction)
+    3: bitInfo for physProcesses: 2^1 = modifyTrajectory; 
+                                  2^2 = reduce2D.
+        e.g.: 4:modifyTrajectory=0 and reduce2D=1
+   */
+  std::vector<double> asymInfo(4,-2);
+  asymInfo[3]=0;//default false for both
+  
+  mscMessenger *mscMess = new mscMessenger(&asymInfo);  
   
   // Activate command-based scorer
   G4ScoringManager* scoringManager = G4ScoringManager::GetScoringManager(); 
@@ -89,9 +102,6 @@ int main(int argc,char** argv)
   mscDetectorConstruction* detConstruction = new mscDetectorConstruction();
   runManager->SetUserInitialization(detConstruction);
   mscMess->SetDetCon( detConstruction );
-
-  /*vector to pass asym information around*/
-  std::vector<double> asymInfo(4,-2);
 
   // Calls a reference physics list for the simulation
   G4PhysListFactory factory;
