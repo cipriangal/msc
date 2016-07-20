@@ -670,17 +670,17 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	    phiPol = twopi/4;
 	  else
 	    phiPol = 3*twopi/4;
-	  
+
 	  G4double ox=oldDirection.getX();
 	  G4double oy=oldDirection.getY();
 	  G4double oz=oldDirection.getZ();
 	  G4double op=sqrt(ox*ox+oy*oy);
-	  
+      
 	  G4double dz=tnewDirection.getZ();
-	  G4double dx=sqrt(1-dz*dz);
+	  G4double dx=sqrt(1-dz*dz) * cos( phiPol + polarization.getPhi() );
 	  G4double dy=0;
 	  
-	  G4ThreeVector restrictDir(sqrt(1-dz*dz),0,dz);
+	  G4ThreeVector restrictDir(dx,dy,dz);
 	  
 	  if( op == 0){
 	    if( oz == -1 )
@@ -691,6 +691,8 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	    restrictDir.setZ( dx*ox + dy*oy + dz*oz );
 	  }
 	  
+	  /* Here we need to change theta as well so that in the end the proposed theta to fParticleChange is the same as it would be if we didn't mess around with all these phi angles
+	   */
 	  cost=restrictDir.getZ();
 	  sint=sqrt(1-cost*cost);
 	  phi=restrictDir.getPhi();
@@ -797,10 +799,10 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	  G4double op=sqrt(ox*ox+oy*oy);
 	  
 	  G4double dz=tnewDirection.getZ();
-	  G4double dx=sqrt(1-dz*dz);
+	  G4double dx=sqrt(1-dz*dz) * cos( phiPol + polarization.getPhi() );
 	  G4double dy=0;
 	  
-	  G4ThreeVector restrictDir(sqrt(1-dz*dz),0,dz);
+	  G4ThreeVector restrictDir(dx,dy,dz);
 	  
 	  if( op == 0){
 	    if( oz == -1 )
@@ -811,6 +813,8 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	    restrictDir.setZ( dx*ox + dy*oy + dz*oz );
 	  }
 	  
+	  /* Here we need to change theta as well so that in the end the proposed theta to fParticleChange is the same as it would be if we didn't mess around with all these phi angles
+	   */
 	  cost=restrictDir.getZ();
 	  sint=sqrt(1-cost*cost);
 	  phi=restrictDir.getPhi();
