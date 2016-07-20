@@ -666,11 +666,34 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	G4double phiPol = tnewDirection.getPhi() - polarization.getPhi();
 
 	if(restrict2D){
-	  if( (fmod(phiPol,twopi) > -twopi/2 && fmod(phiPol,twopi) < 0) ||
-	      (fmod(phiPol,twopi) > twopi/2 && fmod(phiPol,twopi) < twopi) )
-	    phiPol = -twopi/4;
-	  else
+	  if( (fmod(phiPol,twopi) >= 0 && fmod(phiPol,twopi) < twopi/2) )
 	    phiPol = twopi/4;
+	  else
+	    phiPol = 3*twopi/4;
+	  
+	  G4double ox=oldDirection.getX();
+	  G4double oy=oldDirection.getY();
+	  G4double oz=oldDirection.getZ();
+	  G4double op=sqrt(ox*ox+oy*oy);
+	  
+	  G4double dz=tnewDirection.getZ();
+	  G4double dx=sqrt(1-dz*dz);
+	  G4double dy=0;
+	  
+	  G4ThreeVector restrictDir(sqrt(1-dz*dz),0,dz);
+	  
+	  if( op == 0){
+	    if( oz == -1 )
+	      restrictDir=-restrictDir;
+	  }else{
+	    restrictDir.setX( dx*ox*oz/op + dy*oy*oz/op - dz*op );
+	    restrictDir.setY( -dx*oy/op + dy*ox/op );
+	    restrictDir.setZ( dx*ox + dy*oy + dz*oz );
+	  }
+	  
+	  cost=restrictDir.getZ();
+	  sint=sqrt(1-cost*cost);
+	  phi=restrictDir.getPhi();
 	}
 	
 	if(modifyTrajectory){
@@ -763,11 +786,34 @@ QweakSimWentzelVIModel::SampleScattering(const G4ThreeVector& oldDirection,
 	G4double phiPol = tnewDirection.getPhi() - polarization.getPhi();
 
 	if(restrict2D){
-	  if( (fmod(phiPol,twopi) > -twopi/2 && fmod(phiPol,twopi) < 0) ||
-	      (fmod(phiPol,twopi) > twopi/2 && fmod(phiPol,twopi) < twopi) )
-	    phiPol = -twopi/4;
-	  else
+	  if( (fmod(phiPol,twopi) >= 0 && fmod(phiPol,twopi) < twopi/2) )
 	    phiPol = twopi/4;
+	  else
+	    phiPol = 3*twopi/4;
+	  
+	  G4double ox=oldDirection.getX();
+	  G4double oy=oldDirection.getY();
+	  G4double oz=oldDirection.getZ();
+	  G4double op=sqrt(ox*ox+oy*oy);
+	  
+	  G4double dz=tnewDirection.getZ();
+	  G4double dx=sqrt(1-dz*dz);
+	  G4double dy=0;
+	  
+	  G4ThreeVector restrictDir(sqrt(1-dz*dz),0,dz);
+	  
+	  if( op == 0){
+	    if( oz == -1 )
+	      restrictDir=-restrictDir;
+	  }else{
+	    restrictDir.setX( dx*ox*oz/op + dy*oy*oz/op - dz*op );
+	    restrictDir.setY( -dx*oy/op + dy*ox/op );
+	    restrictDir.setZ( dx*ox + dy*oy + dz*oz );
+	  }
+	  
+	  cost=restrictDir.getZ();
+	  sint=sqrt(1-cost*cost);
+	  phi=restrictDir.getPhi();
 	}
 	
 	if(modifyTrajectory){
