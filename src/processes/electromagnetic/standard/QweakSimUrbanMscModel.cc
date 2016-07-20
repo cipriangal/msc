@@ -979,11 +979,12 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
     G4double phiPol = tnewDirection.getPhi() - polarization.getPhi();    
 
     if(restrict2D){
+      if( phiPol < 0 ) phiPol+=twopi;      
       if( (fmod(phiPol,twopi) >= 0 && fmod(phiPol,twopi) < twopi/2) )
 	phiPol = twopi/4;
       else
 	phiPol = 3*twopi/4;
-
+      
       G4double ox=oldDirection.getX();
       G4double oy=oldDirection.getY();
       G4double oz=oldDirection.getZ();
@@ -1004,7 +1005,9 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
 	restrictDir.setZ( dx*ox + dy*oy + dz*oz );
       }
 
-      /* Here we need to change theta as well so that in the end the proposed theta to fParticleChange is the same as it would be if we didn't mess around with all these phi angles
+      /* Here we need to change theta as well so that in the end 
+	 the proposed theta to fParticleChange is the same as it 
+	 would be if we didn't mess around with all these phi angles
        */
       cth=restrictDir.getZ();
       sth=sqrt(1-cth*cth);
