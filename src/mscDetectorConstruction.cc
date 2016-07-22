@@ -354,11 +354,12 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildSimpleDetector()
   // G4double PbRadiationLength = 0.5612 * cm;
   
   // Get materials
+  G4Material* vacuumMaterial=G4Material::GetMaterial("Galactic");
   G4Material* defaultMaterial  = G4Material::GetMaterial("Air");
   G4Material* radiatorMaterial = G4Material::GetMaterial("PBA");
   G4Material* detectorMaterial = G4Material::GetMaterial("detectorMat");
   
-  if ( ! defaultMaterial || ! radiatorMaterial || ! detectorMaterial) {
+  if ( !defaultMaterial || !radiatorMaterial || !detectorMaterial || !vacuumMaterial ) {
     G4cerr << __PRETTY_FUNCTION__ << " Cannot retrieve materials already defined. " << G4endl;
     G4cerr << "Exiting application " << G4endl;
     exit(1);
@@ -374,7 +375,8 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildSimpleDetector()
   G4LogicalVolume* worldLV
     = new G4LogicalVolume(
 			  worldS,           // its solid
-			  defaultMaterial,  // its material
+			  //defaultMaterial,  // its material
+			  vacuumMaterial,  // its material
 			  "World");         // its name
   
   G4VPhysicalVolume* worldPV
