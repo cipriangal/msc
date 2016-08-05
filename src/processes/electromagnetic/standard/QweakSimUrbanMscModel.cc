@@ -971,14 +971,15 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
       G4cout<<"\tpolarization.R\ttransPol: "<<polarization.getR()<<"\t"<<transPol<<G4endl;
     }
     G4double _amplitude = AnalyzingPower(eEnergy, cth) * transPol;
-    G4double phiPol = phi - polarization.getPhi();    
 
+    G4double phiPol = phi - polarization.getPhi();    
     if(restrict2D){
       if( phiPol < 0 ) phiPol+=twopi;
+      if( phiPol > twopi ) phiPol=fmod(phiPol,twopi);
       if( (fmod(phiPol,twopi) >= 0 && fmod(phiPol,twopi) < twopi/2) )
-	phiPol = twopi/4;
+    	phiPol = twopi/4;
       else
-	phiPol = 3*twopi/4;
+    	phiPol = 3*twopi/4;
 
       phi = phiPol + polarization.getPhi();
     }
@@ -992,14 +993,8 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
       else if(phi>twopi) phi=fmod(phi,twopi);
     }
     
-    // if(debugPrint){
-    //   G4cout<<__PRETTY_FUNCTION__<<G4endl;
-    //   G4cout<<" aft rot:\tpol.phi\tphi\told.phi\tnew.phi\tphiPol\tsin(phiPol)\tnew.theta : "<<G4endl
-    // 	    <<"\t"<<polarization.getPhi()<<"\t"<<phi<<"\t"<<oldDirection.getPhi()<<"\t"
-    // 	    <<tnewDirection.getPhi()<<"\t"<<phiPol<<"\t"<<sin(phiPol)<<"\t"
-    // 	    <<tnewDirection.getTheta()<<"\t"<<G4endl;
-    // }
-
+    asymInfo->at(6) = phiPol;
+    asymInfo->at(8) = _amplitude;
     G4double pp=1.+_amplitude*sin(phiPol);
     G4double pm=1.-_amplitude*sin(phiPol);
     if(asymInfo->at(2)==-2){
@@ -1028,12 +1023,18 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
   G4double diry = sth*sin(phi);
 
   G4ThreeVector newDirection(dirx,diry,cth);
+  //G4cout<<"\tnew dir: R th phi "<<newDirection.getR()<<"\t"<<newDirection.getTheta()<<"\t"<<newDirection.getPhi()<<G4endl;
   newDirection.rotateUz(oldDirection);
   fParticleChange->ProposeMomentumDirection(newDirection);
 
+  asymInfo->at(4) = cth;
+  asymInfo->at(5) = phi;
+  asymInfo->at(7) = newDirection.getPhi();
+  
   //FIXME
   if(debugPrint){
     G4cout<<__PRETTY_FUNCTION__<<G4endl;
+    fParticleChange->DumpInfo();
     G4cout<<"\tcth, th, phi old.angle(new):" << cth << "\t" << acos(cth) << "\t" << phi << "\t" <<oldDirection.angle(newDirection) << G4endl;
     G4cout<<"\told dir: R th phi "<<oldDirection.getR()<<"\t"<<oldDirection.getTheta()<<"\t"<<oldDirection.getPhi()<<G4endl;
     G4cout<<"\tnew dir: R th phi "<<newDirection.getR()<<"\t"<<newDirection.getTheta()<<"\t"<<newDirection.getPhi()<<G4endl;

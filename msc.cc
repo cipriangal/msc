@@ -87,8 +87,13 @@ int main(int argc,char** argv)
     3: bitInfo for physProcesses: 2^1 = modifyTrajectory; 
                                   2^2 = reduce2D.
         e.g.: 4:modifyTrajectory=0 and reduce2D=1
+    4: cos(theta) in MSc
+    5: phi in MSc
+    6: polPhi in MSc
+    7: phi after rotation (should be in lab frame)
+    8: AN 
    */
-  std::vector<double> asymInfo(4,-2);
+  std::vector<double> asymInfo(9,-2);
   asymInfo[3]=0;//default false for both
   
   mscMessenger *mscMess = new mscMessenger(&asymInfo);  
@@ -168,10 +173,12 @@ int main(int argc,char** argv)
     UImanager->ApplyCommand("/control/macroPath macros"); 
     UImanager->ApplyCommand("/control/execute init.mac"); 
 #endif
+
     if (ui->IsGUI()){
       UImanager->ApplyCommand("/control/macroPath macros"); 
       UImanager->ApplyCommand("/control/execute gui.mac");
     }
+
     ui->SessionStart();
     delete ui;
 #endif

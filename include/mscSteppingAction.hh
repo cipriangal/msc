@@ -56,6 +56,7 @@ private:
 
   //tree variables
   G4int eventNr;
+  G4int stpNr;
   G4int material; //PBA:0 ; detectorMat:1
   G4int unitNo;
   G4int pType;    
@@ -65,6 +66,12 @@ private:
   G4double polX;
   G4double polY;
   G4double polZ;
+
+  G4double stpCth;
+  G4double stpAN;
+  G4double stpPhi;
+  G4double stpPolPhi;
+  G4double stpPhiRotated;
 
   G4double asymInfoPP;
   G4double asymInfoPM;

@@ -65,6 +65,7 @@ void  mscSteppingAction::InitOutput(){
     tout=new TTree("t","Stepping action event tree");
     
     tout->Branch("evNr",&eventNr,"evNr/I");
+    tout->Branch("stpNr",&stpNr,"stpNr/I");
     tout->Branch("material",&material,"material/I");
     tout->Branch("unitNo",&unitNo,"unitNo/I");
     
@@ -77,6 +78,12 @@ void  mscSteppingAction::InitOutput(){
     tout->Branch("polX", &polX, "polX/D");
     tout->Branch("polY", &polY, "polY/D");
     tout->Branch("polZ", &polZ, "polZ/D");
+
+    tout->Branch("stpCth", &stpCth, "stpCth/D");
+    tout->Branch("stpAN", &stpAN, "stpAN/D");
+    tout->Branch("stpPhi", &stpPhi, "stpPhi/D");
+    tout->Branch("stpPolPhi", &stpPolPhi, "stpPolPhi/D");
+    tout->Branch("stpPhiRotated", &stpPhiRotated, "stpPhiRotated/D");
 
     tout->Branch("asymInfoPP", &asymInfoPP, "asymInfoPP/D");
     tout->Branch("asymInfoPM", &asymInfoPM, "asymInfoPM/D");
@@ -120,6 +127,7 @@ mscSteppingAction::~mscSteppingAction()
 
 void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
 {
+  static G4int stepNr;
   G4Track*              theTrack     = theStep->GetTrack();
   G4ParticleDefinition* particleType = theTrack->GetDefinition();
   G4StepPoint*          thePrePoint  = theStep->GetPreStepPoint();
@@ -140,8 +148,22 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
     savedParents.clear();
     currentEv=eventNr;
   }
+
+  // G4cout<<"pre\t"
+  // 	<<thePrePoint->GetMomentum().getR()<<"\t"
+  // 	<<thePrePoint->GetMomentum().getTheta()<<"\t"
+  //   	<<thePrePoint->GetMomentum().getPhi()<<"\t"<<G4endl;
+  // G4cout<<"post\t"
+  // 	<<thePostPoint->GetMomentum().getR()<<"\t"
+  // 	<<thePostPoint->GetMomentum().getTheta()<<"\t"
+  //   	<<thePostPoint->GetMomentum().getPhi()<<"\t"<<G4endl;
+  // G4cout<<"\t"<<theMaterial->GetName()<<"\t"<<_pn<<G4endl;
+  // std::cin.ignore();
   
-  if(theMaterial){    
+  if(theMaterial){
+    // G4cout<<theMaterial->GetName()<<G4endl;
+    // std::cin.ignore();
+    
     if(theMaterial->GetName().compare("detectorMat")==0)       material=1;
     else if(theMaterial->GetName().compare("Aluminum")==0)     material=2;
     else if(theMaterial->GetName().compare("Tyvek")==0)        material=3;
@@ -161,8 +183,8 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
 	else depol = 0.;
       }
 
-      _polarization *= (1.-depol);
-      theStep->GetTrack()->SetPolarization(_polarization);
+      // _polarization *= (1.-depol);
+      // theStep->GetTrack()->SetPolarization(_polarization);
     }
   }
 
@@ -180,7 +202,12 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
     asymInfoPP = asymInfo->at(0);
     asymInfoPM = asymInfo->at(1);
   }
-    
+
+  if(asymInfo->at(0) == -2)
+    stepNr = 0;
+  else
+    stepNr++;
+  stpNr = stepNr;
   
   pType = particleType->GetPDGEncoding();
   trackID = theStep->GetTrack()->GetTrackID();
@@ -234,7 +261,13 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
 	hdistPe[0]->Fill(postPosX/10.,postAngX,histE);
     }
   }
-	
+
+  stpCth = asymInfo->at(4);
+  stpPhi = asymInfo->at(5);
+  stpPolPhi = asymInfo->at(6);
+  stpPhiRotated = asymInfo->at(7);
+  stpAN = asymInfo->at(8);
+  
   /*fill tree*/ 
   if(writeTree==1 && material==1) tout->Fill();
   else if(writeTree==2) tout->Fill();
@@ -243,6 +276,7 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
 
 void mscSteppingAction::InitVar(){
   eventNr = -999;
+  stpNr = -999;
   material = -999;
   unitNo = -999;
   pType = -999;
@@ -252,6 +286,12 @@ void mscSteppingAction::InitVar(){
   polX  = -999;
   polY  = -999;
   polZ  = -999;
+
+  stpCth = -999;
+  stpPhi = -999;
+  stpAN  = -999;
+  stpPolPhi = -999;
+  stpPhiRotated = -999;
 
   asymInfoPP  = -999;
   asymInfoPM  = -999;
