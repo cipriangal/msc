@@ -15,46 +15,15 @@
 
 using namespace std;
 
-G4ThreeVector scatter(G4ThreeVector org, int pol,int stp);
-
+G4ThreeVector scatter(G4ThreeVector org, G4ThreeVector pol,G4ThreeVector &finPol);
 void printVector(G4ThreeVector vec);
 void rotateSpinToLocal(G4ThreeVector ki, G4ThreeVector kf, G4ThreeVector pi, G4ThreeVector &pf);
 G4ThreeVector inverseRotateUz(G4ThreeVector v,G4ThreeVector dir);
+int debugPrint(0);
 
 int main(int argc, char** argv)
 {
  
-  G4double pi = acos(-1);
-
-  G4double tstTh = 135./180. * pi;
-  G4double tstPh = 315./180. * pi;
-
-  G4ThreeVector iniMom(0,0,1);
-  cout<<"Initial mom:"<<endl; printVector(iniMom);
-  G4ThreeVector iniPol(0,1,0);
-  cout<<"Initial pol:"<<endl; printVector(iniPol);
-  G4ThreeVector finMom(sin(tstTh)*cos(tstPh),sin(tstTh)*sin(tstPh),cos(tstTh));
-  cout<<"Final mom:"<<endl; printVector(finMom);
-
-  G4ThreeVector finPol(0,1,0);
-  rotateSpinToLocal(iniMom,finMom,iniPol,finPol);
-  //rotateSpinToGlobal(iniMom,finMom,iniPol,finPol);
-  //rotatePaul(iniMom,finMom,iniPol,finPol);
-  cout<<"Final pol:"<<endl; printVector(finPol);
-
-  //G4ThreeVector globalFinPol=inverseRotateUz(finPol,finMom);
-  finPol.rotateUz(finMom);
-  cout<<"global :"<<endl;
-  printVector(finPol);
-
-  
-  cout<<"rotateUz :"<<endl;
-  iniPol.rotateUz(finMom);
-  printVector(iniPol);
-
-
-  return 0;
-  
   if( argc < 4 ) {
     cout<<" usage: build/moreAsym [# events] [#of asymmetry steps] [1 for pos pol: -1 for neg pol]"<<endl;
     cout<<"\t e.g. : build/moreAsym 100000 3 1"<<endl;
@@ -64,8 +33,16 @@ int main(int argc, char** argv)
   int nEvt=atoi(argv[1]);
   int nStp=atoi(argv[2]);
   int pol=atoi(argv[3]);
+
+  string fOutNm=Form("o_moreAsym_stp%d_",nStp);
+  if(pol==1) fOutNm+="V.root";
+  else if(pol==-1) fOutNm+="mV.root";
+  else{
+    cout<<"polarization should be either 1 or -1"<<endl;
+    return 2;
+  }
   
-  TFile *fout=new TFile("o_moreAsym.root","RECREATE");
+  TFile *fout=new TFile(fOutNm.c_str(),"RECREATE");
   TTree *t=new TTree("t","Asym toy MC output");
   double phi,th;
   int evNr,stpNr;
@@ -73,17 +50,24 @@ int main(int argc, char** argv)
   t->Branch("stpNr",&stpNr,"stpNr/I");
   t->Branch("phi",&phi,"phi/D");
   t->Branch("th",&th,"th/D");
+  // t->Branch("px",&px,"px/D");
+  // t->Branch("py",&px,"py/D");
+  // t->Branch("pz",&px,"pz/D");
 
   vector<G4ThreeVector> prevStp,currStp;
-  for(int iEv=0;iEv<nEvt;iEv++)
+  vector<G4ThreeVector> prevStpPol,currStpPol;
+  for(int iEv=0;iEv<nEvt;iEv++){
     currStp.push_back(G4ThreeVector(0,0,1));
+    currStpPol.push_back(G4ThreeVector(0,pol,0));
+  }
   
   for(int iStp=0;iStp<nStp;iStp++){
     cout<<"at step "<<iStp<<endl;
     prevStp=currStp;
-
+    prevStpPol=currStpPol;
+    
     for(int iEv=0;iEv<nEvt;iEv++){
-      currStp[iEv]=scatter(prevStp[iEv],pol,iStp);
+      currStp[iEv]=scatter(prevStp[iEv],prevStpPol[iEv],currStpPol[iEv]);
       evNr  = iEv;
       stpNr = iStp;
       phi   = currStp[iEv].getPhi();
@@ -99,7 +83,7 @@ int main(int argc, char** argv)
   
 }
 
-G4ThreeVector scatter(G4ThreeVector org, int pol, int stp){
+G4ThreeVector scatter(G4ThreeVector org, G4ThreeVector pol, G4ThreeVector &finPol){
 
   //cos(20/180*pi)
   double cth = 9.39692620785908428e-01;
@@ -107,67 +91,78 @@ G4ThreeVector scatter(G4ThreeVector org, int pol, int stp){
 
   TRandom3 a(0);
   double phi = a.Uniform() * CLHEP::twopi;
-  double phiPol = phi - CLHEP::twopi/4;
+  G4double amplitude = 0.2;  
+  G4double _prob = a.Uniform();
 
-  // G4double amplitude(0);
-  // if(stp==0) amplitude = 0.4*pol;
-  G4double amplitude = 0.4*pol;
+  G4double tdirx1 = sth*cos(phi);
+  G4double tdiry1 = sth*sin(phi);    
+  G4ThreeVector tnewDirection1(tdirx1,tdiry1,cth);
+  G4ThreeVector normalInteraction = G4PolarizationHelper::GetFrame(org,tnewDirection1);
+  G4double cosPhi = pol * normalInteraction;
   
-  double _prob = a.Uniform();
-  if( _prob < amplitude * sin(phiPol) ){
+  if( _prob < amplitude * cosPhi ){
     phi-=CLHEP::pi;
   }
 
-  double tdirx = sth*cos(phi);
-  double tdiry = sth*sin(phi);    
+  G4double tdirx = sth*cos(phi);
+  G4double tdiry = sth*sin(phi);    
   G4ThreeVector tnewDirection(tdirx,tdiry,cth);
   tnewDirection.rotateUz(org);
+
+  rotateSpinToLocal(org,tnewDirection,pol,finPol);
   return tnewDirection;
 }
 
 void printVector(G4ThreeVector vec){
-  G4double pi=acos(-1);
   cout<<"\tX: "
       <<vec.getX()<<"\tY: "
       <<vec.getY()<<"\tZ: "
       <<vec.getZ()<<"\tR: "
       <<vec.getR()<<"\tTh: "
-      <<vec.getTheta()/pi*180<<"\tPh: "
-      <<vec.getPhi()/pi*180<<endl;
+      <<vec.getTheta()/CLHEP::pi*180<<"\tPh: "
+      <<vec.getPhi()/CLHEP::pi*180<<endl;
 }
 
 
 
 void rotateSpinToLocal(G4ThreeVector ki, G4ThreeVector kf, G4ThreeVector pi, G4ThreeVector &pf){
   G4StokesVector beamPol = pi;
-  cout<<"l: initial beamPol "<<endl;
-  printVector(beamPol);
+  if(debugPrint){
+    cout<<"l: initial beamPol "<<endl;
+    printVector(beamPol);
+  }
   
   G4ThreeVector  nInteractionFrame = G4PolarizationHelper::GetFrame(ki,kf);
-  cout<<"l: normal to interaction frame"<<endl;
-  printVector(nInteractionFrame);
-  cout<<"l: P*n "<<nInteractionFrame*beamPol<<endl;
+  if(debugPrint){
+    cout<<"l: normal to interaction frame"<<endl;
+    printVector(nInteractionFrame);
+    cout<<"l: P*n "<<nInteractionFrame*beamPol<<endl;
+  }
   
   // transform polarization from ki-local into Stokes
   beamPol.RotateAz(nInteractionFrame,ki);
-  cout<<"l: in stokes beamPol "<<endl;
-  printVector(beamPol);
+  if(debugPrint){
+    cout<<"l: in stokes beamPol "<<endl;
+    printVector(beamPol);
+  }
 
   //polarization transfer
-  //G4double interactionTheta = ki*kf;
-  //cout<<"l: rotation by "<<acos(interactionTheta)*180/3.1415<<endl;
-  //beamPol.rotateY(acos(interactionTheta)); //this should be alpha=atan(U/T)
-  //beamPol.rotateY(acos( - interactionTheta) + alpha); //this should be alpha=atan(U/T)
-  //this should produce the same result <-- i think this is wrong because we are in another frame 
-  //beamPol.rotate(acos(interactionTheta),nInteractionFrame);
-  // cout<<"l: after transport beamPol "<<endl;
-  // printVector(beamPol);
+  G4double interactionTheta = ki*kf;
+  if(debugPrint)
+    cout<<"l: rotation by "<<acos(interactionTheta)*180/CLHEP::pi<<endl;
+  //beamPol.rotateY( - acos(interactionTheta) + alpha); //where alpha=atan(U/T)
+  if(debugPrint){
+    cout<<"l: after transport beamPol "<<endl;
+    printVector(beamPol);
+  }
 
   //rotate from Stokes frame into kf-local
   beamPol.InvRotateAz(nInteractionFrame,kf);
-  cout<<"l: back to local beamPol "<<endl;
-  printVector(beamPol);
-
+  if(debugPrint){
+    cout<<"l: back to local beamPol "<<endl;
+    printVector(beamPol);
+  }
+  
   pf = (G4ThreeVector)beamPol;
 }
 
