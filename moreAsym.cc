@@ -19,9 +19,6 @@ G4ThreeVector scatter(G4ThreeVector org, int pol,int stp);
 
 void printVector(G4ThreeVector vec);
 void rotateSpinToLocal(G4ThreeVector ki, G4ThreeVector kf, G4ThreeVector pi, G4ThreeVector &pf);
-void rotateSpinToGlobal(G4ThreeVector ki, G4ThreeVector kf, G4ThreeVector pi, G4ThreeVector &pf);
-void rotatePaul(G4ThreeVector ki, G4ThreeVector kf,
-		G4ThreeVector pi, G4ThreeVector &pf);
 G4ThreeVector inverseRotateUz(G4ThreeVector v,G4ThreeVector dir);
 
 int main(int argc, char** argv)
@@ -29,8 +26,8 @@ int main(int argc, char** argv)
  
   G4double pi = acos(-1);
 
-  G4double tstTh =  45./180. * pi;
-  G4double tstPh = 135./180. * pi;
+  G4double tstTh = 135./180. * pi;
+  G4double tstPh = 315./180. * pi;
 
   G4ThreeVector iniMom(0,0,1);
   cout<<"Initial mom:"<<endl; printVector(iniMom);
@@ -44,9 +41,18 @@ int main(int argc, char** argv)
   //rotateSpinToGlobal(iniMom,finMom,iniPol,finPol);
   //rotatePaul(iniMom,finMom,iniPol,finPol);
   cout<<"Final pol:"<<endl; printVector(finPol);
+
+  //G4ThreeVector globalFinPol=inverseRotateUz(finPol,finMom);
+  finPol.rotateUz(finMom);
+  cout<<"global :"<<endl;
+  printVector(finPol);
+
+  
   cout<<"rotateUz :"<<endl;
   iniPol.rotateUz(finMom);
   printVector(iniPol);
+
+
   return 0;
   
   if( argc < 4 ) {
@@ -131,30 +137,6 @@ void printVector(G4ThreeVector vec){
 }
 
 
-void rotateSpinToGlobal(G4ThreeVector ki, G4ThreeVector kf, G4ThreeVector pi, G4ThreeVector &pf){
-  //from global to ki-local
-  G4StokesVector beamPol = inverseRotateUz(pi,ki);
-
-  //normal to interaction plane
-  G4ThreeVector  nInteractionFrame = G4PolarizationHelper::GetFrame(ki,kf);
-
-  //transform polarization from ki-local into Stokes
-  beamPol.InvRotateAz(nInteractionFrame,ki);
-
-  //polarization transfer
-  G4double interactionTheta = ki*kf;
-  beamPol.rotateX(interactionTheta); //this should be alpha=atan(U/T)
-  //this should produce the same result
-  //beamPol.rotate(interactionTheta,nInteractionFrame);
-
-  //from Stokes frame into ki-local
-  beamPol.RotateAz(nInteractionFrame,ki);
-
-  //from ki-local to global
-  beamPol.rotateUz(ki);
-
-  pf = (G4ThreeVector)beamPol;
-}
 
 void rotateSpinToLocal(G4ThreeVector ki, G4ThreeVector kf, G4ThreeVector pi, G4ThreeVector &pf){
   G4StokesVector beamPol = pi;
@@ -167,57 +149,26 @@ void rotateSpinToLocal(G4ThreeVector ki, G4ThreeVector kf, G4ThreeVector pi, G4T
   cout<<"l: P*n "<<nInteractionFrame*beamPol<<endl;
   
   // transform polarization from ki-local into Stokes
-  beamPol.InvRotateAz(nInteractionFrame,ki);
+  beamPol.RotateAz(nInteractionFrame,ki);
   cout<<"l: in stokes beamPol "<<endl;
   printVector(beamPol);
 
   //polarization transfer
-  G4double interactionTheta = ki*kf;
-  cout<<"l: rotation by "<<acos(interactionTheta)*180/3.1415<<endl;
-  beamPol.rotateX(acos(interactionTheta)); //this should be alpha=atan(U/T)
+  //G4double interactionTheta = ki*kf;
+  //cout<<"l: rotation by "<<acos(interactionTheta)*180/3.1415<<endl;
+  //beamPol.rotateY(acos(interactionTheta)); //this should be alpha=atan(U/T)
+  //beamPol.rotateY(acos( - interactionTheta) + alpha); //this should be alpha=atan(U/T)
   //this should produce the same result <-- i think this is wrong because we are in another frame 
   //beamPol.rotate(acos(interactionTheta),nInteractionFrame);
-  cout<<"l: after transport beamPol "<<endl;
-  printVector(beamPol);
+  // cout<<"l: after transport beamPol "<<endl;
+  // printVector(beamPol);
 
   //rotate from Stokes frame into kf-local
-  beamPol.RotateAz(nInteractionFrame,kf);
+  beamPol.InvRotateAz(nInteractionFrame,kf);
   cout<<"l: back to local beamPol "<<endl;
   printVector(beamPol);
 
   pf = (G4ThreeVector)beamPol;
-}
-
-void rotatePaul(G4ThreeVector ki, G4ThreeVector kf, G4ThreeVector pi, G4ThreeVector &pf){
-  G4ThreeVector beamPol = pi;
-  cout<<"P: initial beamPol "<<endl;
-  printVector(beamPol);
-
-  //rotate from ki-local to Stokes
-  G4double phiKf = kf.getPhi();
-  G4ThreeVector stokesPf(beamPol.getZ(),
-			 cos(phiKf)*beamPol.getX()+sin(phiKf)*beamPol.getY(),
-			 cos(phiKf)*beamPol.getY()-sin(phiKf)*beamPol.getX());
-  cout<<"P: stokes pol"<<endl;
-  printVector(stokesPf);
-  
-  //polarization transfer    
-  G4ThreeVector  nInteractionFrame = G4PolarizationHelper::GetFrame(ki,kf);
-  cout<<"P: P*n "<<nInteractionFrame*beamPol<<endl;
-  cout<<"P: normal to interaction frame"<<endl;
-  printVector(nInteractionFrame);
-  //stokesPf.rotate(kf.getTheta(),nInteractionFrame);
-  stokesPf.rotateZ(kf.getTheta());
-  cout<<"P: after transfer"<<endl;
-  printVector(stokesPf);
-
-  //rotate from Stokes to ki-local?!
-  G4ThreeVector finalPol(cos(phiKf)*stokesPf.getY()-sin(phiKf)*stokesPf.getZ(),
-			 cos(phiKf)*stokesPf.getZ()+sin(phiKf)*stokesPf.getY(),
-			 stokesPf.getX());
-  cout<<"P: back to local:"<<endl;
-  printVector(finalPol);
-  pf=finalPol;
 }
 
 G4ThreeVector inverseRotateUz(G4ThreeVector v,G4ThreeVector dir){
