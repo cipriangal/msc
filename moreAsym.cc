@@ -34,7 +34,7 @@ int main(int argc, char** argv)
   int nStp=atoi(argv[2]);
   int pol=atoi(argv[3]);
 
-  string fOutNm=Form("o_moreAsym_stp%d_",nStp);
+  string fOutNm=Form("o_moreAsym_%dstps_",nStp);
   if(pol==1) fOutNm+="V.root";
   else if(pol==-1) fOutNm+="mV.root";
   else{
@@ -96,8 +96,10 @@ G4ThreeVector scatter(G4ThreeVector org, G4ThreeVector pol, G4ThreeVector &finPo
 
   G4double tdirx1 = sth*cos(phi);
   G4double tdiry1 = sth*sin(phi);    
-  G4ThreeVector tnewDirection1(tdirx1,tdiry1,cth);
-  G4ThreeVector normalInteraction = G4PolarizationHelper::GetFrame(org,tnewDirection1);
+  G4ThreeVector finLocal(tdirx1,tdiry1,cth);
+  G4ThreeVector orgLocal(0,0,1);
+  G4ThreeVector normalInteraction =
+    G4PolarizationHelper::GetFrame(orgLocal,finLocal);
   G4double cosPhi = pol * normalInteraction;
   
   if( _prob < amplitude * cosPhi ){
@@ -109,7 +111,7 @@ G4ThreeVector scatter(G4ThreeVector org, G4ThreeVector pol, G4ThreeVector &finPo
   G4ThreeVector tnewDirection(tdirx,tdiry,cth);
   tnewDirection.rotateUz(org);
 
-  rotateSpinToLocal(org,tnewDirection,pol,finPol);
+  rotateSpinToLocal(orgLocal,finLocal,pol,finPol);
   return tnewDirection;
 }
 
