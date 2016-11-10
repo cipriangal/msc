@@ -970,9 +970,15 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
       G4cout<<__PRETTY_FUNCTION__<<G4endl;
       G4cout<<"\tpolarization.R\ttransPol: "<<polarization.getR()<<"\t"<<transPol<<G4endl;
     }
-    G4double _amplitude = AnalyzingPower(eEnergy, cth) * transPol;
-
-    G4double phiPol = phi - polarization.getPhi();    
+    G4double _amplitude = AnalyzingPower(eEnergy, cth) * transPol;    
+    G4double dmx = sth*cos(phi);
+    G4double dmy = sth*sin(phi);
+    G4ThreeVector dmDir(dmx,dmy,cth);
+    dmDir.rotateUz(oldDirection);    
+    G4double phiGlobal = dmDir.getPhi();
+    G4double phiPol = phiGlobal - polarization.getPhi(); 
+    //G4double phiPol = phi - polarization.getPhi();
+    
     if(restrict2D){
       if( phiPol < 0 ) phiPol+=twopi;
       if( phiPol > twopi ) phiPol=fmod(phiPol,twopi);
@@ -1023,22 +1029,27 @@ QweakSimUrbanMscModel::SampleScattering(const G4ThreeVector& oldDirection,
   G4double diry = sth*sin(phi);
 
   G4ThreeVector newDirection(dirx,diry,cth);
-  //G4cout<<"\tnew dir: R th phi "<<newDirection.getR()<<"\t"<<newDirection.getTheta()<<"\t"<<newDirection.getPhi()<<G4endl;
+  if(debugPrint){
+    G4cout<<"\tbefore rotation:"<<G4endl;
+    G4cout<<"\tnew dir: R th phi "<<newDirection.getR()<<"\t"<<newDirection.getTheta()<<"\t"<<newDirection.getPhi()<<G4endl;
+    G4cout<<"\tnew dir: X  Y   Z "<<newDirection.getX()<<"\t"<<newDirection.getY()<<"\t"<<newDirection.getZ()<<G4endl;
+  }
   newDirection.rotateUz(oldDirection);
   fParticleChange->ProposeMomentumDirection(newDirection);
-
+  
+  //FIXME
   asymInfo->at(4) = cth;
   asymInfo->at(5) = phi;
   asymInfo->at(7) = newDirection.getPhi();
-  
-  //FIXME
+
   if(debugPrint){
     G4cout<<__PRETTY_FUNCTION__<<G4endl;
     fParticleChange->DumpInfo();
     G4cout<<"\tcth, th, phi old.angle(new):" << cth << "\t" << acos(cth) << "\t" << phi << "\t" <<oldDirection.angle(newDirection) << G4endl;
     G4cout<<"\told dir: R th phi "<<oldDirection.getR()<<"\t"<<oldDirection.getTheta()<<"\t"<<oldDirection.getPhi()<<G4endl;
+    G4cout<<"\told dir: X  Y   Z "<<oldDirection.getX()<<"\t"<<oldDirection.getY()<<"\t"<<oldDirection.getZ()<<G4endl;
     G4cout<<"\tnew dir: R th phi "<<newDirection.getR()<<"\t"<<newDirection.getTheta()<<"\t"<<newDirection.getPhi()<<G4endl;
-    std::cin.ignore();
+    G4cout<<"\tnew dir: X  Y   Z "<<newDirection.getX()<<"\t"<<newDirection.getY()<<"\t"<<newDirection.getZ()<<G4endl;
   }
   //FIXME
   /*
