@@ -20,33 +20,38 @@ int main(int argc, char** argv)
 {
 
   if( argc < 4 ) {
-    cout<<" usage: build/anaTree [path to infile with tree] [0: weight, 1:modify] [nr of Steps]"<<endl;
+    cout<<" usage: build/anaTree [path to infile with tree] [0: weight, 1:modify] [nr of Steps] [0: angle; 1: position]"<<endl;
     return 1;
   }
 
   string file(argv[1]);  
   int mode=atoi(argv[2]);
   int nStp=atoi(argv[3]);
+  int anaVar=atoi(argv[4]);
+  if(anaVar!=0 && anaVar!=1) {cout<<"not sure what anaVar " <<anaVar<<" means"<<endl; return 3;}
   cout<<"Analyzing "<<file.c_str()<<" mode :"<<mode<<" nStpes "<<nStp<<endl;
   if(nStp>=30) return 2;
-  
-  TFile *fout=new TFile("o_anaWithSteps.root","RECREATE");
+
+  string varNm[2]={"postAngX","postPosX"};
+  string varTit[2]={"angle along xAxis [deg]","position along xAxis [cm]"};
+
+  TFile *fout=new TFile(Form("o_anaWithSteps_%s.root",varNm[anaVar].c_str()),"RECREATE");
   TH1D *hp[30],*hm[30],*ha[30];
   TH1D *det_hp[30],*det_hm[30],*det_ha[30];
   TH1D *pba_hp[30],*pba_hm[30],*pba_ha[30];
   int nb=200;
   for(int i=0;i<nStp;i++){
-    hp[i]=new TH1D(Form("hp_%d",i),Form("P*N stp %d;angle at detector [deg]",i),nb,-100,100);
-    hm[i]=new TH1D(Form("hm_%d",i),Form("M*N stp %d;angle at detector [deg]",i),nb,-100,100);
-    ha[i]=new TH1D(Form("ha_%d",i),Form("A   stp %d;angle at detector [deg]",i),nb,-100,100);
+    hp[i]=new TH1D(Form("hp_%d",i),Form("P*N stp %d;%s",i,varTit[anaVar].c_str()),nb,-100,100);
+    hm[i]=new TH1D(Form("hm_%d",i),Form("M*N stp %d;%s",i,varTit[anaVar].c_str()),nb,-100,100);
+    ha[i]=new TH1D(Form("ha_%d",i),Form("A   stp %d;%s",i,varTit[anaVar].c_str()),nb,-100,100);
 
-    det_hp[i]=new TH1D(Form("det_hp_%d",i),Form("P*N at Det stp %d;angle at detector [deg]",i),nb,-100,100);
-    det_hm[i]=new TH1D(Form("det_hm_%d",i),Form("M*N at Det stp %d;angle at detector [deg]",i),nb,-100,100);
-    det_ha[i]=new TH1D(Form("det_ha_%d",i),Form("A   at Det stp %d;angle at detector [deg]",i),nb,-100,100);
-
-    pba_hp[i]=new TH1D(Form("pba_hp_%d",i),Form("P*N in Pb stp %d;angle at detector [deg]",i),nb,-100,100);
-    pba_hm[i]=new TH1D(Form("pba_hm_%d",i),Form("M*N in Pb stp %d;angle at detector [deg]",i),nb,-100,100);
-    pba_ha[i]=new TH1D(Form("pba_ha_%d",i),Form("A   in Pb stp %d;angle at detector [deg]",i),nb,-100,100);
+    det_hp[i]=new TH1D(Form("det_hp_%d",i),Form("P*N at Det stp %d;%s",i,varTit[anaVar].c_str()),nb,-100,100);
+    det_hm[i]=new TH1D(Form("det_hm_%d",i),Form("M*N at Det stp %d;%s",i,varTit[anaVar].c_str()),nb,-100,100);
+    det_ha[i]=new TH1D(Form("det_ha_%d",i),Form("A   at Det stp %d;%s",i,varTit[anaVar].c_str()),nb,-100,100);
+    
+    pba_hp[i]=new TH1D(Form("pba_hp_%d",i),Form("P*N in Pb  stp %d;%s",i,varTit[anaVar].c_str()),nb,-100,100);
+    pba_hm[i]=new TH1D(Form("pba_hm_%d",i),Form("M*N in Pb  stp %d;%s",i,varTit[anaVar].c_str()),nb,-100,100);
+    pba_ha[i]=new TH1D(Form("pba_ha_%d",i),Form("A   in Pb  stp %d;%s",i,varTit[anaVar].c_str()),nb,-100,100);
   }
   
   TFile *fin=TFile::Open(file.c_str(),"READ");
@@ -83,7 +88,7 @@ int main(int argc, char** argv)
     if(tID!=1) continue;
     if(pID!=0) continue;
     if(abs(pType)!=11) continue;
-    if(fabs(postAngX)>100) continue;
+    if(fabs(postPosX)>1000) continue;
     if(sNr-1>=nStp || sNr==0) continue;
 
     double wP(1),wM(1);
@@ -91,16 +96,18 @@ int main(int argc, char** argv)
       wP=aP;
       wM=aM;
     }
+    double varVal = anaVar == 0 ? postAngX : postPosX/10;
+
     if(mat==1){
-      det_hp[sNr-1]->Fill(postAngX,wP);
-      det_hm[sNr-1]->Fill(postAngX,wM);
+      det_hp[sNr-1]->Fill(varVal,wP);
+      det_hm[sNr-1]->Fill(varVal,wM);
     }else if(mat==0){
-      pba_hp[sNr-1]->Fill(postAngX,wP);
-      pba_hm[sNr-1]->Fill(postAngX,wM);
+      pba_hp[sNr-1]->Fill(varVal,wP);
+      pba_hm[sNr-1]->Fill(varVal,wM);
     }else continue;
 
-    hp[sNr-1]->Fill(postAngX,wP);
-    hm[sNr-1]->Fill(postAngX,wM);
+    hp[sNr-1]->Fill(varVal,wP);
+    hm[sNr-1]->Fill(varVal,wM);
 
   }
   fin->Close();
