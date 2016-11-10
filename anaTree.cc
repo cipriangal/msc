@@ -28,16 +28,18 @@ void findInt(std::vector<int> &inter,std::vector<int> &val,
 int main(int argc, char** argv)
 {
 
-  if( argc !=2 ) {
-    cout<<" usage: build/anaTree [path to infile with tree]"<<endl;
+  if( argc <2 ) {
+    cout<<" usage: build/anaTree [path to infile with tree] [optional use PE? 1 for true; default false]"<<endl;
     return 1;
   }
 
   readPEs();
 
-  const int nDet=3;  
-  string file(argv[1]);
-  cout<<"Analyzing "<<file.c_str()<<" for "<<nDet<<endl;
+  string file(argv[1]);  
+  int usePEs(0);
+  if(argc==3) usePEs=atoi(argv[2]);
+  
+  cout<<"Analyzing "<<file.c_str()<<" using PEs?: "<<usePEs<<endl;
 
   TFile *fout=new TFile("o_anaTree.root","RECREATE");
   TGraphErrors *g[3];
@@ -50,18 +52,21 @@ int main(int argc, char** argv)
 
   TH1D *p_m_asPE =new TH1D("p_m_asPE" ,"- asymmetry for Primary",200,0,200);
   TH1D *n_m_asPE =new TH1D("n_m_asPE" ,"- asymmetry for Non Primary",200,0,200);
-  TH1D *p_m_angPE=new TH1D("p_m_angPE","- P PEs;angle in shower [deg]",360,-90,90);
-  TH1D *n_m_angPE=new TH1D("n_m_angPE","- N PEs;angle in shower [deg]",360,-90,90);
+  TH1D *p_m_angPE=new TH1D("p_m_angPE","- P PEs;angle in shower [deg]",180,-90,90);
+  TH1D *n_m_angPE=new TH1D("n_m_angPE","- N PEs;angle in shower [deg]",180,-90,90);
 
   TH1D *p_p_asPE =new TH1D("p_p_asPE" ,"+ asymmetry for Primary",200,0,200);
   TH1D *n_p_asPE =new TH1D("n_p_asPE" ,"+ asymmetry for Non Primary",200,0,200);
-  TH1D *p_p_angPE=new TH1D("p_p_angPE","+ P PEs;angle in shower [deg]",360,-90,90);
-  TH1D *n_p_angPE=new TH1D("n_p_angPE","+ N PEs;angle in shower [deg]",360,-90,90);
+  TH1D *p_p_angPE=new TH1D("p_p_angPE","+ P PEs;angle in shower [deg]",180,-90,90);
+  TH1D *n_p_angPE=new TH1D("n_p_angPE","+ N PEs;angle in shower [deg]",180,-90,90);
 
   TH1D *calc_L_asPE=new TH1D("calc_L_asPE","L calculated asymmetry",200,-1.1,1.1);
-  TH1D *calc_L_angPE=new TH1D("calc_L_angPE","L calculated asymmetry;angle in shower [deg]",360,-90,90);
   TH1D *calc_R_asPE=new TH1D("calc_R_asPE","R calculated asymmetry",200,-1.1,1.1);
-  TH1D *calc_R_angPE=new TH1D("calc_R_angPE","R calculated asymmetry;angle in shower [deg]",360,-90,90);
+
+  TH1D *calc_P_angPE=new TH1D("calc_P_angPE","P calc;angle in shower [deg]",360,-90,90);
+  TH1D *calc_M_angPE=new TH1D("calc_M_angPE","M calc;angle in shower [deg]",360,-90,90);
+
+  TH1D *bins_L_angPE=new TH1D("bins_R_angPE","R calculated asymmetry;angle in shower [deg]",360,-90,90);
   
   TFile *fin=TFile::Open(file.c_str(),"READ");
 
@@ -113,6 +118,7 @@ int main(int argc, char** argv)
       currentProc+=10;
     }
 
+    if(material!=1) continue;
     if(abs(pType)!=11) continue;
     if(abs(postPosX)>1000) continue;
     if(abs(postAngX)>89) continue;
@@ -164,6 +170,11 @@ int main(int argc, char** argv)
     
     if( lpe+rpe <= 0 ) continue;
 
+    if(!usePEs){
+      lpe=1;
+      rpe=1;
+    }
+    
     lTotPE+=lpe;
     rTotPE+=rpe;
     
@@ -187,8 +198,10 @@ int main(int argc, char** argv)
       double cas=(asymInfoPP-asymInfoPM)/(asymInfoPP+asymInfoPM);
       calc_L_asPE->Fill(lpe*cas);
       calc_R_asPE->Fill(rpe*cas);
-      calc_L_angPE->Fill(postAngX,lpe*cas);
-      calc_R_angPE->Fill(postAngX,rpe*cas);
+
+      bins_L_angPE->Fill(postAngX);
+      calc_P_angPE->Fill(postAngX,lpe*asymInfoPP);
+      calc_M_angPE->Fill(postAngX,rpe*asymInfoPM);
     }
   }
   
@@ -196,27 +209,36 @@ int main(int argc, char** argv)
     
   fin->Close();
 
-  TH1D *calc_dd_angPE=(TH1D*)calc_L_angPE->Clone();
-  calc_dd_angPE->SetName("calc_dd_angPE");
-  calc_dd_angPE->SetTitle("DD calc (Rpe*as - Lpe*as)");
-  TH1D *calc_Ab_angPE=(TH1D*)calc_L_angPE->Clone();
-  calc_Ab_angPE->SetName("calc_Ab_angPE");
-  calc_Ab_angPE->SetTitle("Abias calc (Rpe*as + Lpe*as)");
-  int nb=calc_L_angPE->GetXaxis()->GetNbins();
-  TH1D *calc_Ab_angPE_fold=new TH1D("calc_Ab_angPE_fold","folded Abias calculation",
-				    nb/2,0,90);
+  TH1D *calc_A_bin=(TH1D*)calc_P_angPE->Clone();
+  calc_A_bin->SetName("calc_A_bin");
+  for(int i=1;i<=calc_A_bin->GetXaxis()->GetNbins();i++){
+    double a=calc_P_angPE->GetBinContent(i);
+    double b=calc_M_angPE->GetBinContent(i);
+    if(a+b>0)
+      calc_A_bin->SetBinContent(i,(a-b)/(a+b));
+  }
+  
+  // TH1D *calc_dd_angPE=(TH1D*)calc_L_angPE->Clone();
+  // calc_dd_angPE->SetName("calc_dd_angPE");
+  // calc_dd_angPE->SetTitle("DD calc (Rpe*as - Lpe*as)");
+  // TH1D *calc_Ab_angPE=(TH1D*)calc_L_angPE->Clone();
+  // calc_Ab_angPE->SetName("calc_Ab_angPE");
+  // calc_Ab_angPE->SetTitle("Abias calc (Rpe*as + Lpe*as)");
+  // int nb=calc_L_angPE->GetXaxis()->GetNbins();
+  // TH1D *calc_Ab_angPE_fold=new TH1D("calc_Ab_angPE_fold","folded Abias calculation",
+  // 				    nb/2,0,90);
 
-  for(int i=1;i<=nb;i++){
-    double vr=calc_R_angPE->GetBinContent(i);
-    double vl=calc_L_angPE->GetBinContent(i);
-    calc_dd_angPE->SetBinContent(i,(vr-vl)/(lTotPE+rTotPE));
-    calc_Ab_angPE->SetBinContent(i,(vr+vl)/(lTotPE+rTotPE));
-  }
-  for(int i=1;i<=nb/2;i++){
-    double vl=calc_Ab_angPE->GetBinContent(i);
-    double vr=calc_Ab_angPE->GetBinContent(nb-i+1);
-    calc_Ab_angPE_fold->SetBinContent(nb/2-i+1,vl+vr);
-  }
+  // for(int i=1;i<=nb;i++){
+  //   double vr=calc_R_angPE->GetBinContent(i);
+  //   double vl=calc_L_angPE->GetBinContent(i);
+  //   calc_dd_angPE->SetBinContent(i,(vr-vl)/(plTotPE+prTotPE));
+  //   calc_Ab_angPE->SetBinContent(i,(vr+vl)/(plTotPE+prTotPE));
+  // }
+  // for(int i=1;i<=nb/2;i++){
+  //   double vl=calc_Ab_angPE->GetBinContent(i);
+  //   double vr=calc_Ab_angPE->GetBinContent(nb-i+1);
+  //   calc_Ab_angPE_fold->SetBinContent(nb/2-i+1,vl+vr);
+  // }
   
   TH1D *p_dd_ang=(TH1D*)p_p_angPE->Clone();
   p_dd_ang->SetName("p_dd_ang");
@@ -225,23 +247,29 @@ int main(int argc, char** argv)
   n_dd_ang->SetName("n_dd_ang");
   n_dd_ang->SetTitle("phys asym non primary");
 
-  nb=p_p_angPE->GetXaxis()->GetNbins();  
+  TH1D *p_dd_bin=(TH1D*)p_p_angPE->Clone();
+  p_dd_bin->SetName("p_dd_bin");
+  p_dd_bin->SetTitle("phys asym primary");
+  TH1D *n_dd_bin=(TH1D*)n_p_angPE->Clone();
+  n_dd_bin->SetName("n_dd_bin");
+  n_dd_bin->SetTitle("phys asym non primary");
+
+  int nb=p_p_angPE->GetXaxis()->GetNbins();  
   for(int i=1;i<=nb;i++){
-    double vp=p_p_angPE->GetBinContent(i);
-    double vm=p_m_angPE->GetBinContent(nb-i+1);
-    //if(vp+vm>0)
+    double vm=p_p_angPE->GetBinContent(i);
+    double vp=p_m_angPE->GetBinContent(nb-i+1);
     p_dd_ang->SetBinContent(i,(vp-vm)/(plTotPE+prTotPE));
+    if(vm+vp>0)
+      p_dd_bin->SetBinContent(i,(vp-vm)/(vp+vm));
     vp=n_p_angPE->GetBinContent(i);
     vm=n_m_angPE->GetBinContent(nb-i+1);
-    //if(vp+vm>0)
     n_dd_ang->SetBinContent(i,(vp-vm)/(nlTotPE+nrTotPE));
+    if(vm+vp>0)
+      n_dd_bin->SetBinContent(i,(vp-vm)/(vp+vm));
   }
 
-  // p_dd_ang->Scale(1./(plTotPE+prTotPE));
-  // n_dd_ang->Scale(1./(nlTotPE+nrTotPE));
-
-  calc_L_angPE->Scale(1./lTotPE);
-  calc_R_angPE->Scale(1./rTotPE);
+  // calc_L_angPE->Scale(1./plTotPE);
+  // calc_R_angPE->Scale(1./prTotPE);
 
   fout->cd();
   p_p_asPE->Write();
@@ -254,13 +282,19 @@ int main(int argc, char** argv)
   n_m_angPE->Write();
   p_dd_ang->Write();
   n_dd_ang->Write();
+  p_dd_bin->Write();
+  n_dd_bin->Write();
+
   calc_L_asPE->Write();
   calc_R_asPE->Write();
-  calc_L_angPE->Write();
-  calc_R_angPE->Write();
-  calc_dd_angPE->Write();
-  calc_Ab_angPE->Write();
-  calc_Ab_angPE_fold->Write();
+
+  calc_P_angPE->Write();
+  calc_M_angPE->Write();
+  calc_A_bin->Write();
+  
+  // calc_dd_angPE->Write();
+  // calc_Ab_angPE->Write();
+  // calc_Ab_angPE_fold->Write();
   return 0;
   
 }
