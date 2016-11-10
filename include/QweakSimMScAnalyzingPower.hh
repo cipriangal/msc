@@ -18,12 +18,12 @@ inline G4double AnalyzingPower(G4double energy, G4double cth){
 
   G4bool debugPrint=false;
   //G4double mott = Mott(energy,theta/pi *180.);
-  G4double mott = Mott(energy,theta/pi *180.) * 100.;
+  G4double mott = Mott(energy,theta/pi *180.);
 
   if(debugPrint)
     G4cout<<__PRETTY_FUNCTION__<<G4endl
-	  <<"\tenergy\ttheta(rad)\tmott\ttheta(deg)"<<G4endl
-	  <<"\t"<<energy<<"\t"<<theta<<"\t"<<mott<<"\t"<<theta/pi*180<<G4endl;
+	  <<"\tenergy\tcth\ttheta(rad)\tmott\ttheta(deg)"<<G4endl
+	  <<"\t"<<energy<<"\t"<<cth<<"\t"<<theta<<"\t"<<mott<<"\t"<<theta/pi*180<<G4endl;
 
   if( fabs(mott) > 1 ) mott = 1. * mott/fabs(mott);
   //if(mott<0) mott=0;
@@ -31,6 +31,7 @@ inline G4double AnalyzingPower(G4double energy, G4double cth){
   if( fabs(twoPhoton) > 1 ) twoPhoton = 1. * twoPhoton/fabs(twoPhoton);
   //return twoPhoton; 
   return mott;
+  //return 0.5;
   // return twoPhoton + mott ;  
 }
 
