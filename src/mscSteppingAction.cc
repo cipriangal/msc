@@ -149,20 +149,8 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
     currentEv=eventNr;
   }
 
-  // G4cout<<"pre\t"
-  // 	<<thePrePoint->GetMomentum().getR()<<"\t"
-  // 	<<thePrePoint->GetMomentum().getTheta()<<"\t"
-  //   	<<thePrePoint->GetMomentum().getPhi()<<"\t"<<G4endl;
-  // G4cout<<"post\t"
-  // 	<<thePostPoint->GetMomentum().getR()<<"\t"
-  // 	<<thePostPoint->GetMomentum().getTheta()<<"\t"
-  //   	<<thePostPoint->GetMomentum().getPhi()<<"\t"<<G4endl;
-  // G4cout<<"\t"<<theMaterial->GetName()<<"\t"<<_pn<<G4endl;
-  // std::cin.ignore();
   
   if(theMaterial){
-    // G4cout<<theMaterial->GetName()<<G4endl;
-    // std::cin.ignore();
     
     if(theMaterial->GetName().compare("detectorMat")==0)       material=1;
     else if(theMaterial->GetName().compare("Aluminum")==0)     material=2;
@@ -183,8 +171,8 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
 	else depol = 0.;
       }
 
-      // _polarization *= (1.-depol);
-      // theStep->GetTrack()->SetPolarization(_polarization);
+      _polarization *= (1.-depol);
+      theStep->GetTrack()->SetPolarization(_polarization);
     }
   }
 
@@ -267,7 +255,11 @@ void mscSteppingAction::UserSteppingAction(const G4Step* theStep)
   stpPolPhi = asymInfo->at(6);
   stpPhiRotated = asymInfo->at(7);
   stpAN = asymInfo->at(8);
-  
+
+  // G4cout<<__LINE__<<" "<<__PRETTY_FUNCTION__<<G4endl;
+  // G4cout<<postE<<"\t"<<stpCth<<"\t"<<stpPhi<<"\t"<<stpPolPhi<<"\t"<<stpAN<<"\t"
+  // 	<<1+stpAN*sqrt(polX*polX+polY*polY)*sin(stpPolPhi)<<"\t"<<asymInfoPP<<G4endl;
+  // std::cin.ignore();
   /*fill tree*/ 
   if(writeTree==1 && material==1) tout->Fill();
   else if(writeTree==2) tout->Fill();
