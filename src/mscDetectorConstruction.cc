@@ -442,6 +442,7 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildSimpleDetector()
 			  detectorSolid,     // its solid
 			  detectorMaterial,  // its material
 			  "detectorLogical");// its name
+  //detectorLogical->SetUserLimits(new G4UserLimits(0.0, 0.0, 0.0, DBL_MAX, DBL_MAX));
   
   new G4PVPlacement(
 		    0,                // no rotation
