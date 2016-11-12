@@ -1,12 +1,33 @@
-# Macro file for example msc
-# 
-# To be run preferably in batch, without graphics:
-# % examplemsc[a,b,c,d] run2.mac
-#
-# Default kinemtics: 
-# electron 50 MeV in direction (0.,0.,1.)
-# 1000 events
-#
-/msc/event/setPrintModulo 100
-/run/beamOn 1000
+## needed for simple simulation .. has no effect on stacked/QweakSimG4
+/msc/det/setRadiatorThickness 0.2 cm
 
+### x>0 set max step size for Pb to x
+/msc/det/setStepSizeG4 0.05 mm
+
+## 0 for simple sim, -1 for QweakSimG4 (not yet implemented), n>0 for stacks
+### this has to be the last command related to geometry (it updates the geometry)
+/msc/setNrUnits 0
+
+## int with the form: a*2^1+b*2^2."
+##    if you want to modify trajectory a=1"
+##    if you want to reduce to 2 dimensions b=1"
+/msc/physicsProcesses/settingFlag 0
+
+## set beam energy with units (default is 1160-0.511 MeV)
+/msc/PrimaryEventGen/beamEnergy 60 MeV
+
+## polarization for the parimary event (L,mL,V,mV accepted)
+/msc/PrimaryEventGen/setPolarization V
+
+## writeTree: 0 - no output; 1 - output in detector material; 2 - all steps
+/msc/SteppingAction/setWriteTree 2
+/msc/SteppingAction/setWriteANdata 0
+
+### set the output file name
+/msc/SteppingAction/setOutputFileName msc_wght_1e5_stp005mm_V 
+### the initOutput should always be there!!
+/msc/SteppingAction/initOutput 1
+
+/msc/event/setPrintModulo 10000
+
+/run/beamOn 100000

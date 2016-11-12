@@ -37,6 +37,7 @@ private:
   G4UIcmdWithAnInteger *nrUnitsCmd;
   G4UIcmdWithADoubleAndUnit *radThickCmd;
   G4UIcmdWithAString *polCmd;
+  G4UIcmdWithAString *ofileNmCmd;
   G4UIcmdWithAnInteger *writeTreeCmd;
   G4UIcmdWithAnInteger *writeANCmd;
   G4UIcmdWithAnInteger *initOutCmd;

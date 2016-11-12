@@ -42,6 +42,9 @@ mscMessenger::mscMessenger(std::vector<double> *asInfo):
     polCmd->SetGuidance(" default L; accepted: L, mL, V, mV");
     polCmd->SetParameterName("radThickness", false);
 
+    ofileNmCmd = new G4UIcmdWithAString("/msc/SteppingAction/setOutputFileName",this);
+    ofileNmCmd->SetParameterName("ofileNm", false);
+
     writeTreeCmd = new G4UIcmdWithAnInteger("/msc/SteppingAction/setWriteTree",this);
     writeTreeCmd->SetGuidance("Output tree from stepping action?");
     writeTreeCmd->SetGuidance(" 0: no");
@@ -79,6 +82,7 @@ mscMessenger::~mscMessenger(){
   delete nrUnitsCmd;
   delete radThickCmd;
   delete polCmd;
+  delete ofileNmCmd;
   delete writeTreeCmd;
   delete writeANCmd;
   delete initOutCmd;
@@ -104,6 +108,8 @@ void mscMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue){
     fDetCon->SetRadiatorThickness( val );
   }else if( cmd == polCmd ){
     fPriGen->SetPolarization( newValue );
+  }else if( cmd == ofileNmCmd ){
+    fStepAct->SetOfileName( newValue );
   }else if( cmd == writeANCmd ){
     G4int val = writeANCmd->GetNewIntValue(newValue);
     fStepAct->SetWriteANdata(val);

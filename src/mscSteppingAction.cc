@@ -20,7 +20,8 @@ mscSteppingAction::mscSteppingAction(G4int *evN,std::vector<double> *asInfo):
   writeANdata=0;
   writeTree=0;
   currentEv=-1;
-
+  ofnm="msc";
+  
   for(int i=0;i<perpNval;i++) perpDepol.SetPoint(i,perpXDepol[i],perpYDepol[i]);   
 }
 
@@ -35,7 +36,7 @@ void  mscSteppingAction::InitOutput(){
   
   
   /*Create root file and initialize what I want to put in it*/
-  fout=new TFile("o_msc.root","RECREATE");
+  fout=new TFile(Form("o_%s.root",ofnm.c_str()),"RECREATE");
 
   for(int i=0;i<nrUnits;i++){
     hdistPe[i]=new TH3I(Form("distPe_%d",i),Form("primaries @ unit %d;pos [cm];angle [deg];E [MeV]",i),
