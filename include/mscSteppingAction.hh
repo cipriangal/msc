@@ -32,6 +32,7 @@ public:
   void SetNrUnits(G4int val){nrUnits=val;}
   void SetWriteANdata(G4int val){writeANdata=val;}
   void SetWriteTree(G4int val){writeTree=val;}
+  void SetOfileName(G4String val){ofnm=val;}
   
 private:
   G4int *evNr;
@@ -44,7 +45,8 @@ private:
   std::vector<G4int> savedTracks;
   std::vector<G4int> savedParents;
   G4int recordTrack(G4int trID, G4int parID);
-  
+
+  G4String ofnm;
   G4int nrUnits;
   G4int writeANdata;
   G4int writeTree;
