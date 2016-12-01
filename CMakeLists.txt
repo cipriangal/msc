@@ -64,14 +64,17 @@ target_link_libraries(anaTree ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 add_executable(anaStp analyzeWithSteps.cc ${sources} ${headers})
 target_link_libraries(anaStp ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
-add_executable(moreAsym moreAsym.cc)
-target_link_libraries(moreAsym ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+add_executable(multipleAsymSteps multipleAsymSteps.cc)
+target_link_libraries(multipleAsymSteps ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
 add_executable(anaWght anaWght.cc)
 target_link_libraries(anaWght ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
 add_executable(anaTrk anaTrk.cc)
 target_link_libraries(anaTrk ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+
+add_executable(rotateSpinTst rotateSpinTst.cc)
+target_link_libraries(rotateSpinTst ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
