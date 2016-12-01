@@ -18,7 +18,8 @@ void analyze();
 void findInt(std::vector<int> &inter,std::vector<int> &val,
 	     int trackID,int parent, int &hasPar, int &nInt);
 
-const int nbin=20;
+const int nbin=10;
+double zBinMax=2.5;
 TH1D *pAsym,*dAsym,*dPang,*dMang;
 TH1D *zA[nbin],*zP[nbin],*zM[nbin];
 
@@ -41,7 +42,7 @@ int main(int argc, char** argv)
   dPang = new TH1D("dPang","entries at detector  V;ang along X [deg]",200,-100,100);
   dMang = new TH1D("dMang","entries at detector mV;ang along X [deg]",200,-100,100);
 
-  pAsym = new TH1D("pAsym",";z[mm];(P - M)/(P + M)",nbin,0,5);  
+  pAsym = new TH1D("pAsym",";z[mm];(P - M)/(P + M)",nbin,0,zBinMax);  
   for(int i=0;i<nbin;i++){
     double zmin=pAsym->GetBinCenter(i+1) - pAsym->GetBinWidth(i+1)/2;
     double zmax=pAsym->GetBinCenter(i+1) + pAsym->GetBinWidth(i+1)/2;
