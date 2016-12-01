@@ -33,7 +33,8 @@ int main(int argc, char** argv)
   TFile *fout=new TFile("o_anaWght.root","RECREATE");
 
   const int nbin=20;
-  TH1D *pAsym = new TH1D("pAsym",";z[mm];(PP - PM)/(PP + PM)",nbin,0,5);  
+  const double zBinMax=2.5;
+  TH1D *pAsym = new TH1D("pAsym",";z[mm];(PP - PM)/(PP + PM)",nbin,0,zBinMax);  
   TH1D *zA[nbin];
   for(int i=0;i<nbin;i++){
     double zm=pAsym->GetBinCenter(i+1) - pAsym->GetBinWidth(i+1)/2;
