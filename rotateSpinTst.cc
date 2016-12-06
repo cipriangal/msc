@@ -54,8 +54,13 @@ int main(int argc, char** argv)
   G4ThreeVector polFv2 = polF;
   polFv2.rotateUz(momF);
   cout<<"fin pol rotateUz"<<endl;printVector(polFv2);
+  G4ThreeVector polFv3 = inverseRotateUz(polFv2,momF);
+  cout<<"fin pol InvRotateUz(rotateUz)"<<endl;printVector(polFv3);
   
-  cout<<endl<<"~~~~~~~~~~~~~~~~~ Test based on G4 brem:"<<endl;
+  // G4StokesVector polFv3 = polF;
+  // polFv3.RotateAz(
+  
+  cout<<endl<<endl<<"~~~~~~~~~~~~~~~~~ Test based on G4 brem:"<<endl;
   cout<<"initial mom"<<endl;printVector(momI);
   cout<<"final   mom"<<endl;printVector(momF);
   cout<<"initial pol"<<endl;printVector(polI);
@@ -64,8 +69,8 @@ int main(int argc, char** argv)
   cout<<"final   mom"<<endl;printVector(momF);
   cout<<"initial pol"<<endl;printVector(polI);
   cout<<"final   pol"<<endl;printVector(polF);
-  polFv1 = inverseRotateUz(polF,momF);
-  cout<<"fin pol inverse rotateUz"<<endl;printVector(polFv1);
+  // polFv1 = inverseRotateUz(polF,momF);
+  // cout<<"fin pol inverse rotateUz"<<endl;printVector(polFv1);
   polFv2 = polF;
   polFv2.rotateUz(momF);
   cout<<"fin pol rotateUz"<<endl;printVector(polFv2);
@@ -160,6 +165,10 @@ void rotateSpinToLocal(G4ThreeVector ki, G4ThreeVector kf, G4ThreeVector pi, G4T
     printVector(beamPol);
   }
 
+  G4ThreeVector partFrameY= G4PolarizationHelper::GetParticleFrameY(kf);
+  cout<<"l: particle kf yFrame: "<<endl; printVector(partFrameY);
+  G4double cosphi=partFrameY*nInteractionFrame;
+  cout<<"l: cosphi "<<cosphi<<endl;
   //rotate from Stokes frame into kf-local
   beamPol.InvRotateAz(nInteractionFrame,kf);
   if(debugPrint){
@@ -177,18 +186,14 @@ G4ThreeVector inverseRotateUz(G4ThreeVector v,G4ThreeVector dir){
   G4double uz= dir.getZ();
   G4double up= ux*ux + uy*uy;
 
-  cout<<"up "<<up<<" uz "<<uz<<endl;
-  
   if (up > 0){
     up = sqrt(up);
     double px= v.getX();
     double py= v.getY();
     double pz= v.getZ();
-    cout<<px<<"\t"<<py<<"\t"<<pz<<endl;    
     nx =  px * ux * uz / up + py * uy * uz / up - pz * up;
     ny = -px * uy / up      + py * ux / up               ;
-    nx =  px * ux           + py * uy           + pz * uz;
-    cout<<nx<<"\t"<<ny<<"\t"<<nz<<endl;
+    nz =  px * ux           + py * uy           + pz * uz;
   }else if ( uz < 0 ){
     nx = - v.getX();
     ny =   v.getY();
