@@ -17,8 +17,7 @@ inline G4double AnalyzingPower(G4double energy, G4double cth){
   if( fabs(twoPhoton) > 1 ) twoPhoton = 1. * twoPhoton/fabs(twoPhoton);
 
   G4bool debugPrint=false;
-  //G4double mott = Mott(energy,theta/pi *180.);
-  G4double mott = Mott(energy,theta/pi *180.);
+  G4double mott = Mott(energy,theta/pi *180.) * 50;
 
   if(debugPrint)
     G4cout<<__PRETTY_FUNCTION__<<G4endl
