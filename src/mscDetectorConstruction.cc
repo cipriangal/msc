@@ -79,7 +79,9 @@ G4VPhysicalVolume* mscDetectorConstruction::Construct()
   //return BuildQweakGeometry();
 
   // Define volumes
-  if( nrUnits == -1 )                                   
+  if( nrUnits == -2)
+    return BuildTwoPb();
+  else if( nrUnits == -1 )                                   
     return BuildQweakGeometry();
   else if( nrUnits == 0 )
     return BuildSimpleDetector();
@@ -429,6 +431,154 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildSimpleDetector()
   G4VisAttributes* radiatorVisAtt = new G4VisAttributes(blue);
   radiatorVisAtt->SetVisibility(true);
   radiatorLogical->SetVisAttributes(radiatorVisAtt);
+
+  //
+  //Detector
+  //
+  G4VSolid* detectorSolid 
+    = new G4Box("detectorSol",  // its name
+		SizeX/2, SizeY/2, detectorThickness/2); // its size
+  
+  G4LogicalVolume* detectorLogical
+    = new G4LogicalVolume(
+			  detectorSolid,     // its solid
+			  detectorMaterial,  // its material
+			  "detectorLogical");// its name
+  //detectorLogical->SetUserLimits(new G4UserLimits(0.0, 0.0, 0.0, DBL_MAX, DBL_MAX));
+  
+  new G4PVPlacement(
+		    0,                // no rotation
+		    G4ThreeVector(0., 0., 5.*cm), 
+		    detectorLogical,  // its logical volume                    
+		    "detector",       // its name
+		    worldLV,// its mother  volume
+		    false,            // no boolean operation
+		    0,                // copy number
+		    fCheckOverlaps);  // checking overlaps 
+  
+  G4Colour  red(255/255.,0/255.,0/255.);
+  G4VisAttributes* detectorVisAtt = new G4VisAttributes(red);
+  detectorVisAtt->SetVisibility(true);
+  detectorLogical->SetVisAttributes(detectorVisAtt);
+  
+  
+  //                                        
+  // Visualization attributes
+  //
+  worldLV->SetVisAttributes (G4VisAttributes::Invisible);
+  
+  
+  //
+  // Always return the physical World
+  //
+  return worldPV;
+} 
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+G4VPhysicalVolume* mscDetectorConstruction::BuildTwoPb()
+{
+  // Geometry parameters
+  G4double detectorThickness = 0.01 * mm;
+  G4double SizeX  = 200. * cm;
+  G4double SizeY  =  20. * cm;
+  G4double worldSizeXY = 400 * cm;
+  G4double worldSizeZ  =  50 * cm; 
+  
+  // Get materials
+  G4Material* vacuumMaterial=G4Material::GetMaterial("Galactic");
+  G4Material* defaultMaterial  = G4Material::GetMaterial("Air");
+  G4Material* radiatorMaterial = G4Material::GetMaterial("PBA");
+  G4Material* detectorMaterial = G4Material::GetMaterial("detectorMat");
+  
+  if ( !defaultMaterial || !radiatorMaterial || !detectorMaterial || !vacuumMaterial ) {
+    G4cerr << __PRETTY_FUNCTION__ << " Cannot retrieve materials already defined. " << G4endl;
+    G4cerr << "Exiting application " << G4endl;
+    exit(1);
+  }  
+  
+  //     
+  // World
+  //
+  G4VSolid* worldS 
+    = new G4Box("World",           // its name
+		worldSizeXY, worldSizeXY, worldSizeZ); // its size
+  
+  G4LogicalVolume* worldLV
+    = new G4LogicalVolume(
+			  worldS,           // its solid
+			  //defaultMaterial,  // its material
+			  vacuumMaterial,  // its material
+			  "World");         // its name
+  
+  G4VPhysicalVolume* worldPV
+    = new G4PVPlacement(
+			0,                // no rotation
+			G4ThreeVector(),  // at (0,0,0)
+			worldLV,          // its logical volume                         
+			"World",          // its name
+			0,                // its mother  volume
+			false,            // no boolean operation
+			0,                // copy number
+			fCheckOverlaps);  // checking overlaps 
+  
+      
+  //
+  //Radiator
+  //
+  G4VSolid* radiatorDefSol
+    = new G4Box("radiatorDef",		   // its name
+		SizeX/2., SizeY/2., 15 * mm /2.); // its size
+  
+  G4LogicalVolume* radiatorDefLogical
+    = new G4LogicalVolume(
+			  radiatorDefSol,    // its solid
+			  radiatorMaterial, // its material
+			  "radiatorDefLogical");  // its name
+  G4VSolid* radiatorStpSol
+    = new G4Box("radiatorStp",		   // its name
+		SizeX/2., SizeY/2., 5 * mm /2.); // its size
+  
+  G4LogicalVolume* radiatorStpLogical
+    = new G4LogicalVolume(
+			  radiatorStpSol,    // its solid
+			  radiatorMaterial, // its material
+			  "radiatorStpLogical");  // its name
+
+  // define step limitation for this container
+  if(stepSizeG4>0){
+    G4cout<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<G4endl
+	  <<"\tstepSize: "<<stepSizeG4<<G4endl;
+    radiatorStpLogical->SetUserLimits(new G4UserLimits(stepSizeG4));
+  }else{
+    G4cout<<__LINE__<<"\t"<<__PRETTY_FUNCTION__<<G4endl
+	  <<"\tdefault stepSize "<<G4endl;
+  }
+  // define step limitation for this container
+
+  new G4PVPlacement(
+		    0,                   // no rotation
+		    G4ThreeVector(0., 0., 15*mm/2.), 
+		    radiatorDefLogical,     // its logical volume                         
+		    "RadiatorDef",          // its name
+		    worldLV,// its mother  volume
+		    false,               // no boolean operation
+		    0,                   // copy number
+		    fCheckOverlaps);     // checking overlaps 
+  new G4PVPlacement(
+		    0,                   // no rotation
+		    G4ThreeVector(0., 0., 15*mm + 5*mm/2.), 
+		    radiatorStpLogical,     // its logical volume                         
+		    "RadiatorStp",          // its name
+		    worldLV,// its mother  volume
+		    false,               // no boolean operation
+		    0,                   // copy number
+		    fCheckOverlaps);     // checking overlaps 
+  
+  G4Colour  blue(0/255.,0/255.,255/255.);
+  G4VisAttributes* radiatorVisAtt = new G4VisAttributes(blue);
+  radiatorVisAtt->SetVisibility(true);
+  radiatorDefLogical->SetVisAttributes(radiatorVisAtt);
+  radiatorStpLogical->SetVisAttributes(radiatorVisAtt);
 
   //
   //Detector

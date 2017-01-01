@@ -26,6 +26,7 @@ private:
   // methods
   //
   void DefineMaterials();  
+  G4VPhysicalVolume* BuildTwoPb();
   G4VPhysicalVolume* BuildQweakGeometry();
   G4VPhysicalVolume* BuildSimpleDetector();
   G4VPhysicalVolume* BuildStackedDetector();
