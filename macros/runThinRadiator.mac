@@ -1,0 +1,34 @@
+## needed for simple simulation .. has no effect on stacked/QweakSimG4
+/msc/det/setRadiatorThickness 30 um
+
+### x>0 set max step size for Pb to x
+/msc/det/setStepSizeG4 -0.2 mm
+
+## 0 for simple sim, -1 for QweakSimG4 (not yet implemented), n>0 for stacks
+### this has to be the last command related to geometry (it updates the geometry)
+/msc/setNrUnits 0
+
+## int with the form: a*2^1+b*2^2."
+##    if you want to modify trajectory a=1"
+##    if you want to reduce to 2 dimensions b=1"
+/msc/physicsProcesses/settingFlag 0
+
+## set beam energy with units (default is 1160-0.511 MeV)
+/msc/PrimaryEventGen/beamEnergy 20 MeV
+
+## polarization for the parimary event (L,mL,V,mV accepted)
+/msc/PrimaryEventGen/setPolarization L
+
+## writeTree: 0 - no output; 1 - output in detector material; 2 - all steps
+/msc/SteppingAction/setWriteTree 2
+/msc/SteppingAction/setWriteANdata 0
+
+### set the output file name
+/msc/SteppingAction/setOutputFileName msc_L030um_20MeV_1e5ev 
+
+### the initOutput should always be there!!
+/msc/SteppingAction/initOutput 1
+
+/msc/event/setPrintModulo 10000
+
+/run/beamOn 100000
