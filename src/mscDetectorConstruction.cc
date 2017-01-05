@@ -348,7 +348,7 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildStackedDetector()
 G4VPhysicalVolume* mscDetectorConstruction::BuildSimpleDetector()
 {
   // Geometry parameters
-  G4double detectorThickness = 0.01 * mm;
+  G4double detectorThickness = 0.001 * mm;
   G4double SizeX  = 200. * cm;
   G4double SizeY  =  20. * cm;
   G4double worldSizeXY = 400 * cm;
@@ -448,7 +448,7 @@ G4VPhysicalVolume* mscDetectorConstruction::BuildSimpleDetector()
   
   new G4PVPlacement(
 		    0,                // no rotation
-		    G4ThreeVector(0., 0., 5.*cm), 
+		    G4ThreeVector(0., 0., radiatorThickness + detectorThickness/2), 
 		    detectorLogical,  // its logical volume                    
 		    "detector",       // its name
 		    worldLV,// its mother  volume
