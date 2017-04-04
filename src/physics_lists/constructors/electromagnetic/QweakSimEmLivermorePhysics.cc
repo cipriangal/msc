@@ -21,9 +21,9 @@ void QweakSimEmLivermorePhysics::ConstructProcess()
   G4double highEnergyLimit = 100*MeV;
   
   // Add standard EM Processes
-  //#if G4VERSION_NUMBER >= 1030
+#if G4VERSION_NUMBER >= 1030
   auto aParticleIterator = GetParticleIterator();
-  //#endif
+#endif
 
   aParticleIterator->reset();
   while( (*aParticleIterator)() ){

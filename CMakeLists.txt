@@ -23,6 +23,10 @@ else()
                    OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
+execute_process(COMMAND geant4-config --version	
+                OUTPUT_VARIABLE GEANT4_VERSION	
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+message(STATUS "Found Geant4 ${GEANT4_VERSION}")
 message(STATUS "Found Geant4 ${GEANT4_VERSION}")
 
 # Add the project include directory and put all source files in sources
@@ -49,6 +53,7 @@ message(STATUS "Geant4 include files come from: ${Geant4_USE_FILE}")
 find_package(ROOT REQUIRED)
 include_directories(${ROOT_INCLUDE_DIR})
 
+add_definitions(-std=c++11)
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
