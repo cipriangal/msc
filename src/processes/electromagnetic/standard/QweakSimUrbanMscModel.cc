@@ -167,6 +167,7 @@ QweakSimUrbanMscModel::QweakSimUrbanMscModel(std::vector<double> *asInfo,const G
   currentMaterialIndex = -1;
   fParticleChange = 0;
   couple = 0;
+  rndmEngineMod = G4Random::getTheEngine();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
